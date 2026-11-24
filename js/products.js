@@ -1,5 +1,11 @@
 // Codeovision Store — product data (single source for site + admin panel)
-// NOTE: Payment number/title and prices are placeholders — Kinza to confirm.
+// NOTE: Payment number/title are CONFIRMED by Bilal (24 Nov 2026).
+// Base currency is USD (v11). Prices below are Bilal's Rs 499/999/1499 converted at 280 PKR/USD — confirm USD prices with Bilal.
+const CURRENCY = {
+  base: "USD",
+  pkrRate: 280,   // PKR per $1 — admin can change this in Payment Settings (settings/currency)
+};
+
 const PAYMENT = {
   easypaisa: "03037102625",    // CONFIRMED 24 Nov 2026 — Bilal's Easypaisa number
   jazzcash: "03037102625",     // CONFIRMED 24 Nov 2026 — same number for JazzCash (Bilal)
@@ -42,7 +48,7 @@ const PAID_PRODUCTS = [
     title: "Premium Portfolio Pack",
     desc: "3 premium portfolio templates — dark, light aur creative styles. Har template responsive aur asaan customize.",
     tag: "Premium",
-    price: 499,
+    price: 1.78,   // Rs 499 @ 280 — confirm
     features: ["3 complete templates", "Responsive design", "Lifetime updates"]
   },
   {
@@ -50,7 +56,7 @@ const PAID_PRODUCTS = [
     title: "Website Template Bundle",
     desc: "5 complete website templates — portfolio, business, restaurant, blog aur landing page. Ek bundle, poori website kit.",
     tag: "Best Value",
-    price: 999,
+    price: 3.57,   // Rs 999 @ 280 — confirm
     features: ["5 complete templates", "All sections included", "Lifetime updates"]
   },
   {
@@ -58,7 +64,7 @@ const PAID_PRODUCTS = [
     title: "JavaScript Projects Pack",
     desc: "10 ready-made JavaScript projects — slider, todo app, calculator, quiz, gallery aur bhi. Seekhein aur use karein.",
     tag: "Premium",
-    price: 1499,
+    price: 5.35,   // Rs 1499 @ 280 — confirm
     features: ["10 JS projects", "Step-by-step code", "Lifetime updates"]
   }
 ];
