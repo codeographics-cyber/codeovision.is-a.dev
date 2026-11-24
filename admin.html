@@ -63,6 +63,12 @@
         <button data-section="sec-pending">Pending Products</button>
         <button data-section="sec-add">Add Product</button>
         <button data-section="sec-orders">Orders</button>
+        <button data-section="sec-coupons">Coupons</button>
+        <button data-section="sec-bundles">Bundles</button>
+        <button data-section="sec-licences">Licences</button>
+        <button data-section="sec-carts">Abandoned Carts</button>
+        <button data-section="sec-ledger">Wallet Ledger</button>
+        <button data-section="sec-settings">Store Settings</button>
         <button data-section="sec-refunds">Refund Requests</button>
         <button data-section="sec-deposits">Deposits</button>
         <button data-section="sec-withdrawals">Withdrawals</button>
@@ -155,10 +161,10 @@
           <h2>Add Product</h2>
           <div class="admin-card">
             <p style="color:#6b7280;margin-bottom:12px">Post a free or paid product from one form — select the Type, and paste the download link in one place.</p>
-            <label>Thumbnail Image</label>
+            <label>Thumbnail Image <span style="color:#dc2626">*</span></label>
             <input type="file" id="p-thumb-file" accept="image/*">
-            <p style="color:#6b7280;font-size:13px;margin:-6px 0 12px">Recommended size: 1200×630px — any image auto-resizes into one frame, so all pictures look uniform on the front site.</p>
-            <label>…or Thumbnail Image URL</label>
+            <p style="color:#6b7280;font-size:13px;margin:-6px 0 12px">Required — every product needs an image so buyers can see what it is. Recommended size: 1200×630px — any image auto-resizes into one frame, so all pictures look uniform on the front site.</p>
+            <label>…or Thumbnail Image URL <span style="color:#dc2626">*</span></label>
             <input type="text" id="p-thumb-url" placeholder="e.g. https://example.com/image.jpg">
             <label>Title</label>
             <input type="text" id="p-title" placeholder="e.g. Premium Landing Page Pack">
@@ -172,11 +178,25 @@
               <option value="paid">Paid</option>
             </select>
             <div id="price-row" style="display:none">
-              <label>Price (Rs)</label>
-              <input type="number" id="p-price" placeholder="e.g. 999">
+              <label>Price ($)</label>
+              <input type="number" id="p-price" placeholder="e.g. 1.78" step="0.01" min="0">
             </div>
             <label>Download Link</label>
             <input type="text" id="p-file" placeholder="e.g. https://drive.google.com/... or a file link">
+            <label>File Size</label>
+            <input type="text" id="p-size" placeholder="e.g. 1.2 MB">
+            <label>Format</label>
+            <input type="text" id="p-format" placeholder="e.g. HTML + CSS + JS">
+            <label>Version</label>
+            <input type="text" id="p-version" placeholder="e.g. 1.0" value="1.0">
+            <label>Requirements</label>
+            <input type="text" id="p-req" placeholder="e.g. Any modern browser — no build step">
+            <label>Live Demo URL (optional)</label>
+            <input type="text" id="p-demo" placeholder="e.g. https://example.com/demo">
+            <label>Licence Activations Allowed (paid products)</label>
+            <input type="number" id="p-maxact" placeholder="e.g. 1" min="1" value="1">
+            <label>What's Included (one per line)</label>
+            <textarea id="p-includes" rows="3" placeholder="e.g. index.html — full page&#10;style.css — all styling"></textarea>
             <button class="btn teal" id="add-product-btn">Add Product</button>
             <p id="add-msg" style="color:#15803d;margin-top:10px"></p>
           </div>
@@ -212,8 +232,8 @@
           <div class="admin-card">
             <p style="color:#6b7280;margin-bottom:12px">Users' deposit requests — verify the payment, then Approve, and the balance is added instantly.</p>
             <table class="admin-table">
-              <thead><tr><th>User</th><th>Gateway</th><th>Amount</th><th>TxID</th><th>Status</th><th></th></tr></thead>
-              <tbody id="deposits-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+              <thead><tr><th>User</th><th>Gateway</th><th>Amount</th><th>TxID</th><th>Proof</th><th>Status</th><th></th></tr></thead>
+              <tbody id="deposits-body"><tr><td colspan="7">Loading…</td></tr></tbody>
             </table>
           </div>
         </section>
@@ -227,6 +247,123 @@
               <thead><tr><th>User</th><th>Amount</th><th>Gateway</th><th>Account</th><th>Status</th><th></th></tr></thead>
               <tbody id="withdrawals-body"><tr><td colspan="6">Loading…</td></tr></tbody>
             </table>
+          </div>
+        </section>
+
+        <!-- COUPONS -->
+        <section id="sec-coupons" class="admin-section" style="display:none">
+          <h2>Coupons</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Discount codes for the cart — % or fixed amount, with expiry and usage limits.</p>
+            <label>Coupon Code</label>
+            <input type="text" id="cp-code" placeholder="e.g. WELCOME10">
+            <label>Type</label>
+            <select id="cp-type">
+              <option value="percent">Percent % off</option>
+              <option value="fixed">Fixed $ off</option>
+            </select>
+            <label>Value</label>
+            <input type="number" id="cp-value" placeholder="e.g. 10" min="0" step="0.01">
+            <label>Minimum Spend ($) — optional</label>
+            <input type="number" id="cp-min" placeholder="e.g. 5" min="0" step="0.01">
+            <label>Max Uses — optional (empty = unlimited)</label>
+            <input type="number" id="cp-max" placeholder="e.g. 100" min="1">
+            <label>Expiry Date — optional</label>
+            <input type="date" id="cp-exp">
+            <button class="btn teal" id="add-coupon-btn">Add Coupon</button>
+            <p id="cp-msg" style="color:#15803d;margin-top:10px"></p>
+          </div>
+          <div class="admin-card">
+            <h2>Coupons</h2>
+            <table class="admin-table">
+              <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Min Spend</th><th>Used</th><th>Expires</th><th></th></tr></thead>
+              <tbody id="coupons-body"><tr><td colspan="7">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- BUNDLES -->
+        <section id="sec-bundles" class="admin-section" style="display:none">
+          <h2>Bundles</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Several products, one price — buyers get each item individually, so a refund can target one item.</p>
+            <label>Bundle Title</label>
+            <input type="text" id="bd-title" placeholder="e.g. Starter Website Kit">
+            <label>Description</label>
+            <textarea id="bd-desc" rows="2" placeholder="What is in the bundle?"></textarea>
+            <label>Products in this bundle</label>
+            <div id="bd-products" style="margin-bottom:12px"><span style="color:#6b7280">Loading products…</span></div>
+            <label>Bundle Price ($)</label>
+            <input type="number" id="bd-price" placeholder="e.g. 4.99" min="0" step="0.01">
+            <label>Thumbnail Image URL (optional)</label>
+            <input type="text" id="bd-thumb" placeholder="e.g. https://example.com/bundle.jpg">
+            <button class="btn teal" id="add-bundle-btn">Add Bundle</button>
+            <p id="bd-msg" style="color:#15803d;margin-top:10px"></p>
+          </div>
+          <div class="admin-card">
+            <h2>Bundles</h2>
+            <table class="admin-table">
+              <thead><tr><th>Title</th><th>Products</th><th>Price</th><th></th></tr></thead>
+              <tbody id="bundles-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- LICENCES -->
+        <section id="sec-licences" class="admin-section" style="display:none">
+          <h2>Licences</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Every approved order gets a licence key. Revoke a key on refund or abuse; reissue gives the buyer a fresh key.</p>
+            <table class="admin-table">
+              <thead><tr><th>Key</th><th>Product</th><th>User</th><th>Activations</th><th>Status</th><th></th></tr></thead>
+              <tbody id="licences-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ABANDONED CARTS -->
+        <section id="sec-carts" class="admin-section" style="display:none">
+          <h2>Abandoned Carts</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Carts saved by logged-in users who did not check out. Follow up with them on WhatsApp or email.</p>
+            <table class="admin-table">
+              <thead><tr><th>User</th><th>Items</th><th>Total</th><th>Last Updated</th></tr></thead>
+              <tbody id="carts-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- WALLET LEDGER -->
+        <section id="sec-ledger" class="admin-section" style="display:none">
+          <h2>Wallet Ledger</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Every wallet movement — deposits, purchases, refunds, commissions, level rewards and withdrawals — with the reason.</p>
+            <table class="admin-table">
+              <thead><tr><th>Date</th><th>User</th><th>Type</th><th>Amount</th><th>Note</th></tr></thead>
+              <tbody id="ledger-body"><tr><td colspan="5">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- STORE SETTINGS -->
+        <section id="sec-settings" class="admin-section" style="display:none">
+          <h2>Store Settings</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Policy values — change them here; the store enforces whatever is saved. No value is fixed in code.</p>
+            <label>Refund Policy Text (shown on the front site)</label>
+            <textarea id="st-refund" rows="3" placeholder="If a product does not work as described, request a refund from your dashboard. The admin reviews every request."></textarea>
+            <label>Download Link Expiry (days after approval)</label>
+            <input type="number" id="st-expiry" placeholder="e.g. 7" min="1">
+            <label>Download Max Attempts per order</label>
+            <input type="number" id="st-attempts" placeholder="e.g. 5" min="1">
+            <label>Minimum Deposit ($)</label>
+            <input type="number" id="st-mindep" placeholder="e.g. 1" min="0" step="0.01">
+            <label>Minimum Withdrawal ($)</label>
+            <input type="number" id="st-minwd" placeholder="e.g. 5" min="0" step="0.01">
+            <label>Withdrawal Fee (%)</label>
+            <input type="number" id="st-wdfee" placeholder="e.g. 0" min="0" max="100" step="0.01">
+            <button class="btn teal" id="save-settings-btn">Save Settings</button>
+            <p id="st-msg" style="color:#15803d;margin-top:10px"></p>
           </div>
         </section>
 
@@ -250,12 +387,15 @@
             <p style="color:#6b7280;margin-bottom:12px">Set the % commission a referrer earns on every sale.</p>
             <label>Commission (%)</label>
             <input type="number" id="aff-pct" placeholder="e.g. 10" min="0" max="100">
+            <label>Hold Period (days) — commissions cannot be approved until this many days after the order, so refunds don't get paid out as commission</label>
+            <input type="number" id="aff-hold" placeholder="e.g. 30" min="0">
             <button class="btn teal" id="save-aff-btn">Save Commission</button>
             <p id="aff-msg" style="color:#15803d;margin-top:10px"></p>
           </div>
           <div class="admin-card">
             <h2>Commissions</h2>
-            <p style="color:#6b7280;margin-bottom:12px">Approving adds the commission to the referrer's wallet balance.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Ledger: pending → approved (added to the referrer's wallet balance) → paid (payout sent). Approving adds the commission to the referrer's wallet balance.</p>
+            <button class="btn small" id="commissions-csv-btn" style="margin-bottom:12px">Download CSV</button>
             <table class="admin-table">
               <thead><tr><th>Referrer</th><th>Buyer</th><th>Product</th><th>Total</th><th>Commission</th><th>Status</th><th></th></tr></thead>
               <tbody id="commissions-body"><tr><td colspan="7">Loading…</td></tr></tbody>
@@ -271,6 +411,11 @@
             <div id="support-users" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"><span style="color:#6b7280">Loading…</span></div>
             <div id="support-convo" style="display:none">
               <h3 id="support-who" style="margin-bottom:10px"></h3>
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+                <span>Status: <strong id="admin-chat-status">Open</strong></span>
+                <button class="btn small" id="admin-chat-close-btn">Close Chat</button>
+                <button class="btn small" id="admin-chat-reopen-btn" style="display:none">Reopen Chat</button>
+              </div>
               <div class="chat-box" id="admin-chat-box"></div>
               <div id="admin-chat-typing" style="color:#6b7280;font-style:italic;font-size:14px;min-height:20px;margin-bottom:6px"></div>
               <div class="chat-input-row">
@@ -327,6 +472,14 @@
             <table class="admin-table">
               <thead><tr><th>Level</th><th>Sales</th><th>Commission</th><th>Reward</th><th></th></tr></thead>
               <tbody id="levels-body"><tr><td colspan="5">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div class="admin-card">
+            <h2>Rank Reward Claims</h2>
+            <p style="color:#6b7280;margin-bottom:12px">When a user reaches a new rank, a claim appears here. Approving adds the reward to their balance (users cannot add money to their own balance — claims keep it secure).</p>
+            <table class="admin-table">
+              <thead><tr><th>User</th><th>Level</th><th>Reward</th><th>Status</th><th></th></tr></thead>
+              <tbody id="level-claims-body"><tr><td colspan="5">Loading…</td></tr></tbody>
             </table>
           </div>
         </section>
@@ -393,8 +546,11 @@
             <p style="color:#6b7280;margin-bottom:12px">Gateways set here appear for users in Deposit and Withdraw.</p>
             <label>Gateway Name</label>
             <select id="gw-name">
+              <option>Till ID</option>
               <option>Easypaisa</option>
               <option>JazzCash</option>
+              <option>USDT TRC20</option>
+              <option>USDT BEP20</option>
               <option>NayaPay</option>
               <option>SadaPay</option>
               <option>Bank Transfer</option>
@@ -464,6 +620,7 @@ function showToast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { t.style.display = 'none'; }, 4000);
 }
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
 // ---- Sidebar section switching + mobile drawer (Muse-style left menu) ----
 const adminSidebar = document.getElementById('admin-sidebar');
@@ -486,6 +643,12 @@ function showSection(id) {
   if (id === 'sec-products') { loadProducts(); loadFreeProducts(); }
   if (id === 'sec-pending') loadPendingProducts();
   if (id === 'sec-orders') loadOrders();
+  if (id === 'sec-coupons') loadCoupons();
+  if (id === 'sec-bundles') loadBundlesAdmin();
+  if (id === 'sec-licences') loadLicencesAdmin();
+  if (id === 'sec-carts') loadAbandonedCarts();
+  if (id === 'sec-ledger') loadLedgerAdmin();
+  if (id === 'sec-settings') loadStoreSettings();
   if (id === 'sec-refunds') loadRefunds();
   if (id === 'sec-deposits') loadDeposits();
   if (id === 'sec-withdrawals') loadWithdrawals();
@@ -494,7 +657,7 @@ function showSection(id) {
   if (id === 'sec-support') loadSupportUsers();
   if (id === 'sec-payments') loadGateways();
   if (id === 'sec-slider') loadSlides();
-  if (id === 'sec-levels') loadLevels();
+  if (id === 'sec-levels') { loadLevels(); loadLevelClaims(); }
   if (id === 'sec-tasks') loadTasks();
   if (id === 'sec-currency') loadCurrency();
   if (id === 'sec-users') loadUsers();
@@ -571,6 +734,10 @@ if (FIREBASE_READY) {
       loadReviews();
       loadCommissions();
       loadAffiliateSettings();
+      loadCoupons();
+      loadBundlesAdmin();
+      loadLicencesAdmin();
+      loadStoreSettings();
     } else {
       loginCard.style.display = 'block';
       dashboard.style.display = 'none';
@@ -631,7 +798,8 @@ async function loadOrders() {
       tr.innerHTML = '<td>' + (o.orderId || doc.id) + '</td><td>' + (o.product || (o.items ? o.items.map(i => i.title + ' ×' + i.qty).join(', ') : '')) + '</td><td>$' + (o.total || o.price || '') + '</td><td>' + (o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleString() : '') + '</td>' +
         '<td><span class="badge ' + (o.status || 'pending') + '">' + (o.status || 'pending') + '</span></td>' +
         '<td>' + (o.status === 'pending' ? '<button class="btn small" onclick="setStatus(\'' + doc.id + '\',\'paid\')">Mark Paid</button> ' : '') +
-        (o.status !== 'delivered' ? '<button class="btn small" onclick="setStatus(\'' + doc.id + '\',\'delivered\')">Mark Delivered</button>' : '') + '</td>';
+        (o.status === 'pending' ? '<button class="btn small" onclick="setStatus(\'' + doc.id + '\',\'rejected\')">Reject</button> ' : '') +
+        (o.status !== 'delivered' && o.status !== 'rejected' && o.status !== 'refunded' ? '<button class="btn small" onclick="setStatus(\'' + doc.id + '\',\'delivered\')">Mark Delivered</button>' : '') + (o.rejectReason ? '<br><span style="color:#dc2626;font-size:12px">' + esc(o.rejectReason) + '</span>' : '') + '</td>';
       body.appendChild(tr);
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
@@ -719,15 +887,47 @@ async function approveProduct(col, id) {
 async function setStatus(id, status) {
   const ref = db.collection('orders').doc(id);
   const snap = await ref.get();
-  const o = snap.data();
-  await ref.update({ status });
-  if (status === 'paid' && o && o.items) {
-    for (const it of o.items) {
-      if (it.id) {
-        await db.collection('products').doc(it.id).update({ sales: firebase.firestore.FieldValue.increment(it.qty || 1) }).catch(() => {});
-      }
+  const o = snap.data() || {};
+  // Approve (Mark Paid) = RELEASE: files + licence key + download window.
+  // Nothing is released before this — a pending order can never download.
+  if (status === 'paid' && o.status === 'pending') {
+    const key = 'CV-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+    const dl = await db.collection('settings').doc('downloads').get().catch(() => null);
+    const expiryDays = (dl && dl.exists && Number(dl.data().expiryDays)) || 7;
+    const downloadLinks = {};
+    for (const it of (o.items || [])) {
+      if (!it.id) continue;
+      let file = '';
+      try { const pd = await db.collection('products').doc(it.id).get(); if (pd.exists) file = pd.data().file || ''; } catch (e) {}
+      if (!file && typeof PAID_PRODUCTS !== 'undefined') { const bp = PAID_PRODUCTS.find(x => x.id === it.id); if (bp) file = bp.file || ''; }
+      if (file) downloadLinks[it.id] = file;
     }
+    const expiresAt = new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000);
+    await ref.update({ status: 'paid', licenceKey: key, downloadLinks: downloadLinks, downloadExpiresAt: firebase.firestore.Timestamp.fromDate(expiresAt), deliveredAt: firebase.firestore.FieldValue.serverTimestamp(), downloadCount: 0 });
+    for (const it of (o.items || [])) {
+      if (!it.id) continue;
+      let maxAct = 1;
+      try { const pd = await db.collection('products').doc(it.id).get(); if (pd.exists && pd.data().maxActivations) maxAct = Number(pd.data().maxActivations); } catch (e) {}
+      await db.collection('licences').add({ key: key, productId: it.id, productTitle: it.title, email: o.email, orderId: o.orderId || id, activations: 0, maxActivations: maxAct, status: 'active', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      await db.collection('products').doc(it.id).update({ sales: firebase.firestore.FieldValue.increment(it.qty || 1) }).catch(() => {});
+    }
+    // Wallet-balance payment: deduct the total from the buyer's balance now.
+    if (o.paymentMethod === 'balance' && o.email && o.total) {
+      await db.collection('users').doc(o.email).set({ balance: firebase.firestore.FieldValue.increment(-Number(o.total)) }, { merge: true });
+      await db.collection('wallet_ledger').add({ email: o.email, type: 'purchase', amount: -Number(o.total), note: 'Order ' + (o.orderId || id) + ' paid from wallet balance', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+    loadOrders(); loadStats(); loadProducts(); loadRecentOrders();
+    showToast('Order approved — files + licence key released to the buyer.');
+    return;
   }
+  if (status === 'rejected') {
+    const reason = prompt('Rejection reason (shown to the buyer):') || '';
+    await ref.update({ status: 'rejected', rejectReason: reason });
+    loadOrders(); loadStats(); loadRecentOrders();
+    showToast('Order rejected.');
+    return;
+  }
+  await ref.update({ status });
   loadOrders();
   loadStats();
   loadProducts();
@@ -786,14 +986,44 @@ async function loadRefunds() {
   } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
 }
 async function setRefund(refundId, orderDocId, status) {
+  const rSnap = await db.collection('refunds').doc(refundId).get().catch(() => null);
+  const r = (rSnap && rSnap.exists) ? rSnap.data() : {};
   await db.collection('refunds').doc(refundId).update({ status });
   if (status === 'approved' && orderDocId) {
     await db.collection('orders').doc(orderDocId).update({ status: 'refunded' }).catch(() => {});
+    // Revoke access: licences for this order → revoked (buyer keeps nothing).
+    if (r.orderId) {
+      const licSnap = await db.collection('licences').where('orderId', '==', r.orderId).get().catch(() => null);
+      if (licSnap) licSnap.forEach(doc => doc.ref.update({ status: 'revoked' }));
+      // Reverse the affiliate commission on this order (take it back if already paid out).
+      const comSnap = await db.collection('commissions').where('orderId', '==', r.orderId).get().catch(() => null);
+      if (comSnap) {
+        for (const doc of comSnap.docs) {
+          const c = doc.data();
+          if (c.status === 'approved' && c.referrerEmail && c.amount) {
+            await db.collection('users').doc(c.referrerEmail).set({ balance: firebase.firestore.FieldValue.increment(-Number(c.amount)) }, { merge: true });
+            await db.collection('wallet_ledger').add({ email: c.referrerEmail, type: 'commission_reversal', amount: -Number(c.amount), note: 'Commission reversed — refund of order ' + r.orderId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+          }
+          await doc.ref.update({ status: 'reversed' });
+        }
+      }
+    }
+    // Refund the buyer if they paid from wallet balance.
+    const oSnap = await db.collection('orders').doc(orderDocId).get().catch(() => null);
+    const o = (oSnap && oSnap.exists) ? oSnap.data() : {};
+    if (o.paymentMethod === 'balance' && o.email && o.total) {
+      await db.collection('users').doc(o.email).set({ balance: firebase.firestore.FieldValue.increment(Number(o.total)) }, { merge: true });
+      await db.collection('wallet_ledger').add({ email: o.email, type: 'refund', amount: Number(o.total), note: 'Refund for order ' + (o.orderId || ''), createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+  }
+  if (status === 'rejected') {
+    const reason = prompt('Rejection reason (shown to the buyer, optional):') || '';
+    await db.collection('refunds').doc(refundId).update({ rejectReason: reason }).catch(() => {});
   }
   loadRefunds();
   loadOrders();
   loadStats();
-  showToast(status === 'approved' ? 'Refund approved.' : 'Refund rejected.');
+  showToast(status === 'approved' ? 'Refund approved — access revoked, commission reversed.' : 'Refund rejected.');
 }
 
 // ---- Deposits ----
@@ -801,22 +1031,25 @@ async function loadDeposits() {
   const body = document.getElementById('deposits-body');
   try {
     const snap = await db.collection('deposits').orderBy('createdAt', 'desc').limit(50).get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">No deposit requests yet.</td></tr>'; return; }
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="7">No deposit requests yet.</td></tr>'; return; }
     body.innerHTML = '';
     snap.forEach(doc => {
       const d = doc.data();
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (d.email || '') + '</td><td>' + (d.gateway || '') + '</td><td>$' + (d.amount || '') + '</td><td>' + (d.txid || '') + '</td>' +
+      const amt = '$' + (d.amountUsd ?? d.amount ?? '') + (d.amountPkr ? ' (≈ Rs ' + Number(d.amountPkr).toLocaleString('en-PK') + ')' : '');
+      const proof = d.proofUrl ? '<a href="' + esc(d.proofUrl) + '" target="_blank" rel="noopener"><img src="' + esc(d.proofUrl) + '" alt="Payment proof" style="width:48px;height:48px;object-fit:cover;border-radius:6px;display:block" onerror="this.style.display=\'none\'">View</a>' : '—';
+      tr.innerHTML = '<td>' + (d.email || '') + '</td><td>' + (d.gateway || '') + '</td><td>' + amt + '</td><td>' + (d.txid || '') + (d.txidDuplicate ? ' <span style="color:#dc2626;font-weight:bold">⚠️ Duplicate TxID</span>' : '') + '</td><td>' + proof + '</td>' +
         '<td><span class="badge ' + (d.status || 'pending') + '">' + (d.status || 'pending') + '</span></td>' +
-        '<td>' + (d.status === 'pending' ? '<button class="btn small" onclick="setDeposit(\'' + doc.id + '\',\'' + (d.email || '') + '\',' + (Number(d.amount) || 0) + ',\'approved\')">Approve</button> <button class="btn small" onclick="setDeposit(\'' + doc.id + '\',\'' + (d.email || '') + '\',0,\'rejected\')">Reject</button>' : '') + '</td>';
+        '<td>' + (d.status === 'pending' ? '<button class="btn small" onclick="setDeposit(\'' + doc.id + '\',\'' + (d.email || '') + '\',' + (Number(d.amountUsd ?? d.amount) || 0) + ',\'approved\')">Approve</button> <button class="btn small" onclick="setDeposit(\'' + doc.id + '\',\'' + (d.email || '') + '\',0,\'rejected\')">Reject</button>' : '') + '</td>';
       body.appendChild(tr);
     });
-  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
+  } catch (e) { body.innerHTML = '<tr><td colspan="7">Error: ' + e.message + '</td></tr>'; }
 }
 async function setDeposit(id, email, amount, status) {
   await db.collection('deposits').doc(id).update({ status });
   if (status === 'approved' && email && amount) {
     await db.collection('users').doc(email).set({ balance: firebase.firestore.FieldValue.increment(amount) }, { merge: true });
+    await db.collection('wallet_ledger').add({ email: email, type: 'deposit', amount: amount, note: 'Deposit approved', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
   }
   loadDeposits();
   showToast(status === 'approved' ? 'Deposit approved — balance added.' : 'Deposit rejected.');
@@ -843,6 +1076,7 @@ async function setWithdrawal(id, email, amount, status) {
   await db.collection('withdrawals').doc(id).update({ status });
   if (status === 'approved' && email && amount) {
     await db.collection('users').doc(email).set({ balance: firebase.firestore.FieldValue.increment(-amount) }, { merge: true });
+    await db.collection('wallet_ledger').add({ email: email, type: 'withdrawal', amount: -amount, note: 'Withdrawal approved — sent', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
   }
   loadWithdrawals();
   showToast(status === 'approved' ? 'Withdrawal approved — amount deducted from balance.' : 'Withdrawal rejected.');
@@ -876,16 +1110,37 @@ async function deleteReview(id) {
 async function loadAffiliateSettings() {
   try {
     const doc = await db.collection('settings').doc('affiliate').get();
-    if (doc.exists) document.getElementById('aff-pct').value = doc.data().commissionPercent ?? '';
+    if (doc.exists) {
+      document.getElementById('aff-pct').value = doc.data().commissionPercent ?? '';
+      document.getElementById('aff-hold').value = doc.data().holdDays ?? 30;
+    } else {
+      document.getElementById('aff-hold').value = 30;
+    }
   } catch (e) { /* settings not set yet */ }
 }
 document.getElementById('save-aff-btn').addEventListener('click', async () => {
   const msg = document.getElementById('aff-msg');
   const pct = parseInt(document.getElementById('aff-pct').value, 10);
+  const holdDays = parseInt(document.getElementById('aff-hold').value, 10);
   if (isNaN(pct) || pct < 0 || pct > 100) { msg.textContent = 'Enter a % between 0 and 100.'; return; }
-  await db.collection('settings').doc('affiliate').set({ commissionPercent: pct, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
-  msg.textContent = 'Commission " + pct + "% saved — referral sales will now earn this %.';
-  showToast('Affiliate commission set to " + pct + "%.');
+  await db.collection('settings').doc('affiliate').set({ commissionPercent: pct, holdDays: isNaN(holdDays) ? 30 : holdDays, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+  msg.textContent = 'Commission ' + pct + '% saved — referral sales will now earn this %. Hold: ' + (isNaN(holdDays) ? 30 : holdDays) + ' days.';
+  showToast('Affiliate commission set to ' + pct + '%.');
+});
+document.getElementById('commissions-csv-btn').addEventListener('click', async () => {
+  try {
+    const snap = await db.collection('commissions').orderBy('createdAt', 'desc').limit(500).get();
+    const rows = [['Referrer', 'Buyer', 'Order', 'Product', 'Total', 'Commission %', 'Amount', 'Status', 'Date']];
+    snap.forEach(doc => {
+      const c = doc.data();
+      rows.push([c.referrerEmail || '', c.buyerEmail || '', c.orderId || '', (c.productTitles || '').replace(/,/g, ';'), c.total || '', c.commissionPercent || '', c.amount || '', c.status || '', c.createdAt && c.createdAt.toDate ? c.createdAt.toDate().toISOString() : '']);
+    });
+    const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = 'commissions-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+  } catch (e) { showToast('CSV export failed: ' + e.message); }
 });
 async function loadCommissions() {
   const body = document.getElementById('commissions-body');
@@ -895,21 +1150,26 @@ async function loadCommissions() {
     body.innerHTML = '';
     snap.forEach(doc => {
       const c = doc.data();
+      const onHold = c.holdUntil && c.holdUntil.toDate && c.holdUntil.toDate() > new Date();
       const tr = document.createElement('tr');
       tr.innerHTML = '<td>' + (c.referrerEmail || '') + '</td><td>' + (c.buyerEmail || '') + '</td><td>' + (c.productTitles || '') + '</td><td>$' + (c.total || '') + '</td><td>$' + (c.amount || '') + ' (' + (c.commissionPercent || '') + '%)</td>' +
-        '<td><span class="badge ' + (c.status || 'pending') + '">' + (c.status || 'pending') + '</span></td>' +
-        '<td>' + (c.status === 'pending' ? '<button class="btn small" onclick="setCommission(\'' + doc.id + '\',\'' + (c.referrerEmail || '') + '\',' + (Number(c.amount) || 0) + ',\'approved\')">Approve</button> <button class="btn small" onclick="setCommission(\'' + doc.id + '\',\'' + (c.referrerEmail || '') + '\',0,\'rejected\')">Reject</button>' : '') + '</td>';
+        '<td><span class="badge ' + (c.status || 'pending') + '">' + (c.status || 'pending') + '</span>' + (onHold ? '<br><span style="color:#b45309;font-size:12px">On hold until ' + c.holdUntil.toDate().toLocaleDateString() + '</span>' : '') + '</td>' +
+        '<td>' + (c.status === 'pending' ? (onHold ? '' : '<button class="btn small" onclick="setCommission(\'' + doc.id + '\',\'' + (c.referrerEmail || '') + '\',' + (Number(c.amount) || 0) + ',\'approved\')">Approve</button> ') + '<button class="btn small" onclick="setCommission(\'' + doc.id + '\',\'' + (c.referrerEmail || '') + '\',0,\'rejected\')">Reject</button>' : '') +
+        (c.status === 'approved' ? '<button class="btn small" onclick="setCommission(\'' + doc.id + '\',\'' + (c.referrerEmail || '') + '\',0,\'paid\')">Mark Paid</button>' : '') + '</td>';
       body.appendChild(tr);
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="7">Error: ' + e.message + '</td></tr>'; }
 }
 async function setCommission(id, referrerEmail, amount, status) {
+  const cSnap = await db.collection('commissions').doc(id).get().catch(() => null);
+  const c = (cSnap && cSnap.exists) ? cSnap.data() : {};
   await db.collection('commissions').doc(id).update({ status });
   if (status === 'approved' && referrerEmail && amount) {
     await db.collection('users').doc(referrerEmail).set({ balance: firebase.firestore.FieldValue.increment(amount) }, { merge: true });
+    await db.collection('wallet_ledger').add({ email: referrerEmail, type: 'commission', amount: amount, note: 'Commission approved — order ' + (c.orderId || ''), createdAt: firebase.firestore.FieldValue.serverTimestamp() });
   }
   loadCommissions();
-  showToast(status === 'approved' ? 'Commission approved — added to the referrer balance.' : 'Commission rejected.');
+  showToast(status === 'approved' ? 'Commission approved — added to the referrer balance.' : status === 'paid' ? 'Commission marked as paid.' : 'Commission rejected.');
 }
 
 // ---- Support Chats (Messenger-style tunes + typing) ----
@@ -943,9 +1203,12 @@ function setAdminTyping(on) {
 async function loadSupportUsers() {
   const wrap = document.getElementById('support-users');
   try {
-    const snap = await db.collection('support_messages').orderBy('createdAt', 'desc').limit(200).get();
     const emails = [];
-    snap.forEach(doc => { const e = doc.data().email; if (e && !emails.includes(e)) emails.push(e); });
+    // Threads (support_chats) + any older flat messages not yet migrated.
+    const snap = await db.collection('support_chats').orderBy('updatedAt', 'desc').limit(100).get();
+    snap.forEach(doc => { const e = doc.data().userEmail; if (e && !emails.includes(e)) emails.push(e); });
+    const oldSnap = await db.collection('support_messages').orderBy('createdAt', 'desc').limit(200).get().catch(() => null);
+    if (oldSnap) oldSnap.forEach(doc => { const e = doc.data().email; if (e && !emails.includes(e)) emails.push(e); });
     if (!emails.length) { wrap.innerHTML = '<span style="color:#6b7280">No chats yet.</span>'; return; }
     wrap.innerHTML = '';
     emails.forEach(e => {
@@ -957,30 +1220,65 @@ async function loadSupportUsers() {
     });
   } catch (e) { wrap.innerHTML = '<span style="color:#dc2626">Error: ' + e.message + '</span>'; }
 }
-function openSupportConvo(email) {
+let adminChatStatus = 'open';
+let adminThreadUnsub = null;
+function updateAdminChatStatusUI() {
+  document.getElementById('admin-chat-status').textContent = adminChatStatus === 'closed' ? 'Closed' : 'Open';
+  document.getElementById('admin-chat-close-btn').style.display = adminChatStatus === 'closed' ? 'none' : '';
+  document.getElementById('admin-chat-reopen-btn').style.display = adminChatStatus === 'closed' ? '' : 'none';
+  const closed = adminChatStatus === 'closed';
+  document.getElementById('admin-chat-input').disabled = closed;
+  document.getElementById('admin-chat-send-btn').disabled = closed;
+  if (closed) document.getElementById('admin-chat-typing').textContent = '';
+}
+async function setAdminChatStatus(status) {
+  if (!supportEmail) return;
+  await db.collection('support_chats').doc(supportEmail).set({ status: status, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+  adminChatStatus = status;
+  updateAdminChatStatusUI();
+}
+document.getElementById('admin-chat-close-btn').addEventListener('click', () => setAdminChatStatus('closed'));
+document.getElementById('admin-chat-reopen-btn').addEventListener('click', () => setAdminChatStatus('open'));
+async function openSupportConvo(email) {
   supportEmail = email;
   document.getElementById('support-convo').style.display = 'block';
   document.getElementById('support-who').textContent = 'Chat with ' + email;
   if (supportUnsub) supportUnsub();
   if (adminTypingUnsub) adminTypingUnsub();
+  if (adminThreadUnsub) adminThreadUnsub();
   adminChatSeen = -1;
   const box = document.getElementById('admin-chat-box');
-  supportUnsub = db.collection('support_messages').where('email', '==', email)
+  // One-time migration: copy old flat support_messages into the thread if it has none yet.
+  const threadRef = db.collection('support_chats').doc(email);
+  const threadSnap = await threadRef.get().catch(() => null);
+  if (!threadSnap || !threadSnap.exists) {
+    const oldSnap = await db.collection('support_messages').where('email', '==', email).get().catch(() => null);
+    const msgs = [];
+    if (oldSnap) oldSnap.forEach(d => msgs.push(d.data()));
+    msgs.sort((a, b) => {
+      const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+      const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+      return ta - tb;
+    });
+    const batch = db.batch();
+    msgs.forEach(m => batch.set(threadRef.collection('messages').doc(), { sender: m.sender, text: m.text, createdAt: m.createdAt || firebase.firestore.FieldValue.serverTimestamp() }));
+    batch.set(threadRef, { userEmail: email, status: 'open', lastMessage: msgs.length ? msgs[msgs.length - 1].text : '', createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    await batch.commit().catch(() => {});
+  }
+  adminThreadUnsub = threadRef.onSnapshot(doc => {
+    if (doc.exists) { adminChatStatus = doc.data().status || 'open'; updateAdminChatStatusUI(); }
+  });
+  supportUnsub = threadRef.collection('messages').orderBy('createdAt')
     .onSnapshot(snap => {
       const msgs = [];
       snap.forEach(doc => msgs.push(doc.data()));
-      msgs.sort((a, b) => {
-        const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
-        const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
-        return ta - tb;
-      });
       if (adminChatSeen >= 0 && msgs.length > adminChatSeen && msgs.length && msgs[msgs.length - 1].sender === 'user') adminChatTune('receive');
       adminChatSeen = msgs.length;
       box.innerHTML = '';
       msgs.forEach(m => {
         const div = document.createElement('div');
         div.className = 'chat-msg ' + (m.sender === 'admin' ? 'from-admin' : 'from-user');
-        div.textContent = (m.sender === 'admin' ? 'You: ' : m.email + ': ') + m.text;
+        div.textContent = (m.sender === 'admin' ? 'You: ' : (m.email || supportEmail) + ': ') + m.text;
         box.appendChild(div);
       });
       box.scrollTop = box.scrollHeight;
@@ -995,14 +1293,16 @@ function openSupportConvo(email) {
 async function sendAdminChat() {
   const input = document.getElementById('admin-chat-input');
   const text = input.value.trim();
-  if (!text || !supportEmail) return;
+  if (!text || !supportEmail || adminChatStatus === 'closed') return;
   input.value = '';
   setAdminTyping(false);
   const sendBtn = document.getElementById('admin-chat-send-btn'); sendBtn.disabled = true;
-  await db.collection('support_messages').add({
-    email: supportEmail, sender: 'admin', text: text,
+  await db.collection('support_chats').doc(supportEmail).collection('messages').add({
+    sender: 'admin', text: text,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
+  // An admin reply re-opens the thread (the user can close it again).
+  await db.collection('support_chats').doc(supportEmail).set({ userEmail: supportEmail, status: 'open', lastMessage: text, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
   adminChatTune('send');
   sendBtn.disabled = false;
 }
@@ -1118,7 +1418,23 @@ async function loadLevels() {
   const body = document.getElementById('levels-body');
   try {
     const snap = await db.collection('levels').orderBy('minSales').get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="5">No levels yet. Add one above — levels start at 10 sales.</td></tr>'; return; }
+    if (snap.empty) {
+      // No admin-set levels — show the default Bilal ladder (read-only here).
+      if (typeof DEFAULT_LEVELS !== 'undefined') {
+        body.innerHTML = '';
+        DEFAULT_LEVELS.forEach(l => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = '<td>' + l.name + ' (default)</td><td>' + (l.minSales ?? '') + ' – ' + (l.maxSales ?? '') + '</td><td>—</td><td>' + (l.rewardUsd ? '$' + l.rewardUsd : '—') + '</td><td></td>';
+          body.appendChild(tr);
+        });
+        const note = document.createElement('tr');
+        note.innerHTML = '<td colspan="5" style="color:#6b7280">Default ladder: Bronze (signup) → Silver (10 sales, $1) → Gold (100 sales, $10 + affiliate bonus) → Platinum (500 sales) → Associate Member (1,000 sales, $100) → Director (10,000 sales, $1,000). Add a level above to replace it with your own ladder.</td>';
+        body.appendChild(note);
+      } else {
+        body.innerHTML = '<tr><td colspan="5">No levels yet. Add one above — levels start at 10 sales.</td></tr>';
+      }
+      return;
+    }
     body.innerHTML = '';
     snap.forEach(doc => {
       const l = doc.data();
@@ -1153,6 +1469,232 @@ async function deleteLevel(id) {
   await db.collection('levels').doc(id).delete();
   loadLevels();
 }
+
+// ---- Rank Reward Claims (secure: only the admin adds balance) ----
+async function loadLevelClaims() {
+  const body = document.getElementById('level-claims-body');
+  try {
+    const snap = await db.collection('level_claims').orderBy('createdAt', 'desc').limit(50).get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="5">No reward claims yet.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const c = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (c.email || '') + '</td><td>' + (c.level || '') + '</td><td>$' + (c.rewardUsd ?? 0) + '</td>' +
+        '<td><span class="badge ' + (c.status || 'pending') + '">' + (c.status || 'pending') + '</span></td>' +
+        '<td>' + (c.status === 'pending' ? '<button class="btn small" onclick="setLevelClaim(\'' + doc.id + '\',\'' + (c.email || '') + '\',' + (Number(c.rewardUsd) || 0) + ',\'approved\')">Approve</button> <button class="btn small" onclick="setLevelClaim(\'' + doc.id + '\',\'\',0,\'rejected\')">Reject</button>' : '') + '</td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; }
+}
+async function setLevelClaim(id, email, rewardUsd, status) {
+  await db.collection('level_claims').doc(id).update({ status });
+  if (status === 'approved' && email && rewardUsd) {
+    await db.collection('users').doc(email).set({ balance: firebase.firestore.FieldValue.increment(rewardUsd) }, { merge: true });
+    await db.collection('wallet_ledger').add({ email: email, type: 'level_reward', amount: rewardUsd, note: 'Rank reward approved', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+  }
+  loadLevelClaims();
+  showToast(status === 'approved' ? 'Reward approved — added to the user balance.' : 'Claim rejected.');
+}
+
+// ---- Coupons ----
+async function loadCoupons() {
+  const body = document.getElementById('coupons-body');
+  try {
+    const snap = await db.collection('coupons').orderBy('code').get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="7">No coupons yet.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const c = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td><strong>' + (doc.id || '') + '</strong></td><td>' + (c.type || '') + '</td><td>' + (c.type === 'percent' ? (c.value || 0) + '%' : '$' + (c.value || 0)) + '</td><td>' + (c.minSpend ? '$' + c.minSpend : '—') + '</td><td>' + (c.usedCount || 0) + (c.maxUses ? ' / ' + c.maxUses : '') + '</td><td>' + (c.expiresAt && c.expiresAt.toDate ? c.expiresAt.toDate().toLocaleDateString() : '—') + '</td>' +
+        '<td><button class="btn small" onclick="deleteCoupon(\'' + doc.id + '\')">Delete</button></td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="7">Error: ' + e.message + '</td></tr>'; }
+}
+document.getElementById('add-coupon-btn').addEventListener('click', async () => {
+  const msg = document.getElementById('cp-msg');
+  const code = document.getElementById('cp-code').value.trim().toLowerCase();
+  const type = document.getElementById('cp-type').value;
+  const value = parseFloat(document.getElementById('cp-value').value);
+  if (!code) { msg.textContent = 'Coupon code is required.'; return; }
+  if (!value || value <= 0) { msg.textContent = 'Value is required.'; return; }
+  if (type === 'percent' && value > 100) { msg.textContent = 'Percent cannot be more than 100.'; return; }
+  const data = { code: code, type: type, value: value, active: true, usedCount: 0, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+  const minSpend = parseFloat(document.getElementById('cp-min').value);
+  if (!isNaN(minSpend) && minSpend > 0) data.minSpend = minSpend;
+  const maxUses = parseInt(document.getElementById('cp-max').value, 10);
+  if (!isNaN(maxUses) && maxUses > 0) data.maxUses = maxUses;
+  const exp = document.getElementById('cp-exp').value;
+  if (exp) data.expiresAt = firebase.firestore.Timestamp.fromDate(new Date(exp + 'T23:59:59'));
+  await db.collection('coupons').doc(code).set(data);
+  msg.textContent = 'Coupon ' + code + ' added.';
+  loadCoupons();
+});
+async function deleteCoupon(id) {
+  if (!confirm('Delete this coupon?')) return;
+  await db.collection('coupons').doc(id).delete();
+  loadCoupons();
+}
+
+// ---- Bundles ----
+async function loadBundlesAdmin() {
+  const pick = document.getElementById('bd-products');
+  try {
+    const products = [];
+    (typeof PAID_PRODUCTS !== 'undefined' ? PAID_PRODUCTS : []).forEach(p => products.push({ id: p.id, title: p.title, price: p.price }));
+    const snap = await db.collection('products').get();
+    snap.forEach(doc => { const p = doc.data(); if (p.status !== 'pending' && !products.find(x => x.id === doc.id)) products.push({ id: doc.id, title: p.title, price: p.price }); });
+    pick.innerHTML = '';
+    if (!products.length) { pick.innerHTML = '<span style="color:#6b7280">No paid products yet.</span>'; }
+    products.forEach(p => {
+      const lab = document.createElement('label');
+      lab.className = 'check-label';
+      lab.innerHTML = '<input type="checkbox" class="bd-pick" value="' + p.id + '"> ' + esc(p.title) + ' ($' + Number(p.price || 0).toFixed(2) + ')';
+      pick.appendChild(lab);
+    });
+  } catch (e) { pick.innerHTML = '<span style="color:#dc2626">Error: ' + e.message + '</span>'; }
+  const body = document.getElementById('bundles-body');
+  try {
+    const snap = await db.collection('bundles').orderBy('createdAt', 'desc').get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">No bundles yet.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const b = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (b.title || '') + '</td><td>' + ((b.productIds || []).length) + ' products</td><td>$' + (b.price || '') + '</td>' +
+        '<td><button class="btn small" onclick="deleteBundle(\'' + doc.id + '\')">Delete</button></td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
+}
+document.getElementById('add-bundle-btn').addEventListener('click', async () => {
+  const msg = document.getElementById('bd-msg');
+  const title = document.getElementById('bd-title').value.trim();
+  const desc = document.getElementById('bd-desc').value.trim();
+  const price = parseFloat(document.getElementById('bd-price').value);
+  const productIds = Array.from(document.querySelectorAll('.bd-pick:checked')).map(c => c.value);
+  if (!title) { msg.textContent = 'Bundle title is required.'; return; }
+  if (productIds.length < 2) { msg.textContent = 'Pick at least 2 products for a bundle.'; return; }
+  if (!price || price <= 0) { msg.textContent = 'Bundle price is required.'; return; }
+  await db.collection('bundles').add({ title, desc, productIds, price, thumbnail: document.getElementById('bd-thumb').value.trim(), status: 'approved', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+  msg.textContent = 'Bundle added — it shows in the Paid Store now.';
+  loadBundlesAdmin();
+});
+async function deleteBundle(id) {
+  if (!confirm('Delete this bundle?')) return;
+  await db.collection('bundles').doc(id).delete();
+  loadBundlesAdmin();
+}
+
+// ---- Licences (admin) ----
+async function loadLicencesAdmin() {
+  const body = document.getElementById('licences-body');
+  try {
+    const snap = await db.collection('licences').orderBy('createdAt', 'desc').limit(100).get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">No licences yet — keys are issued when an order is approved.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const l = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td><strong>' + (l.key || '') + '</strong></td><td>' + esc(l.productTitle || '') + '</td><td>' + (l.email || '') + '</td><td>' + (l.activations || 0) + ' / ' + (l.maxActivations || 1) + '</td>' +
+        '<td><span class="badge ' + (l.status || 'active') + '">' + (l.status || 'active') + '</span></td>' +
+        '<td>' + (l.status === 'revoked' ? '<button class="btn small" onclick="reissueLicence(\'' + doc.id + '\')">Reissue</button>' : '<button class="btn small" onclick="revokeLicence(\'' + doc.id + '\')">Revoke</button>') + '</td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
+}
+async function revokeLicence(id) {
+  if (!confirm('Revoke this licence key? The buyer will lose access.')) return;
+  await db.collection('licences').doc(id).update({ status: 'revoked' });
+  loadLicencesAdmin();
+}
+async function reissueLicence(id) {
+  const key = 'CV-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+  await db.collection('licences').doc(id).update({ key: key, activations: 0, status: 'active' });
+  loadLicencesAdmin();
+  showToast('New key issued: ' + key);
+}
+
+// ---- Abandoned Carts ----
+async function loadAbandonedCarts() {
+  const body = document.getElementById('carts-body');
+  try {
+    const snap = await db.collection('carts').orderBy('updatedAt', 'desc').limit(100).get();
+    const rows = [];
+    snap.forEach(doc => { const c = doc.data(); if (c.items && c.items.length) rows.push({ email: doc.id, c }); });
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="4">No abandoned carts.</td></tr>'; return; }
+    body.innerHTML = '';
+    rows.forEach(({ email, c }) => {
+      let total = 0;
+      const names = c.items.map(i => {
+        const p = (typeof PAID_PRODUCTS !== 'undefined' ? PAID_PRODUCTS.find(x => x.id === i.id) : null);
+        if (p) total += Number(p.price || 0) * (i.qty || 1);
+        return (p ? p.title : i.id) + ' ×' + (i.qty || 1);
+      }).join(', ');
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + email + '</td><td style="white-space:normal;min-width:200px">' + esc(names) + '</td><td>$' + total.toFixed(2) + '</td><td>' + (c.updatedAt && c.updatedAt.toDate ? c.updatedAt.toDate().toLocaleString() : '') + '</td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
+}
+
+// ---- Wallet Ledger (admin) ----
+async function loadLedgerAdmin() {
+  const body = document.getElementById('ledger-body');
+  try {
+    const snap = await db.collection('wallet_ledger').orderBy('createdAt', 'desc').limit(100).get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="5">No wallet movements yet.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const l = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (l.createdAt && l.createdAt.toDate ? l.createdAt.toDate().toLocaleString() : '') + '</td><td>' + (l.email || '') + '</td><td>' + (l.type || '') + '</td><td>' + (Number(l.amount || 0) >= 0 ? '+' : '') + '$' + Number(l.amount || 0).toFixed(2) + '</td><td style="white-space:normal;min-width:200px">' + esc(l.note || '') + '</td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; }
+}
+
+// ---- Store Settings (refund policy, downloads, wallet limits) ----
+async function loadStoreSettings() {
+  try {
+    const site = await db.collection('settings').doc('site').get();
+    if (site.exists && site.data().refundPolicy) document.getElementById('st-refund').value = site.data().refundPolicy;
+    const dl = await db.collection('settings').doc('downloads').get();
+    if (dl.exists) {
+      document.getElementById('st-expiry').value = dl.data().expiryDays ?? 7;
+      document.getElementById('st-attempts').value = dl.data().maxAttempts ?? 5;
+    } else {
+      document.getElementById('st-expiry').value = 7;
+      document.getElementById('st-attempts').value = 5;
+    }
+    const w = await db.collection('settings').doc('wallet').get();
+    if (w.exists) {
+      document.getElementById('st-mindep').value = w.data().minDeposit ?? 1;
+      document.getElementById('st-minwd').value = w.data().minWithdraw ?? 5;
+      document.getElementById('st-wdfee').value = w.data().withdrawFeePercent ?? 0;
+    } else {
+      document.getElementById('st-mindep').value = 1;
+      document.getElementById('st-minwd').value = 5;
+      document.getElementById('st-wdfee').value = 0;
+    }
+  } catch (e) { /* settings not set yet — defaults stay in the form */ }
+}
+document.getElementById('save-settings-btn').addEventListener('click', async () => {
+  const msg = document.getElementById('st-msg');
+  const refundPolicy = document.getElementById('st-refund').value.trim();
+  const expiryDays = parseInt(document.getElementById('st-expiry').value, 10) || 7;
+  const maxAttempts = parseInt(document.getElementById('st-attempts').value, 10) || 5;
+  const minDeposit = parseFloat(document.getElementById('st-mindep').value) || 0;
+  const minWithdraw = parseFloat(document.getElementById('st-minwd').value) || 0;
+  const withdrawFeePercent = parseFloat(document.getElementById('st-wdfee').value) || 0;
+  await db.collection('settings').doc('site').set({ refundPolicy: refundPolicy, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+  await db.collection('settings').doc('downloads').set({ expiryDays: expiryDays, maxAttempts: maxAttempts, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+  await db.collection('settings').doc('wallet').set({ minDeposit: minDeposit, minWithdraw: minWithdraw, withdrawFeePercent: withdrawFeePercent, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+  msg.textContent = 'Settings saved.';
+  showToast('Store settings saved.');
+});
 
 // ---- Tasks (admin sets target + reward; user sees progress) ----
 async function loadTasks() {
@@ -1218,6 +1760,8 @@ async function loadUsers() {
     const levelsSnap = await db.collection('levels').orderBy('minSales').get();
     const levels = [];
     levelsSnap.forEach(d => levels.push(d.data()));
+    // No admin-set levels yet → show the default Bilal ladder (Bronze → Director).
+    if (!levels.length && typeof DEFAULT_LEVELS !== 'undefined') DEFAULT_LEVELS.forEach(l => levels.push(l));
     body.innerHTML = '';
     for (const doc of snap.docs) {
       const u = doc.data();
@@ -1248,12 +1792,12 @@ document.getElementById('add-product-btn').addEventListener('click', async () =>
   const desc = document.getElementById('p-desc').value.trim();
   const tag = document.getElementById('p-tag').value.trim() || 'Premium';
   const type = document.getElementById('p-type').value;
-  const price = parseInt(document.getElementById('p-price').value, 10);
+  const price = parseFloat(document.getElementById('p-price').value);
   const file = document.getElementById('p-file').value.trim();
   const isFree = type === 'free';
   if (!title) { msg.textContent = 'Title is required.'; return; }
   if (!file) { msg.textContent = 'Download Link is required.'; return; }
-  if (!isFree && !price) { msg.textContent = 'Price is required for a paid product.'; return; }
+  if (!isFree && (!price || price <= 0)) { msg.textContent = 'Price is required for a paid product.'; return; }
 
   let thumbnail = document.getElementById('p-thumb-url').value.trim();
   const thumbFile = document.getElementById('p-thumb-file').files[0];
@@ -1263,10 +1807,18 @@ document.getElementById('add-product-btn').addEventListener('click', async () =>
       const ref = storage.ref('thumbnails/' + Date.now() + '_' + thumbFile.name);
       await ref.put(thumbFile);
       thumbnail = await ref.getDownloadURL();
-    } catch (e) { msg.textContent = 'Thumbnail upload failed: " + e.message + " (Storage is disabled on the free plan — use an image URL.)'; return; }
+    } catch (e) { msg.textContent = 'Thumbnail upload failed: ' + e.message + ' (Storage is disabled on the free plan — use an image URL.)'; return; }
   }
+  if (!thumbnail) { msg.textContent = 'Thumbnail image is required — every product needs an image. Upload one or paste an image URL.'; msg.style.color = '#dc2626'; return; }
 
-  const data = { title, desc, tag, thumbnail: thumbnail || '', isFree: isFree, price: isFree ? 0 : price, file: file, downloads: 0, sales: 0, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+  const includes = document.getElementById('p-includes').value.split('\n').map(s => s.trim()).filter(Boolean);
+  const data = { title, desc, tag, thumbnail: thumbnail, isFree: isFree, price: isFree ? 0 : price, file: file,
+    fileSize: document.getElementById('p-size').value.trim(), format: document.getElementById('p-format').value.trim(),
+    version: document.getElementById('p-version').value.trim() || '1.0',
+    requirements: document.getElementById('p-req').value.trim(),
+    demoUrl: document.getElementById('p-demo').value.trim(),
+    maxActivations: parseInt(document.getElementById('p-maxact').value, 10) || 1,
+    includes: includes, downloads: 0, sales: 0, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() };
   if (isFree) {
     data.page = '';
     await db.collection('free_products').add(data);

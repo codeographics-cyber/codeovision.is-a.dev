@@ -76,6 +76,22 @@
 
 <main class="wrap">
 
+  <!-- PRODUCT SEARCH -->
+  <div class="search-bar" id="store-search-bar">
+    <input type="search" id="store-search" placeholder="Search products… try &quot;html&quot;, &quot;slider&quot;, &quot;template&quot;" aria-label="Search products" autocomplete="off">
+    <button class="btn small" id="store-search-clear" style="display:none">✕ Clear</button>
+  </div>
+  <p id="store-search-info" style="color:#6b7280;font-size:14px;margin:10px 0 0;display:none"></p>
+  <div class="store-filters" id="store-filters">
+    <div id="category-chips" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    <select id="store-sort" aria-label="Sort products">
+      <option value="newest">Newest first</option>
+      <option value="popular">Most popular</option>
+      <option value="price-asc">Price: low to high</option>
+      <option value="price-desc">Price: high to low</option>
+    </select>
+  </div>
+
   <!-- FREE STORE -->
   <section id="free-store" class="store-section free-section">
     <h2 class="section-title reveal">Free Store <span>— 100% Free, No Account Needed</span></h2>
@@ -165,6 +181,13 @@
   </section>
 </main>
 
+  <!-- REFUND POLICY -->
+  <section id="refund-policy" class="about reveal">
+    <h2>Refund Policy</h2>
+    <p id="refund-policy-text">If a product does not work as described, request a refund from your dashboard. The admin reviews every request.</p>
+    <p style="color:#6b7280;font-size:14px">Digital goods are delivered after payment verification. Once a file is downloaded or a licence key is activated, a refund is given only if the file or key genuinely does not work. An approved refund revokes download access and the licence key, and reverses any affiliate commission on that order.</p>
+  </section>
+
 <hr class="gold-divider">
 <footer class="site-footer">
   <div class="wrap">
@@ -182,6 +205,11 @@
     <h3>Your Cart</h3>
     <div id="cart-items"></div>
     <p class="cart-total" id="cart-total"></p>
+    <div style="display:flex;gap:8px;margin-bottom:6px">
+      <input type="text" id="coupon-code" placeholder="Coupon code" style="flex:1;margin:0" autocomplete="off">
+      <button class="btn small" id="coupon-apply-btn">Apply</button>
+    </div>
+    <p id="coupon-msg" style="font-size:14px;color:#15803d"></p>
     <button class="btn" id="checkout-btn" style="width:100%">Checkout</button>
     <button class="btn outline dark-outline" id="clear-cart-btn" style="width:100%;margin-top:10px">Clear Cart</button>
   </div>
@@ -199,14 +227,23 @@
     <div id="checkout-body" style="display:none">
       <div id="checkout-summary"></div>
       <p class="modal-price" id="checkout-total"></p>
+      <div id="checkout-options">
+        <label class="check-label"><input type="checkbox" id="checkout-balance"> Pay from my wallet balance (<span id="checkout-balance-amt">$0.00</span> available)</label>
+        <label class="check-label"><input type="checkbox" id="checkout-terms"> I understand digital goods are delivered after payment verification, as per the refund policy.</label>
+        <button class="btn" id="checkout-confirm-btn" style="width:100%;margin-top:12px">Confirm Order</button>
+        <p id="checkout-error" style="color:#dc2626;font-size:14px;margin-top:8px"></p>
+      </div>
+      <div id="checkout-pay" style="display:none">
       <div class="pay-box">
-        <p><strong>Raast Till:</strong> <span id="pay-till"></span> (<span id="pay-till-title"></span>)</p>
+        <p><strong>Till ID (Scan):</strong> <span id="pay-till"></span> (<span id="pay-till-title"></span>)</p>
         <p><strong>Easypaisa:</strong> <span id="pay-easypaisa"></span></p>
         <p><strong>JazzCash:</strong> <span id="pay-jazzcash"></span></p>
+        <p><strong>USDT TRC20 / BEP20:</strong> <span id="pay-usdt"></span></p>
         <p><strong>Account Title:</strong> <span id="pay-title"></span></p>
       </div>
       <p class="modal-note">⚠️ <strong>Important:</strong> Please also send this message on WhatsApp — it is required. Your order is approved faster when the screenshot reaches the admin on WhatsApp. Your order ID is in the message below.</p>
       <a class="btn whatsapp-btn" id="wa-order" href="#" target="_blank" rel="noopener">Send Order on WhatsApp (Required)</a>
+      </div>
     </div>
   </div>
 </div>
@@ -231,8 +268,17 @@
 </div>
 <p id="cap-e-auth" style="color:#dc2626;font-size:14px"></p>
     <button class="btn" id="auth-submit" style="width:100%">Login</button>
+    <p style="text-align:center;margin-top:10px"><a href="#" id="forgot-pass">Forgot password?</a></p>
     <p id="auth-error" style="color:#dc2626;margin-top:10px;font-size:14px"></p>
     <p id="auth-msg" style="color:#15803d;margin-top:10px;font-size:14px"></p>
+  </div>
+</div>
+
+<!-- PRODUCT DETAIL MODAL -->
+<div class="modal" id="product-modal" aria-hidden="true">
+  <div class="modal-box product-modal-box">
+    <button class="modal-close" id="product-close">&times;</button>
+    <div id="product-modal-body"></div>
   </div>
 </div>
 
@@ -280,21 +326,26 @@ function toast(msg) {
 }
 
 // ---- Render stores (free = guest, no account) ----
+const ALL_PRODUCTS = {}; // every product by id (built-in + Firestore) — used by the detail modal
 const freeGrid = document.getElementById('free-grid');
 const paidGrid = document.getElementById('paid-grid');
 
 function freeCard(p) {
   const card = document.createElement('article');
   card.className = 'card free-card reveal visible';
-  const thumb = p.thumbnail ? '<img class="thumb-img" src="' + p.thumbnail + '" alt="">' : '';
+  card.dataset.pid = p.id || ''; card.dataset.price = 0; card.dataset.pop = p.downloads || 0; card.dataset.tag = p.tag || ''; card.dataset.title = p.title || '';
+  ALL_PRODUCTS[p.id] = p;
+  const thumb = p.thumbnail ? '<img class="thumb-img view-product" src="' + p.thumbnail + '" alt="' + esc(p.title) + '" data-id="' + p.id + '">' : '';
   let links = '';
   if (p.page) links += '<a class="btn small" href="' + p.page + '">View &amp; Download</a> ';
   if (p.file) links += '<a class="btn small teal dl-link" data-col="free_products" data-id="' + (p.id || '') + '" href="' + p.file + '" download>Direct Download</a>';
-  card.innerHTML = thumb + '<span class="tag">FREE • ' + esc(p.tag || 'Free') + '</span><h3>' + esc(p.title) + '</h3><p>' + esc(p.desc) + '</p>' + links +
+  card.innerHTML = thumb + '<span class="tag">FREE • ' + esc(p.tag || 'Free') + '</span><h3 class="view-product" data-id="' + p.id + '" style="cursor:pointer">' + esc(p.title) + '</h3><p>' + esc(p.desc) + '</p>' + links +
     '<p class="count-line">⬇ <span class="dl-count">' + (p.downloads || 0) + '</span> downloads</p>' +
     '<p class="rating-line" data-rating-for="' + p.id + '">★ — (0 reviews)</p>' +
     '<div class="reviews-list" data-reviews-for="' + p.id + '"></div>' +
-    '<button class="btn small review-btn" data-id="' + p.id + '" data-title="' + String(p.title).replace(/"/g, '&quot;') + '">Write a Review</button>' +
+    '<button class="btn small review-btn" data-id="' + p.id + '" data-title="' + String(p.title).replace(/"/g, '&quot;') + '">Write a Review</button> ' +
+    '<button class="btn small view-details-btn" data-id="' + p.id + '">View Details</button> ' +
+    '<button class="btn small wish-btn" data-id="' + p.id + '">♡ Wishlist</button>' +
     '<div class="affil-box" data-affil-for="' + p.id + '" style="display:none">Share &amp; Earn — your affiliate link:<br><span class="affil-link"></span><br><button class="btn small copy-affil-btn" data-id="' + p.id + '" style="margin-top:6px">Copy Link</button></div>';
   return card;
 }
@@ -303,8 +354,11 @@ function paidCard(p) {
   const feats = featsArr.map(f => '<li>' + f + '</li>').join('');
   const card = document.createElement('article');
   card.className = 'card paid-card reveal visible';
-  const thumb = p.thumbnail ? '<img class="thumb-img" src="' + p.thumbnail + '" alt="">' : '';
-  card.innerHTML = thumb + '<span class="tag gold-tag">' + esc(p.tag || 'Premium') + '</span><h3>' + esc(p.title) + '</h3><p>' + esc(p.desc) + '</p>' +
+  card.dataset.pid = p.id || ''; card.dataset.price = p.price || 0; card.dataset.pop = p.sales || 0; card.dataset.tag = p.tag || ''; card.dataset.title = p.title || '';
+  ALL_PRODUCTS[p.id] = p;
+  const thumb = p.thumbnail ? '<img class="thumb-img view-product" src="' + p.thumbnail + '" alt="' + esc(p.title) + '" data-id="' + p.id + '">' : '';
+  const bestseller = (p.sales || 0) >= 10 ? ' <span class="tag gold-tag">Bestseller</span>' : '';
+  card.innerHTML = thumb + '<span class="tag gold-tag">' + esc(p.tag || 'Premium') + '</span>' + bestseller + '<h3 class="view-product" data-id="' + p.id + '" style="cursor:pointer">' + esc(p.title) + '</h3><p>' + esc(p.desc) + '</p>' +
     '<ul class="feats">' + feats + '</ul>' +
     '<p class="price">$' + Number(p.price).toFixed(2) + '</p><p style="color:#6b7280;font-size:13px">≈ Rs ' + Math.round(p.price * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR</p>' +
     '<button class="btn small add-cart-btn" data-id="' + p.id + '">Add to Cart</button> ' +
@@ -312,7 +366,9 @@ function paidCard(p) {
     '<p class="count-line">🛒 <span class="sold-count">' + (p.sales || 0) + '</span> sold</p>' +
     '<p class="rating-line" data-rating-for="' + p.id + '">★ — (0 reviews)</p>' +
     '<div class="reviews-list" data-reviews-for="' + p.id + '"></div>' +
-    '<button class="btn small review-btn" data-id="' + p.id + '" data-title="' + String(p.title).replace(/"/g, '&quot;') + '">Write a Review</button>' +
+    '<button class="btn small review-btn" data-id="' + p.id + '" data-title="' + String(p.title).replace(/"/g, '&quot;') + '">Write a Review</button> ' +
+    '<button class="btn small view-details-btn" data-id="' + p.id + '">View Details</button> ' +
+    '<button class="btn small wish-btn" data-id="' + p.id + '">♡ Wishlist</button>' +
     '<div class="affil-box" data-affil-for="' + p.id + '" style="display:none">Share &amp; Earn — your affiliate link:<br><span class="affil-link"></span><br><button class="btn small copy-affil-btn" data-id="' + p.id + '" style="margin-top:6px">Copy Link</button></div>';
   return card;
 }
@@ -333,9 +389,203 @@ async function loadStoreProducts() {
     });
     loadAllRatings();
     refreshAffilBoxes();
+    buildCategoryChips();
+    applyStoreFilters();
+    refreshWishButtons();
+    loadBundles();
   } catch (e) { /* store keeps working from built-in products if Firestore is unreachable */ }
 }
 loadStoreProducts();
+
+// ---- Product search + category filter + sort (live, partial-word) ----
+// Matches every word of the query against title + description + tag + features.
+let activeCategory = 'All';
+function cardSearchText(card) {
+  const t = card.querySelector('h3') ? card.querySelector('h3').textContent : '';
+  const d = card.querySelector('h3 + p') ? card.querySelector('h3 + p').textContent : '';
+  const tag = card.querySelector('.tag') ? card.querySelector('.tag').textContent : '';
+  const feats = card.querySelector('.feats') ? card.querySelector('.feats').textContent : '';
+  return (t + ' ' + d + ' ' + tag + ' ' + feats).toLowerCase();
+}
+function applyStoreFilters() {
+  const q = (document.getElementById('store-search').value || '').trim().toLowerCase();
+  const words = q.split(/\s+/).filter(Boolean);
+  const sort = document.getElementById('store-sort').value;
+  const info = document.getElementById('store-search-info');
+  const clearBtn = document.getElementById('store-search-clear');
+  let shown = 0, total = 0;
+  ['free-grid', 'paid-grid'].forEach(gridId => {
+    const grid = document.getElementById(gridId);
+    const cards = Array.from(grid.querySelectorAll('.card'));
+    let gridShown = 0;
+    cards.forEach(card => {
+      total++;
+      const text = cardSearchText(card);
+      const okSearch = !words.length || words.every(w => text.includes(w));
+      const okCat = activeCategory === 'All' || (card.dataset.tag || '') === activeCategory;
+      const ok = okSearch && okCat;
+      card.style.display = ok ? '' : 'none';
+      if (ok) { shown++; gridShown++; }
+    });
+    // Sort visible cards within the grid
+    const visible = cards.filter(c => c.style.display !== 'none');
+    const hidden = cards.filter(c => c.style.display === 'none');
+    visible.sort((a, b) => {
+      if (sort === 'price-asc') return Number(a.dataset.price || 0) - Number(b.dataset.price || 0);
+      if (sort === 'price-desc') return Number(b.dataset.price || 0) - Number(a.dataset.price || 0);
+      if (sort === 'popular') return Number(b.dataset.pop || 0) - Number(a.dataset.pop || 0);
+      return 0; // newest = original order
+    });
+    visible.concat(hidden).forEach(c => grid.appendChild(c));
+    let empty = grid.parentElement.querySelector('.search-empty');
+    if (!gridShown && (words.length || activeCategory !== 'All')) {
+      if (!empty) { empty = document.createElement('p'); empty.className = 'search-empty'; empty.style.cssText = 'color:#6b7280;padding:10px 0'; grid.parentElement.appendChild(empty); }
+      empty.innerHTML = 'No products match here — <a href="#" onclick="clearStoreFilters();return false;">clear the search and show all products</a>.';
+    } else if (empty) empty.remove();
+  });
+  clearBtn.style.display = q ? '' : 'none';
+  if (words.length || activeCategory !== 'All') {
+    info.style.display = 'block';
+    info.textContent = shown ? shown + ' of ' + total + ' products shown.' : 'No products match — try another word (title, description or tag) or a different category.';
+  } else info.style.display = 'none';
+}
+function clearStoreFilters() {
+  document.getElementById('store-search').value = '';
+  activeCategory = 'All';
+  buildCategoryChips();
+  applyStoreFilters();
+}
+function buildCategoryChips() {
+  const wrap = document.getElementById('category-chips');
+  const tags = [];
+  document.querySelectorAll('.card').forEach(c => { const t = c.dataset.tag || ''; if (t && !tags.includes(t)) tags.push(t); });
+  wrap.innerHTML = '';
+  ['All'].concat(tags).forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (t === activeCategory ? ' active' : '');
+    b.textContent = t;
+    b.addEventListener('click', () => { activeCategory = t; buildCategoryChips(); applyStoreFilters(); });
+    wrap.appendChild(b);
+  });
+}
+document.getElementById('store-search').addEventListener('input', applyStoreFilters);
+document.getElementById('store-search-clear').addEventListener('click', () => { document.getElementById('store-search').value = ''; applyStoreFilters(); document.getElementById('store-search').focus(); });
+document.getElementById('store-sort').addEventListener('change', applyStoreFilters);
+buildCategoryChips();
+
+// ---- Product detail modal (e-commerce style) ----
+const productModal = document.getElementById('product-modal');
+function openProduct(id) {
+  const p = ALL_PRODUCTS[id];
+  if (!p) return;
+  const isFree = !p.price;
+  const body = document.getElementById('product-modal-body');
+  const thumb = p.thumbnail ? '<img src="' + p.thumbnail + '" alt="" style="width:100%;height:220px;object-fit:cover;border-radius:10px;margin-bottom:12px">' : '';
+  const details = '<table class="admin-table" style="min-width:0;margin:12px 0"><tbody>' +
+    '<tr><td><strong>File size</strong></td><td>' + (p.fileSize || '—') + '</td></tr>' +
+    '<tr><td><strong>Format</strong></td><td>' + (p.format || '—') + '</td></tr>' +
+    '<tr><td><strong>Version</strong></td><td>' + (p.version || '1.0') + '</td></tr>' +
+    '<tr><td><strong>Requirements</strong></td><td>' + (p.requirements || 'Any modern browser.') + '</td></tr></tbody></table>';
+  const includes = Array.isArray(p.includes) && p.includes.length ? '<h3 style="margin:12px 0 6px">What\'s included</h3><ul class="feats">' + p.includes.map(f => '<li>' + f + '</li>').join('') + '</ul>' : (Array.isArray(p.features) && p.features.length ? '<h3 style="margin:12px 0 6px">What\'s included</h3><ul class="feats">' + p.features.map(f => '<li>' + f + '</li>').join('') + '</ul>' : '');
+  const demo = p.demoUrl ? '<p><a class="btn small" href="' + p.demoUrl + '" target="_blank" rel="noopener">View Live Demo</a></p>' : '';
+  const buyBtns = isFree
+    ? ((p.page ? '<a class="btn small" href="' + p.page + '">View &amp; Download</a> ' : '') + (p.file ? '<a class="btn small teal dl-link" data-col="free_products" data-id="' + p.id + '" href="' + p.file + '" download>Direct Download</a>' : ''))
+    : '<button class="btn small add-cart-btn" data-id="' + p.id + '">Add to Cart</button> <button class="btn small teal buy-now-btn" data-id="' + p.id + '">Buy Now</button>';
+  const related = Object.values(ALL_PRODUCTS).filter(x => x.id !== p.id && (x.tag === p.tag || (!isFree && x.price))).slice(0, 3);
+  const relatedHtml = related.length ? '<h3 style="margin:16px 0 8px">Related products</h3><div style="display:flex;flex-direction:column;gap:8px">' + related.map(r => '<a href="#" onclick="openProduct(\'' + r.id + '\');return false;" style="display:flex;gap:10px;align-items:center">' + (r.thumbnail ? '<img src="' + r.thumbnail + '" alt="" style="width:64px;height:40px;object-fit:cover;border-radius:6px">' : '') + '<span><strong>' + esc(r.title) + '</strong><br><span style="color:#6b7280;font-size:13px">' + (r.price ? '$' + Number(r.price).toFixed(2) : 'Free') + '</span></span></a>').join('') + '</div>' : '';
+  body.innerHTML = thumb +
+    '<span class="tag ' + (isFree ? '' : 'gold-tag') + '">' + esc(p.tag || (isFree ? 'Free' : 'Premium')) + '</span>' +
+    '<h2 style="margin:10px 0 4px;font-size:24px">' + esc(p.title) + '</h2>' +
+    '<p class="rating-line" data-rating-for="' + p.id + '">★ — (0 reviews)</p>' +
+    (isFree ? '<p class="price">FREE</p>' : '<p class="price">$' + Number(p.price).toFixed(2) + ' <span style="font-size:14px;color:#6b7280">≈ Rs ' + Math.round(p.price * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR</span></p>') +
+    '<p>' + esc(p.desc) + '</p>' + details + includes + demo +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">' + buyBtns + ' <button class="btn small wish-btn" data-id="' + p.id + '">♡ Wishlist</button></div>' +
+    '<div class="affil-box" data-affil-for="' + p.id + '" style="display:block">Share &amp; Earn — your affiliate link:<br><span class="affil-link">' + (currentUser ? affiliateLink(p.id) : 'Login to get your affiliate link') + '</span><br>' + (currentUser ? '<button class="btn small copy-affil-btn" data-id="' + p.id + '" style="margin-top:6px">Copy Link</button>' : '<button class="btn small" style="margin-top:6px" onclick="closeProductModal();openAuth(\'login\')">Login to Get Your Link</button>') + '</div>' +
+    '<div class="reviews-list" data-reviews-for="' + p.id + '" style="margin-top:12px"></div>' +
+    '<p style="color:#6b7280;font-size:13px;margin-top:12px">Instant delivery after payment verification • Secure checkout • Refund policy applies (see below on this page).</p>' +
+    relatedHtml;
+  loadAllRatings();
+  refreshWishButtons();
+  productModal.classList.add('open');
+  productModal.setAttribute('aria-hidden', 'false');
+}
+function closeProductModal() { productModal.classList.remove('open'); productModal.setAttribute('aria-hidden', 'true'); }
+document.getElementById('product-close').addEventListener('click', closeProductModal);
+productModal.addEventListener('click', e => { if (e.target === productModal) closeProductModal(); });
+document.addEventListener('click', e => {
+  const v = e.target.closest('.view-product, .view-details-btn');
+  if (v && v.dataset.id) { openProduct(v.dataset.id); return; }
+  const w = e.target.closest('.wish-btn');
+  if (w && w.dataset.id) { toggleWishlist(w.dataset.id); return; }
+});
+
+// ---- Wishlist (saved per user in Firestore) ----
+let myWishlist = [];
+async function loadWishlist() {
+  if (!currentUser || !FIREBASE_READY) { myWishlist = []; refreshWishButtons(); return; }
+  try {
+    const doc = await db.collection('wishlists').doc(currentUser.email).get();
+    myWishlist = doc.exists ? (doc.data().productIds || []) : [];
+  } catch (e) { myWishlist = []; }
+  refreshWishButtons();
+}
+function refreshWishButtons() {
+  document.querySelectorAll('.wish-btn').forEach(b => {
+    b.textContent = myWishlist.includes(b.dataset.id) ? '♥ Saved' : '♡ Wishlist';
+  });
+}
+async function toggleWishlist(pid) {
+  if (!currentUser) { toast('Please log in to save products.'); openAuth('login'); return; }
+  if (!FIREBASE_READY) return;
+  const ref = db.collection('wishlists').doc(currentUser.email);
+  if (myWishlist.includes(pid)) {
+    myWishlist = myWishlist.filter(x => x !== pid);
+    await ref.set({ productIds: firebase.firestore.FieldValue.arrayRemove(pid) }, { merge: true }).catch(() => {});
+    toast('Removed from wishlist.');
+  } else {
+    myWishlist.push(pid);
+    await ref.set({ productIds: firebase.firestore.FieldValue.arrayUnion(pid), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(() => {});
+    toast('Saved to wishlist.');
+  }
+  refreshWishButtons();
+}
+
+// ---- Bundles (several products, one price) ----
+async function loadBundles() {
+  if (!FIREBASE_READY) return;
+  try {
+    const snap = await db.collection('bundles').where('status', '==', 'approved').get();
+    const grid = document.getElementById('paid-grid');
+    snap.forEach(doc => {
+      const b = doc.data(); b.id = doc.id;
+      const items = (b.productIds || []).map(id => ALL_PRODUCTS[id]).filter(Boolean);
+      if (!items.length) return;
+      const sum = items.reduce((n, p) => n + Number(p.price || 0), 0);
+      const card = document.createElement('article');
+      card.className = 'card paid-card reveal visible';
+      card.dataset.pid = 'bundle:' + b.id; card.dataset.price = b.price || 0; card.dataset.pop = 0; card.dataset.tag = 'Bundle'; card.dataset.title = b.title || '';
+      card.innerHTML = (b.thumbnail ? '<img class="thumb-img" src="' + b.thumbnail + '" alt="">' : '') +
+        '<span class="tag gold-tag">BUNDLE — Save $' + Math.max(0, sum - Number(b.price || 0)).toFixed(2) + '</span><h3>' + esc(b.title || 'Bundle') + '</h3><p>' + esc(b.desc || '') + '</p>' +
+        '<ul class="feats">' + items.map(p => '<li>' + esc(p.title) + '</li>').join('') + '</ul>' +
+        '<p class="price">$' + Number(b.price || 0).toFixed(2) + ' <span style="font-size:14px;color:#6b7280"><s>$' + sum.toFixed(2) + '</s></span></p>' +
+        '<button class="btn small bundle-add-btn" data-bundle="' + b.id + '">Add Bundle to Cart</button>';
+      grid.appendChild(card);
+      card.querySelector('.bundle-add-btn').addEventListener('click', () => {
+        (b.productIds || []).forEach(id => { if (!cart.find(i => i.id === id)) cart.push({ id: id, qty: 1 }); });
+        saveCart();
+        toast('Bundle added to cart!');
+        openDrawer();
+      });
+    });
+  } catch (e) { /* bundles are optional */ }
+}
+
+// ---- Refund policy text (admin-editable in Store Settings) ----
+if (FIREBASE_READY) {
+  db.collection('settings').doc('site').get().then(doc => {
+    if (doc.exists && doc.data().refundPolicy) document.getElementById('refund-policy-text').textContent = doc.data().refundPolicy;
+  }).catch(() => {});
+}
 
 // ---- Reviews (real-time, har product pe) ----
 function starsText(r) { return '★★★★★'.slice(0, r) + '☆☆☆☆☆'.slice(0, 5 - r); }
@@ -421,8 +671,13 @@ function affiliateLink(pid) {
 }
 function refreshAffilBoxes() {
   document.querySelectorAll('.affil-box').forEach(box => {
-    if (!currentUser) { box.style.display = 'none'; return; }
+    // Every card shows its affiliate box — guests get a login button, users get their link.
     box.style.display = 'block';
+    if (!currentUser) {
+      box.innerHTML = 'Share &amp; Earn — your affiliate link:<br><button class="btn small" style="margin-top:6px" onclick="openAuth(\'login\')">Login to Get Your Link</button>';
+      return;
+    }
+    box.innerHTML = 'Share &amp; Earn — your affiliate link:<br><span class="affil-link"></span><br><button class="btn small copy-affil-btn" data-id="' + box.dataset.affilFor + '" style="margin-top:6px">Copy Link</button>';
     box.querySelector('.affil-link').textContent = affiliateLink(box.dataset.affilFor);
   });
 }
@@ -440,7 +695,45 @@ freeGrid.addEventListener('click', e => {
 // ---- Cart (localStorage — works for guests too) ----
 let cart = [];
 try { cart = JSON.parse(localStorage.getItem('cv_cart') || '[]'); } catch (e) { cart = []; }
-function saveCart() { localStorage.setItem('cv_cart', JSON.stringify(cart)); renderCart(); }
+function saveCart() {
+  localStorage.setItem('cv_cart', JSON.stringify(cart));
+  renderCart();
+  // Abandoned-cart recovery: logged-in users' carts are saved in Firestore,
+  // so the cart survives across devices and the admin can see abandoned carts.
+  if (FIREBASE_READY && currentUser) {
+    db.collection('carts').doc(currentUser.email).set({
+      items: cart, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true }).catch(() => {});
+  }
+}
+// ---- Coupons ----
+let appliedCoupon = null; // {code, type: 'percent'|'fixed', value}
+function cartDiscount() {
+  if (!appliedCoupon || !cart.length) return 0;
+  const sub = cartTotal();
+  if (appliedCoupon.type === 'percent') return Math.round(sub * Number(appliedCoupon.value || 0) / 100 * 100) / 100;
+  return Math.min(sub, Number(appliedCoupon.value || 0));
+}
+function cartGrandTotal() { return Math.max(0, cartTotal() - cartDiscount()); }
+document.getElementById('coupon-apply-btn').addEventListener('click', async () => {
+  const code = document.getElementById('coupon-code').value.trim().toLowerCase();
+  const msg = document.getElementById('coupon-msg');
+  if (!code) { msg.textContent = 'Enter a coupon code.'; msg.style.color = '#dc2626'; return; }
+  if (!FIREBASE_READY) { msg.textContent = 'Coupons need an internet connection.'; msg.style.color = '#dc2626'; return; }
+  try {
+    const doc = await db.collection('coupons').doc(code).get();
+    if (!doc.exists) { msg.textContent = 'Invalid coupon code.'; msg.style.color = '#dc2626'; return; }
+    const c = doc.data();
+    if (c.active === false) { msg.textContent = 'This coupon is no longer active.'; msg.style.color = '#dc2626'; return; }
+    if (c.expiresAt && c.expiresAt.toDate && c.expiresAt.toDate() < new Date()) { msg.textContent = 'This coupon has expired.'; msg.style.color = '#dc2626'; return; }
+    if (c.maxUses && (c.usedCount || 0) >= c.maxUses) { msg.textContent = 'This coupon has reached its usage limit.'; msg.style.color = '#dc2626'; return; }
+    if (c.minSpend && cartTotal() < Number(c.minSpend)) { msg.textContent = 'This coupon needs a minimum spend of $' + Number(c.minSpend).toFixed(2) + '.'; msg.style.color = '#dc2626'; return; }
+    appliedCoupon = { code: code, type: c.type || 'percent', value: Number(c.value || 0) };
+    msg.textContent = 'Coupon applied: ' + (appliedCoupon.type === 'percent' ? appliedCoupon.value + '% off' : '$' + appliedCoupon.value.toFixed(2) + ' off') + '.';
+    msg.style.color = '#15803d';
+    renderCart();
+  } catch (e) { msg.textContent = 'Could not check the coupon: ' + e.message; msg.style.color = '#dc2626'; }
+});
 function cartCount() { return cart.reduce((n, i) => n + i.qty, 0); }
 function cartTotal() { return cart.reduce((n, i) => { const p = PAID_PRODUCTS.find(x => x.id === i.id); return n + (p ? p.price * i.qty : 0); }, 0); }
 function addToCart(id, openCart) {
@@ -467,7 +760,10 @@ function renderCart() {
       box.appendChild(row);
     });
   }
-  document.getElementById('cart-total').textContent = cart.length ? 'Total: $' + cartTotal().toFixed(2) + '  (≈ Rs ' + Math.round(cartTotal() * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR)' : '';
+  const sub = cartTotal(), disc = cartDiscount(), grand = cartGrandTotal();
+  document.getElementById('cart-total').innerHTML = cart.length
+    ? 'Subtotal: $' + sub.toFixed(2) + (disc ? '<br>Coupon (' + (appliedCoupon ? appliedCoupon.code : '') + '): −$' + disc.toFixed(2) + '<br><strong>Total: $' + grand.toFixed(2) + '</strong>' : '<br><strong>Total: $' + sub.toFixed(2) + '</strong>') + '  (≈ Rs ' + Math.round(grand * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR)'
+    : '';
 }
 paidGrid.addEventListener('click', e => {
   const add = e.target.closest('.add-cart-btn');
@@ -520,36 +816,70 @@ function showCheckout() {
   } else {
     needAuth.style.display = 'none';
     body.style.display = 'block';
+    document.getElementById('checkout-options').style.display = 'block';
+    document.getElementById('checkout-pay').style.display = 'none';
     const lines = cart.map(i => { const p = PAID_PRODUCTS.find(x => x.id === i.id); return p.title + ' × ' + i.qty + ' — $' + (p.price * i.qty).toFixed(2); });
+    if (cartDiscount()) lines.push('Coupon (' + appliedCoupon.code + '): −$' + cartDiscount().toFixed(2));
     document.getElementById('checkout-summary').innerHTML = lines.map(l => '<p>• ' + l + '</p>').join('');
-    document.getElementById('checkout-total').textContent = 'Total: $' + cartTotal().toFixed(2) + '  (≈ Rs ' + Math.round(cartTotal() * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR)';
+    document.getElementById('checkout-total').textContent = 'Total: $' + cartGrandTotal().toFixed(2) + '  (≈ Rs ' + Math.round(cartGrandTotal() * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR)';
     document.getElementById('pay-easypaisa').textContent = PAYMENT.easypaisa;
     document.getElementById('pay-jazzcash').textContent = PAYMENT.jazzcash;
     document.getElementById('pay-till').textContent = PAYMENT.till;
     document.getElementById('pay-till-title').textContent = PAYMENT.tillTitle;
+    document.getElementById('pay-usdt').textContent = 'See Deposit → USDT (TRC20 / BEP20) — address coming soon';
     document.getElementById('pay-title').textContent = PAYMENT.title;
-    const orderId = recordOrder();
-    const msg = encodeURIComponent('Hello, here is my order (Order ID: ' + orderId + '):\n' + lines.join('\n') + '\nTotal: $' + cartTotal().toFixed(2) + ' (≈ Rs ' + Math.round(cartTotal() * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR)\nI have sent the payment, here is the screenshot.');
-    document.getElementById('wa-order').href = 'https://wa.me/' + PAYMENT.whatsapp + '?text=' + msg;
+    loadFrontBalance();
   }
   checkoutModal.classList.add('open');
   checkoutModal.setAttribute('aria-hidden', 'false');
 }
+let frontBalance = 0;
+async function loadFrontBalance() {
+  try {
+    if (!currentUser || !FIREBASE_READY) return;
+    const doc = await db.collection('users').doc(currentUser.email).get();
+    frontBalance = doc.exists ? Number(doc.data().balance || 0) : 0;
+    document.getElementById('checkout-balance-amt').textContent = '$' + frontBalance.toFixed(2);
+  } catch (e) { /* balance stays $0 */ }
+}
+document.getElementById('checkout-confirm-btn').addEventListener('click', () => {
+  const err = document.getElementById('checkout-error');
+  err.textContent = '';
+  if (!document.getElementById('checkout-terms').checked) { err.textContent = 'Please accept the delivery and refund terms to continue.'; return; }
+  const payByBalance = document.getElementById('checkout-balance').checked;
+  if (payByBalance && frontBalance < cartGrandTotal()) { err.textContent = 'Your balance ($' + frontBalance.toFixed(2) + ') is less than the total. Deposit first or uncheck wallet payment.'; return; }
+  const orderId = recordOrder({ paymentMethod: payByBalance ? 'balance' : 'manual' });
+  const lines = cart.map(i => { const p = PAID_PRODUCTS.find(x => x.id === i.id); return p.title + ' × ' + i.qty + ' — $' + (p.price * i.qty).toFixed(2); });
+  if (cartDiscount()) lines.push('Coupon (' + appliedCoupon.code + '): −$' + cartDiscount().toFixed(2));
+  const msg = encodeURIComponent('Hello, here is my order (Order ID: ' + orderId + '):\n' + lines.join('\n') + '\nTotal: $' + cartGrandTotal().toFixed(2) + ' (≈ Rs ' + Math.round(cartGrandTotal() * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR)\nPayment: ' + (payByBalance ? 'Wallet balance' : 'Manual payment') + '\nI have sent the payment, here is the screenshot.');
+  document.getElementById('wa-order').href = 'https://wa.me/' + PAYMENT.whatsapp + '?text=' + msg;
+  document.getElementById('checkout-options').style.display = 'none';
+  document.getElementById('checkout-pay').style.display = 'block';
+  if (payByBalance) document.getElementById('wa-order').textContent = 'Send Order on WhatsApp (Confirm Balance Payment)';
+});
 
 // security-patch-v11b: escape user text before innerHTML (stored-XSS fix)
 function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
-function recordOrder() {
+function recordOrder(opts) {
+  opts = opts || {};
   const orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
   if (!FIREBASE_READY || !currentUser) return orderId;
   const items = cart.map(i => { const p = PAID_PRODUCTS.find(x => x.id === i.id); return { id: i.id, title: p.title, price: p.price, qty: i.qty }; });
-  const total = cartTotal();
-  const cartKey = JSON.stringify(cart);
+  const subtotal = cartTotal();
+  const discount = cartDiscount();
+  const total = cartGrandTotal();
+  const paymentMethod = opts.paymentMethod || 'manual';
+  const cartKey = JSON.stringify(cart) + '|' + (appliedCoupon ? appliedCoupon.code : '') + '|' + paymentMethod;
   if (window.__lastOrderCart === cartKey && window.__lastOrderId) return window.__lastOrderId;
   window.__lastOrderCart = cartKey; window.__lastOrderId = orderId;
   // Order seedha database mein jata hai — admin ko foran dikhta hai. Agar save na ho to user ko foran batayein.
-  db.collection('orders').add({ orderId: orderId, email: currentUser.email, items: items, total: total, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() })
-    .then(async () => { await recordCommission(orderId, items, total); sendAdminEmail('order', { orderId: orderId, email: currentUser.email, items: items.map(i => i.title + ' ×' + i.qty).join(', '), total: total }); })
+  db.collection('orders').add({ orderId: orderId, email: currentUser.email, items: items, subtotal: subtotal, discount: discount, couponCode: appliedCoupon ? appliedCoupon.code : '', total: total, paymentMethod: paymentMethod, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() })
+    .then(async () => {
+      await recordCommission(orderId, items, total);
+      sendAdminEmail('order', { orderId: orderId, email: currentUser.email, items: items.map(i => i.title + ' ×' + i.qty).join(', '), total: total, paymentMethod: paymentMethod });
+      if (appliedCoupon) db.collection('coupons').doc(appliedCoupon.code).update({ usedCount: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
+    })
     .catch(function() { toast('Order could not be saved — check your internet and try again.'); });
   return orderId;
 }
@@ -561,10 +891,15 @@ function recordOrder() {
 // safe in the database — nothing is blocked.
 async function sendAdminEmail(kind, data) {
   try {
-    const subject = kind === 'order' ? 'New Order — Codeovision Store' : 'New Deposit Request — Codeovision Store';
-    const message = kind === 'order'
-      ? 'New order ' + data.orderId + ' from ' + data.email + '\nItems: ' + data.items + '\nTotal: $' + Number(data.total).toFixed(2)
-      : 'New deposit request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + '\nTxID: ' + data.txid;
+    const subjects = { order: 'New Order — Codeovision Store', deposit: 'New Deposit Request — Codeovision Store', withdraw: 'New Withdrawal Request — Codeovision Store', refund: 'New Refund Request — Codeovision Store', level_claim: 'New Rank Reward Claim — Codeovision Store', signup: 'New User Signup — Codeovision Store' };
+    const subject = subjects[kind] || 'Codeovision Store Notification';
+    let message = '';
+    if (kind === 'order') message = 'New order ' + data.orderId + ' from ' + data.email + '\nItems: ' + data.items + '\nTotal: $' + Number(data.total).toFixed(2) + (data.paymentMethod ? '\nPayment: ' + data.paymentMethod : '');
+    else if (kind === 'withdraw') message = 'New withdrawal request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + '\nAccount: ' + (data.account || '');
+    else if (kind === 'refund') message = 'New refund request from ' + data.email + '\nOrder: ' + data.orderId + '\nTotal: $' + Number(data.total || 0).toFixed(2) + '\nReason: ' + (data.reason || '');
+    else if (kind === 'level_claim') message = 'New rank reward claim from ' + data.email + '\nLevel: ' + data.level + '\nReward: $' + Number(data.rewardUsd || 0).toFixed(2);
+    else if (kind === 'signup') message = 'New user signed up: ' + data.email + (data.referredBy ? '\nReferred by: ' + data.referredBy : '');
+    else message = 'New deposit request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + (data.amountPkr ? ' (≈ Rs ' + Number(data.amountPkr).toLocaleString('en-PK') + ' PKR)' : '') + '\nTxID: ' + data.txid + (data.proofUrl ? '\nScreenshot: ' + data.proofUrl : '\n(No screenshot link given — ask for it on WhatsApp.)');
     await fetch('https://formsubmit.co/ajax/codeographics@gmail.com', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -578,7 +913,9 @@ async function sendAdminEmail(kind, data) {
 async function recordCommission(orderId, items, total) {
   try {
     const userDoc = await db.collection('users').doc(currentUser.email).get();
-    const referredBy = userDoc.exists ? userDoc.data().referredBy : null;
+    const userData = userDoc.exists ? userDoc.data() : {};
+    const referredBy = userData.referredBy || null;
+    const referredProduct = userData.referredProduct || '';
     if (!referredBy || referredBy === currentUser.email) return;
     const [salesSnap, levelsSnap, affDoc] = await Promise.all([
       db.collection('commissions').where('referrerEmail', '==', referredBy).get(),
@@ -587,6 +924,10 @@ async function recordCommission(orderId, items, total) {
     ]);
     const sales = salesSnap.size;
     let pct = affDoc.exists ? Number(affDoc.data().commissionPercent || 0) : 0;
+    // Hold period: commission cannot be approved until holdDays after the order
+    // (admin-set in Affiliate settings, default 30 days), so refunds don't pay out.
+    const holdDays = affDoc.exists && affDoc.data().holdDays != null ? Number(affDoc.data().holdDays) : 30;
+    const holdUntil = firebase.firestore.Timestamp.fromDate(new Date(Date.now() + holdDays * 24 * 60 * 60 * 1000));
     let levelName = '';
     levelsSnap.forEach(d => {
       const l = d.data();
@@ -595,6 +936,7 @@ async function recordCommission(orderId, items, total) {
     if (!pct) return;
     await db.collection('commissions').add({
       referrerEmail: referredBy, buyerEmail: currentUser.email, orderId: orderId,
+      referredProduct: referredProduct, holdUntil: holdUntil,
       productTitles: items.map(i => i.title).join(', '), total: total,
       commissionPercent: pct, level: levelName, amount: Math.round(total * pct / 100 * 100) / 100,
       status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -655,6 +997,19 @@ function checkCaptcha(id) {
 document.getElementById('cap-r-auth').addEventListener('click', () => newCaptcha('auth'));
 newCaptcha('auth');
 
+document.getElementById('forgot-pass').addEventListener('click', async e => {
+  e.preventDefault();
+  const email = document.getElementById('auth-email').value.trim();
+  const msg = document.getElementById('auth-msg');
+  const err = document.getElementById('auth-error');
+  err.textContent = ''; msg.textContent = '';
+  if (!email) { err.textContent = 'Enter your email first, then click Forgot password.'; return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    msg.textContent = 'Password reset email sent — check your inbox (the link expires in 1 hour).';
+  } catch (e2) { err.textContent = e2.message; }
+});
+
 document.getElementById('auth-submit').addEventListener('click', async () => {
   const email = document.getElementById('auth-email').value.trim();
   const pass = document.getElementById('auth-pass').value;
@@ -676,6 +1031,9 @@ document.getElementById('auth-submit').addEventListener('click', async () => {
           referredBy: ref, referredProduct: params.get('product') || '', balance: 0,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true }).catch(function(){});
+        sendAdminEmail('signup', { email: email, referredBy: ref });
+      } else {
+        sendAdminEmail('signup', { email: email });
       }
     }
     msg.textContent = 'Done! Welcome.';
@@ -690,6 +1048,16 @@ function updateAuthUI() {
   btn.textContent = currentUser ? currentUser.email.split('@')[0] + ' (Logout)' : 'Login / Signup';
   dashLink.style.display = currentUser ? '' : 'none';
   refreshAffilBoxes();
+  loadWishlist();
+  // Abandoned cart: restore the saved cart for this user (if the local cart is empty).
+  if (currentUser && FIREBASE_READY && !cart.length) {
+    db.collection('carts').doc(currentUser.email).get().then(doc => {
+      if (doc.exists && Array.isArray(doc.data().items) && doc.data().items.length) {
+        cart = doc.data().items.filter(i => PAID_PRODUCTS.find(p => p.id === i.id));
+        if (cart.length) { saveCart(); toast('Welcome back! Your saved cart was restored.'); }
+      }
+    }).catch(() => {});
+  }
 }
 
 // ---- Typing effect ----

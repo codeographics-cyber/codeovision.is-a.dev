@@ -1,0 +1,131 @@
+# Firestore rules v12 — ADDITIONS + 2 REPLACEMENTS (keep all other v8/v11 rules unchanged)
+# Paste these matches inside `match /databases/{database}/documents { ... }`, then Publish.
+# IMPORTANT: if a match for `orders` or `deposits` already exists in the console,
+# REPLACE that match with the v12 version below (do not add a second one —
+# two matches for one path are OR-ed, so a duplicate would keep the old loose rule).
+# `isAdmin()` helper already exists in the v8 rules — reuse it, do not redefine.
+
+```
+    // v12 — live support chat threads (one doc per user + messages subcollection)
+    // Users read/write ONLY their own thread; admin has full access.
+    match /support_chats/{email} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.token.email == email);
+      allow create: if request.auth != null && request.auth.token.email == email
+        && request.resource.data.userEmail == email
+        && request.resource.data.status in ['open', 'closed'];
+      allow update: if isAdmin() || (request.auth != null && request.auth.token.email == email
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt', 'lastMessage']));
+      match /messages/{id} {
+        allow read: if isAdmin() || (request.auth != null && request.auth.token.email == email);
+        // Owner sends as 'user'. During the one-time migration of old flat
+        // support_messages (thread does not exist yet) the owner may also copy
+        // old 'admin' messages into the new thread. Admin may write anything.
+        allow create: if isAdmin() || (request.auth != null && request.auth.token.email == email
+          && (request.resource.data.sender == 'user'
+              || !exists(/databases/$(database)/documents/support_chats/$(email))));
+      }
+    }
+
+    // v12 — rank reward claims (SECURE: users file a claim, only the admin adds balance)
+    // A user can create ONLY their own claim, only with a ladder reward amount
+    // (Silver $1, Gold $10, Associate $100, Director $1,000) and status 'pending'.
+    match /level_claims/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.rewardUsd in [1, 10, 100, 1000]
+        && request.resource.data.status == 'pending';
+      allow read: if isAdmin() || (request.auth != null && resource.data.email == request.auth.token.email);
+      allow update: if isAdmin();
+    }
+
+    // v12 — coupons (public read so the cart can validate a code; admin writes;
+    // any logged-in buyer may increment usedCount by exactly 1 at checkout)
+    match /coupons/{code} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (request.auth != null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedCount'])
+        && request.resource.data.usedCount == resource.data.usedCount + 1);
+    }
+
+    // v12 — bundles (public read; admin writes)
+    match /bundles/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // v12 — licence keys (owner reads own + may activate +1 up to the limit; admin full)
+    match /licences/{id} {
+      allow read: if isAdmin() || (request.auth != null && resource.data.email == request.auth.token.email);
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (request.auth != null
+        && resource.data.email == request.auth.token.email
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activations'])
+        && request.resource.data.activations == resource.data.activations + 1
+        && request.resource.data.activations <= resource.data.maxActivations);
+    }
+
+    // v12 — wishlists (own doc only)
+    match /wishlists/{email} {
+      allow read, write: if isAdmin() || (request.auth != null && request.auth.token.email == email);
+    }
+
+    // v12 — saved carts / abandoned carts (own doc only)
+    match /carts/{email} {
+      allow read, write: if isAdmin() || (request.auth != null && request.auth.token.email == email);
+    }
+
+    // v12 — wallet ledger (admin writes; owner reads own)
+    match /wallet_ledger/{id} {
+      allow create: if isAdmin();
+      allow read: if isAdmin() || (request.auth != null && resource.data.email == request.auth.token.email);
+    }
+
+    // v12 — download logs (owner creates own entries; admin reads)
+    match /download_logs/{id} {
+      allow create: if request.auth != null && request.resource.data.email == request.auth.token.email;
+      allow read: if isAdmin();
+    }
+
+    // v12 — orders (REPLACE any existing orders match)
+    // Owner creates own pending orders; owner may ONLY bump downloadCount by 1
+    // on a paid/delivered order (download tracking); everything else is admin.
+    match /orders/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.status == 'pending';
+      allow read: if isAdmin() || (request.auth != null && resource.data.email == request.auth.token.email);
+      allow update: if isAdmin() || (request.auth != null
+        && resource.data.email == request.auth.token.email
+        && (resource.data.status == 'paid' || resource.data.status == 'delivered')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloadCount'])
+        && request.resource.data.downloadCount == resource.data.downloadCount + 1);
+    }
+
+    // v12 — deposits (REPLACE any existing deposits match)
+    // Owner creates own pending deposits with validated fields:
+    // amountUsd > 0, amountPkr > 0, non-empty txid + gateway. Admin approves/rejects.
+    match /deposits/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.status == 'pending'
+        && request.resource.data.amountUsd is number && request.resource.data.amountUsd > 0
+        && request.resource.data.amountPkr is number && request.resource.data.amountPkr > 0
+        && request.resource.data.txid is string && request.resource.data.txid.size() > 0
+        && request.resource.data.gateway is string;
+      allow read: if isAdmin() || (request.auth != null && resource.data.email == request.auth.token.email);
+      allow update: if isAdmin();
+    }
+```
+
+Notes:
+- `users` rule stays admin-only for updates (v8) — that is what makes rank rewards
+  secure: a user can never write their own balance; rewards go through
+  `level_claims` + admin approval.
+- `settings/{doc}` (v8: read public, write admin) already covers
+  settings/site (refund policy), settings/downloads (expiry/attempts),
+  settings/wallet (min deposit/withdraw, fee) and settings/affiliate (hold days).
+- `support_messages` (flat, v6) is kept for the one-time migration only — new
+  messages go to `support_chats`. Do not delete the old collection yet.
+- `commissions` (v8) already allows create by any logged-in user; the new
+  `holdUntil` field needs no rule change (admin enforces the hold in the panel).

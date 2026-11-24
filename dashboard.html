@@ -72,6 +72,10 @@
         <div class="sidebar-title">My Account</div>
         <button data-section="sec-u-overview" class="active">Dashboard</button>
         <button data-section="sec-u-orders">My Orders</button>
+        <button data-section="sec-u-downloads">My Downloads</button>
+        <button data-section="sec-u-licences">My Licences</button>
+        <button data-section="sec-u-ledger">Wallet Ledger</button>
+        <button data-section="sec-u-wishlist">My Wishlist</button>
         <button data-section="sec-u-deposit">Deposit</button>
         <button data-section="sec-u-withdraw">Withdraw</button>
         <button data-section="sec-u-referrals">My Referrals</button>
@@ -100,7 +104,7 @@
             <div class="stat-box"><strong id="u-referrals">0</strong><span>Total Referrals</span></div>
             <div class="stat-box"><strong id="u-commission">$0.00</strong><span>Total Commission</span></div>
             <div class="stat-box"><strong id="u-sales">0</strong><span>My Sales</span></div>
-            <div class="stat-box"><strong><span class="level-badge" id="u-level">New User</span></strong><span>My Level</span></div>
+            <div class="stat-box"><strong><span class="level-badge" id="u-level">Bronze</span></strong><span>My Level</span><div id="u-level-next" style="font-size:12px;color:#c7d2fe;margin-top:4px"></div></div>
           </div>
           <div class="admin-card">
             <h2>Quick Actions</h2>
@@ -122,6 +126,51 @@
           </div>
         </section>
 
+        <!-- MY DOWNLOADS (library — files released after payment verification) -->
+        <section id="sec-u-downloads" class="admin-section" style="display:none">
+          <h2>My Downloads</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Your paid files live here. Downloads are released only after the admin verifies your payment, and each link expires after the download window set by the admin.</p>
+            <table class="admin-table">
+              <thead><tr><th>Order</th><th>Product</th><th>Download</th><th>Licence Key</th><th>Expires</th><th>Used</th></tr></thead>
+              <tbody id="my-downloads-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- MY LICENCES -->
+        <section id="sec-u-licences" class="admin-section" style="display:none">
+          <h2>My Licences</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Your licence keys. Each key has an activation limit set by the admin — activate it on a new device only when you need to.</p>
+            <table class="admin-table">
+              <thead><tr><th>Key</th><th>Product</th><th>Activations</th><th>Status</th><th></th></tr></thead>
+              <tbody id="my-licences-body"><tr><td colspan="5">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- WALLET LEDGER -->
+        <section id="sec-u-ledger" class="admin-section" style="display:none">
+          <h2>Wallet Ledger</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Every movement of your balance — deposits, purchases, refunds, referral earnings and withdrawals — with the reason.</p>
+            <table class="admin-table">
+              <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Note</th></tr></thead>
+              <tbody id="my-ledger-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- MY WISHLIST -->
+        <section id="sec-u-wishlist" class="admin-section" style="display:none">
+          <h2>My Wishlist</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Products you saved for later.</p>
+            <div id="u-wishlist-list"><p style="color:#6b7280">Loading…</p></div>
+          </div>
+        </section>
+
         <!-- DEPOSIT -->
         <section id="sec-u-deposit" class="admin-section" style="display:none">
           <h2>Deposit</h2>
@@ -130,11 +179,17 @@
             <div id="deposit-gateways" style="margin-bottom:14px"><span style="color:#6b7280">Loading gateways…</span></div>
             <label>Select Gateway</label>
             <select id="dep-gateway"><option value="">— Select —</option></select>
-            <label>Amount (Rs)</label>
-            <input type="number" id="dep-amount" placeholder="e.g. 10">
+            <label>Enter Amount (USD)</label>
+            <div style="display:flex;align-items:center">
+              <span style="padding:10px 12px;border:1px solid #e5e7eb;border-right:none;border-radius:10px 0 0 10px;background:#f9fafb;font-weight:bold;color:#111827">$</span>
+              <input type="number" id="dep-amount" placeholder="e.g. 10" style="border-radius:0 10px 10px 0;margin-bottom:0">
+            </div>
             <p class="pkr-note" id="dep-pkr"></p>
             <label>Transaction ID (TxID)</label>
             <input type="text" id="dep-txid" placeholder="Payment TxID / reference number">
+            <label>Payment Screenshot Link</label>
+            <input type="text" id="dep-proof" placeholder="Upload the screenshot to Google Drive or Imgur, then paste the link here">
+            <p style="color:#6b7280;font-size:13px;margin-top:4px">Upload your payment screenshot to Google Drive or Imgur and paste the share link above — the admin will check it before approving. You can also send the screenshot on WhatsApp after submitting (button below).</p>
             <button class="btn teal" id="dep-submit-btn">Submit Deposit Request</button>
             <p id="dep-msg" style="margin-top:10px"></p>
             <div id="dep-whatsapp" style="display:none;margin-top:14px;padding:14px;border:1px solid #0d9488;border-radius:10px;background:#f0fdfa">
@@ -148,8 +203,8 @@
           <div class="admin-card">
             <h2>My Deposit Requests</h2>
             <table class="admin-table">
-              <thead><tr><th>Gateway</th><th>Amount</th><th>TxID</th><th>Status</th></tr></thead>
-              <tbody id="my-deposits-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+              <thead><tr><th>Gateway</th><th>Amount</th><th>TxID</th><th>Proof</th><th>Status</th></tr></thead>
+              <tbody id="my-deposits-body"><tr><td colspan="5">Loading…</td></tr></tbody>
             </table>
           </div>
         </section>
@@ -161,7 +216,7 @@
             <p style="color:#6b7280;margin-bottom:12px">Your balance: <strong id="wd-balance">$0</strong></p>
             <label>Select Gateway</label>
             <select id="wd-gateway"><option value="">— Select —</option></select>
-            <label>Amount (Rs)</label>
+            <label>Amount (USD)</label>
             <input type="number" id="wd-amount" placeholder="e.g. 5">
             <p class="pkr-note" id="wd-pkr"></p>
             <label>Account Number (where you want the money)</label>
@@ -204,9 +259,14 @@
 
         <!-- SUPPORT CHAT -->
         <section id="sec-u-chat" class="admin-section" style="display:none">
-          <h2>Live Support Chat — Talk Directly to the Admin</h2>
+          <h2>Live Support Chat</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">If you have any issue, write here — the admin will reply to you right here.</p>
+            <p style="color:#6b7280;margin-bottom:12px">If you have any issue, write here — our support team will reply to you right here. The full chat history is saved in the database.</p>
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+              <span>Status: <strong id="chat-status">Open</strong></span>
+              <button class="btn small" id="chat-close-btn">Close Chat</button>
+              <button class="btn small" id="chat-reopen-btn" style="display:none">Reopen Chat</button>
+            </div>
             <div class="chat-box" id="chat-box"><p style="color:#6b7280">No messages yet. Write below and send.</p></div>
             <div id="chat-typing" style="color:#6b7280;font-style:italic;font-size:14px;min-height:20px;margin-bottom:6px"></div>
             <div class="chat-input-row">
@@ -239,6 +299,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 const WHATSAPP_NUMBER = '923037102625';
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
 const loginCard = document.getElementById('login-card');
 const userDash = document.getElementById('user-dashboard');
@@ -265,8 +326,12 @@ function showUSection(id) {
   document.querySelectorAll('.admin-section').forEach(s => { s.style.display = s.id === id ? 'block' : 'none'; });
   document.querySelectorAll('.admin-sidebar button[data-section]').forEach(b => b.classList.toggle('active', b.dataset.section === id));
   if (id === 'sec-u-orders') loadMyOrders();
-  if (id === 'sec-u-deposit') { loadGateways(); loadMyDeposits(); }
-  if (id === 'sec-u-withdraw') { loadGateways(); loadMyWithdrawals(); loadBalance(); }
+  if (id === 'sec-u-downloads') loadMyDownloads();
+  if (id === 'sec-u-licences') loadMyLicences();
+  if (id === 'sec-u-ledger') loadWalletLedger();
+  if (id === 'sec-u-wishlist') loadMyWishlistSection();
+  if (id === 'sec-u-deposit') { loadGateways(); loadMyDeposits(); loadWalletSettings(); }
+  if (id === 'sec-u-withdraw') { loadGateways(); loadMyWithdrawals(); loadBalance(); loadWalletSettings(); }
   if (id === 'sec-u-referrals') { loadMyRefLinks(); loadMyCommissions(); }
   if (id === 'sec-u-tasks') loadMyTasks();
   if (id === 'sec-u-overview') { loadMyOrders(); loadBalance(); loadUserStats(); loadSlider(); }
@@ -327,6 +392,7 @@ auth.onAuthStateChanged(user => {
     loginCard.style.display = 'block';
     userDash.style.display = 'none';
     if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+    if (chatThreadUnsub) { chatThreadUnsub(); chatThreadUnsub = null; }
     if (typingUnsub) { typingUnsub(); typingUnsub = null; }
   }
 });
@@ -354,11 +420,14 @@ async function loadGateways() {
     box.innerHTML = '';
     depSel.innerHTML = '<option value="">— Select —</option>';
     wdSel.innerHTML = '<option value="">— Select —</option>';
+    window.__gateways = {};
     snap.forEach(doc => {
       const g = doc.data();
+      window.__gateways[g.name] = g;
       const div = document.createElement('div');
       div.style.cssText = 'padding:10px;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:8px';
-      div.innerHTML = '<strong>' + g.name + '</strong> — ' + g.number + ' (' + g.title + ')';
+      // USDT addresses are placeholders until the admin adds the real address — say so clearly.
+      div.innerHTML = '<strong>' + g.name + '</strong> — ' + g.number + ' (' + g.title + ')' + (g.number === 'Address coming soon' ? '<br><span style="color:#b45309;font-size:13px">⚠️ Address coming soon — the admin will add the real address. Please do not send money here yet.</span>' : '');
       box.appendChild(div);
       const o1 = document.createElement('option'); o1.value = g.name; o1.textContent = g.name + ' — ' + g.number;
       const o2 = o1.cloneNode(true);
@@ -417,6 +486,7 @@ async function requestRefund(orderDocId, orderId) {
     total: o.total || o.price || 0, reason: reason, status: 'requested',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
+  sendAdminEmail('refund', { email: currentUser.email, orderId: orderId, total: o.total || o.price || 0, reason: reason });
   alert('Refund request sent. The admin will reply soon.');
   loadMyOrders();
 }
@@ -424,10 +494,15 @@ async function requestRefund(orderDocId, orderId) {
 // ---- Admin email notifications (FormSubmit — no server needed) ----
 async function sendAdminEmail(kind, data) {
   try {
-    const subject = kind === 'order' ? 'New Order — Codeovision Store' : 'New Deposit Request — Codeovision Store';
-    const message = kind === 'order'
-      ? 'New order ' + data.orderId + ' from ' + data.email + '\nItems: ' + data.items + '\nTotal: $' + Number(data.total).toFixed(2)
-      : 'New deposit request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + '\nTxID: ' + data.txid;
+    const subjects = { order: 'New Order — Codeovision Store', deposit: 'New Deposit Request — Codeovision Store', withdraw: 'New Withdrawal Request — Codeovision Store', refund: 'New Refund Request — Codeovision Store', level_claim: 'New Rank Reward Claim — Codeovision Store', signup: 'New User Signup — Codeovision Store' };
+    const subject = subjects[kind] || 'Codeovision Store Notification';
+    let message = '';
+    if (kind === 'order') message = 'New order ' + data.orderId + ' from ' + data.email + '\nItems: ' + data.items + '\nTotal: $' + Number(data.total).toFixed(2) + (data.paymentMethod ? '\nPayment: ' + data.paymentMethod : '');
+    else if (kind === 'withdraw') message = 'New withdrawal request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + '\nAccount: ' + (data.account || '');
+    else if (kind === 'refund') message = 'New refund request from ' + data.email + '\nOrder: ' + data.orderId + '\nTotal: $' + Number(data.total || 0).toFixed(2) + '\nReason: ' + (data.reason || '');
+    else if (kind === 'level_claim') message = 'New rank reward claim from ' + data.email + '\nLevel: ' + data.level + '\nReward: $' + Number(data.rewardUsd || 0).toFixed(2);
+    else if (kind === 'signup') message = 'New user signed up: ' + data.email + (data.referredBy ? '\nReferred by: ' + data.referredBy : '');
+    else message = 'New deposit request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + (data.amountPkr ? ' (≈ Rs ' + Number(data.amountPkr).toLocaleString('en-PK') + ' PKR)' : '') + '\nTxID: ' + data.txid + (data.proofUrl ? '\nScreenshot: ' + data.proofUrl : '\n(No screenshot link given — ask for it on WhatsApp.)');
     await fetch('https://formsubmit.co/ajax/codeographics@gmail.com', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -443,22 +518,38 @@ document.getElementById('dep-submit-btn').addEventListener('click', async () => 
   const gateway = document.getElementById('dep-gateway').value;
   const amount = parseFloat(document.getElementById('dep-amount').value);
   const txid = document.getElementById('dep-txid').value.trim();
+  const proofUrl = document.getElementById('dep-proof').value.trim();
   if (!gateway) { msg.textContent = 'Select a gateway.'; msg.style.color = '#dc2626'; return; }
-  if (!amount || amount <= 0) { msg.textContent = 'Enter a valid amount.'; msg.style.color = '#dc2626'; return; }
+  // USDT placeholder: no real address yet — block the deposit so nobody sends money nowhere.
+  const gw = (window.__gateways || {})[gateway];
+  if (gw && gw.number === 'Address coming soon') { msg.textContent = 'This gateway address is coming soon — the admin will add the real address. Please use another gateway for now.'; msg.style.color = '#dc2626'; return; }
+  if (!amount || amount <= 0) { msg.textContent = 'Enter a valid amount in USD.'; msg.style.color = '#dc2626'; return; }
+  // Admin-set minimum deposit (Store Settings) — enforced only when the admin set one.
+  if (walletSettings && walletSettings.minDeposit && amount < Number(walletSettings.minDeposit)) { msg.textContent = 'Minimum deposit is $' + Number(walletSettings.minDeposit).toFixed(2) + '.'; msg.style.color = '#dc2626'; return; }
   if (!txid) { msg.textContent = 'Enter the TxID.'; msg.style.color = '#dc2626'; return; }
+  const amountPkr = Math.round(amount * PKR_RATE);
+  // Fraud screen: flag a TxID that was already used in another deposit.
+  let txidDuplicate = false;
+  try {
+    const dupSnap = await db.collection('deposits').where('txid', '==', txid).limit(1).get();
+    txidDuplicate = !dupSnap.empty;
+  } catch (e) { /* duplicate check is best-effort */ }
   const depBtn = document.getElementById('dep-submit-btn'); if (depBtn.disabled) return; depBtn.disabled = true;
   await db.collection('deposits').add({
-    email: currentUser.email, gateway: gateway, amount: amount, txid: txid, status: 'pending',
+    email: currentUser.email, gateway: gateway, amount: amount, amountUsd: amount, amountPkr: amountPkr,
+    txid: txid, txidDuplicate: txidDuplicate, proofUrl: proofUrl, status: 'pending',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
-  sendAdminEmail('deposit', { email: currentUser.email, gateway: gateway, amount: amount, txid: txid });
+  sendAdminEmail('deposit', { email: currentUser.email, gateway: gateway, amount: amount, amountPkr: amountPkr, txid: txid, proofUrl: proofUrl });
   msg.textContent = 'Deposit request submitted.';
   msg.style.color = '#15803d';
-  const waText = encodeURIComponent('Hello! I deposited on Codeovision.\nAmount: $" + amount + "\nGateway: " + gateway + "\nTxID: " + txid + "\nEmail: " + currentUser.email + "\nAttaching the screenshot, please approve it.');
+  const waText = encodeURIComponent('Hello! I deposited on Codeovision.\nAmount: $' + amount + ' (≈ Rs ' + amountPkr.toLocaleString('en-PK') + ' PKR)\nGateway: ' + gateway + '\nTxID: ' + txid + (proofUrl ? '\nScreenshot link: ' + proofUrl : '\nI am attaching the payment screenshot, please approve it.') + '\nEmail: ' + currentUser.email);
   document.getElementById('dep-wa-btn').href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waText;
   document.getElementById('dep-whatsapp').style.display = 'block';
   document.getElementById('dep-amount').value = '';
   document.getElementById('dep-txid').value = '';
+  document.getElementById('dep-proof').value = '';
+  document.getElementById('dep-pkr').textContent = '';
   depBtn.disabled = false;
   loadMyDeposits();
 });
@@ -473,17 +564,118 @@ async function loadMyDeposits() {
       const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
       return tb - ta;
     });
-    if (!rows.length) { body.innerHTML = '<tr><td colspan="4">No deposits yet.</td></tr>'; return; }
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="5">No deposits yet.</td></tr>'; return; }
     body.innerHTML = '';
     rows.forEach(d => {
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (d.gateway || '') + '</td><td>$' + (d.amount || '') + '</td><td>' + (d.txid || '') + '</td><td><span class="badge ' + (d.status || 'pending') + '">' + (d.status || 'pending') + '</span></td>';
+      const amt = '$' + (d.amountUsd ?? d.amount ?? '') + (d.amountPkr ? ' (≈ Rs ' + Number(d.amountPkr).toLocaleString('en-PK') + ')' : '');
+      const proof = d.proofUrl ? '<a href="' + esc(d.proofUrl) + '" target="_blank" rel="noopener">View Proof</a>' : '—';
+      tr.innerHTML = '<td>' + (d.gateway || '') + '</td><td>' + amt + '</td><td>' + (d.txid || '') + '</td><td>' + proof + '</td><td><span class="badge ' + (d.status || 'pending') + '">' + (d.status || 'pending') + '</span></td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; }
+}
+
+// ---- My Downloads / Licences / Ledger / Wishlist ----
+async function loadMyDownloads() {
+  const body = document.getElementById('my-downloads-body');
+  try {
+    const snap = await db.collection('orders').where('email', '==', currentUser.email).orderBy('createdAt', 'desc').get();
+    const rows = [];
+    snap.forEach(doc => { const o = doc.data(); if (o.status === 'paid' || o.status === 'delivered') rows.push({ id: doc.id, o }); });
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="6">No paid orders yet — your files appear here after payment verification.</td></tr>'; return; }
+    body.innerHTML = '';
+    rows.forEach(({ id, o }) => {
+      const expired = o.downloadExpiresAt && o.downloadExpiresAt.toDate ? o.downloadExpiresAt.toDate() < new Date() : false;
+      const used = o.downloadCount || 0;
+      (o.items || []).forEach(it => {
+        const p = (typeof PAID_PRODUCTS !== 'undefined' ? PAID_PRODUCTS.find(x => x.id === it.id) : null) || {};
+        const fileUrl = (o.downloadLinks && o.downloadLinks[it.id]) || p.file || '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + (o.orderId || id) + '</td><td>' + esc(it.title || '') + '</td>' +
+          '<td>' + (expired ? 'Expired — ask support to re-issue' : (fileUrl ? '<a href="' + fileUrl + '" target="_blank" rel="noopener" onclick="logDownload(\'' + id + '\',\'' + it.id + '\')">Download</a>' : '—')) + '</td>' +
+          '<td>' + (o.licenceKey || '—') + '</td>' +
+          '<td>' + (o.downloadExpiresAt && o.downloadExpiresAt.toDate ? o.downloadExpiresAt.toDate().toLocaleDateString() : '—') + '</td>' +
+          '<td>' + used + '</td>';
+        body.appendChild(tr);
+      });
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
+}
+async function logDownload(orderDocId, productId) {
+  try {
+    await db.collection('download_logs').add({ email: currentUser.email, orderDocId: orderDocId, productId: productId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    await db.collection('orders').doc(orderDocId).update({ downloadCount: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
+  } catch (e) { /* logging is best-effort */ }
+}
+async function loadMyLicences() {
+  const body = document.getElementById('my-licences-body');
+  try {
+    const snap = await db.collection('licences').where('email', '==', currentUser.email).get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="5">No licences yet — keys are issued when an order is approved.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const l = doc.data();
+      const maxed = (l.activations || 0) >= (l.maxActivations || 1);
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td><strong>' + (l.key || '') + '</strong></td><td>' + esc(l.productTitle || '') + '</td><td>' + (l.activations || 0) + ' / ' + (l.maxActivations || 1) + '</td><td><span class="badge ' + (l.status || 'active') + '">' + (l.status || 'active') + '</span></td>' +
+        '<td>' + (l.status === 'revoked' ? '' : (maxed ? 'Limit reached' : '<button class="btn small" onclick="activateLicence(\'' + doc.id + '\')">Activate</button>')) + '</td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; }
+}
+async function activateLicence(id) {
+  try {
+    await db.collection('licences').doc(id).update({ activations: firebase.firestore.FieldValue.increment(1) });
+    toast('Licence activated.');
+    loadMyLicences();
+  } catch (e) { alert('Could not activate: ' + e.message); }
+}
+async function loadWalletLedger() {
+  const body = document.getElementById('my-ledger-body');
+  try {
+    const snap = await db.collection('wallet_ledger').where('email', '==', currentUser.email).orderBy('createdAt', 'desc').limit(50).get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">No wallet movements yet.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const l = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (l.createdAt && l.createdAt.toDate ? l.createdAt.toDate().toLocaleString() : '') + '</td><td>' + (l.type || '') + '</td><td>' + (Number(l.amount || 0) >= 0 ? '+' : '') + '$' + Number(l.amount || 0).toFixed(2) + '</td><td>' + esc(l.note || '') + '</td>';
       body.appendChild(tr);
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
 }
+async function loadMyWishlistSection() {
+  const wrap = document.getElementById('u-wishlist-list');
+  try {
+    const doc = await db.collection('wishlists').doc(currentUser.email).get();
+    const ids = doc.exists ? (doc.data().productIds || []) : [];
+    if (!ids.length) { wrap.innerHTML = '<p style="color:#6b7280">Your wishlist is empty. Save products from the store with the ♡ Wishlist button.</p>'; return; }
+    wrap.innerHTML = '';
+    ids.forEach(id => {
+      const p = (typeof PAID_PRODUCTS !== 'undefined' ? PAID_PRODUCTS.find(x => x.id === id) : null) || (typeof FREE_PRODUCTS !== 'undefined' ? FREE_PRODUCTS.find(x => x.id === id) : null);
+      const div = document.createElement('div');
+      div.className = 'affil-box';
+      div.style.display = 'block';
+      div.innerHTML = '<strong>' + esc(p ? p.title : id) + '</strong>' + (p && p.price ? ' — $' + Number(p.price).toFixed(2) : ' — Free') +
+        '<br><a href="index.html#paid-store">View on Store</a> &nbsp;•&nbsp; <a href="#" onclick="removeWish(\'' + id + '\');return false;">Remove</a>';
+      wrap.appendChild(div);
+    });
+  } catch (e) { wrap.innerHTML = '<p style="color:#dc2626">Error: ' + e.message + '</p>'; }
+}
+async function removeWish(pid) {
+  await db.collection('wishlists').doc(currentUser.email).set({ productIds: firebase.firestore.FieldValue.arrayRemove(pid) }, { merge: true }).catch(() => {});
+  loadMyWishlistSection();
+}
 
 // ---- Withdraw ----
+let walletSettings = null;
+async function loadWalletSettings() {
+  try {
+    const doc = await db.collection('settings').doc('wallet').get();
+    walletSettings = doc.exists ? doc.data() : null;
+  } catch (e) { walletSettings = null; }
+}
 document.getElementById('wd-submit-btn').addEventListener('click', async () => {
   const msg = document.getElementById('wd-msg');
   msg.textContent = '';
@@ -492,13 +684,16 @@ document.getElementById('wd-submit-btn').addEventListener('click', async () => {
   const account = document.getElementById('wd-account').value.trim();
   if (!gateway) { msg.textContent = 'Select a gateway.'; msg.style.color = '#dc2626'; return; }
   if (!amount || amount <= 0) { msg.textContent = 'Enter a valid amount.'; msg.style.color = '#dc2626'; return; }
-  if (amount > myBalance) { msg.textContent = 'Amount is more than your balance ($" + myBalance + ").'; msg.style.color = '#dc2626'; return; }
+  // Admin-set minimum withdrawal (Store Settings) — enforced only when the admin set one.
+  if (walletSettings && walletSettings.minWithdraw && amount < Number(walletSettings.minWithdraw)) { msg.textContent = 'Minimum withdrawal is $' + Number(walletSettings.minWithdraw).toFixed(2) + '.'; msg.style.color = '#dc2626'; return; }
+  if (amount > myBalance) { msg.textContent = 'Amount is more than your balance ($' + myBalance.toFixed(2) + ').'; msg.style.color = '#dc2626'; return; }
   if (!account) { msg.textContent = 'Enter the account number.'; msg.style.color = '#dc2626'; return; }
   const wdBtn = document.getElementById('wd-submit-btn'); if (wdBtn.disabled) return; wdBtn.disabled = true;
   await db.collection('withdrawals').add({
     email: currentUser.email, gateway: gateway, amount: amount, account: account, status: 'pending',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
+  sendAdminEmail('withdraw', { email: currentUser.email, gateway: gateway, amount: amount, account: account });
   msg.textContent = 'Withdraw request submitted. The admin will approve it.';
   msg.style.color = '#15803d';
   document.getElementById('wd-amount').value = '';
@@ -591,14 +786,14 @@ async function loadPkrRate() {
 }
 document.getElementById('dep-amount').addEventListener('input', e => {
   const v = parseFloat(e.target.value);
-  document.getElementById('dep-pkr').textContent = v > 0 ? 'You need to send Rs ' + Math.round(v * PKR_RATE).toLocaleString('en-PK') + ' PKR' : '';
+  document.getElementById('dep-pkr').textContent = v > 0 ? '≈ Rs ' + Math.round(v * PKR_RATE).toLocaleString('en-PK') + ' to send' : '';
 });
 document.getElementById('wd-amount').addEventListener('input', e => {
   const v = parseFloat(e.target.value);
   document.getElementById('wd-pkr').textContent = v > 0 ? '≈ Rs ' + Math.round(v * PKR_RATE).toLocaleString('en-PK') + ' PKR' : '';
 });
 
-let myReferralsCount = 0, mySalesCount = 0, myLevelName = 'New User';
+let myReferralsCount = 0, mySalesCount = 0, myLevelName = 'Bronze';
 async function loadUserStats() {
   if (!currentUser) return;
   try {
@@ -611,17 +806,54 @@ async function loadUserStats() {
     mySalesCount = comSnap.size;
     let earned = 0;
     comSnap.forEach(d => { if (d.data().status === 'approved') earned += Number(d.data().amount || 0); });
-    let levelName = 'New User';
-    levelsSnap.forEach(d => {
-      const l = d.data();
-      if (mySalesCount >= (l.minSales || 0) && mySalesCount <= (l.maxSales ?? 999999)) levelName = l.name;
-    });
-    myLevelName = levelName;
+    // Levels: admin-configured levels win; otherwise Bilal's default ladder (Bronze → Director).
+    const customLevels = [];
+    levelsSnap.forEach(d => customLevels.push(d.data()));
+    const useDefault = customLevels.length === 0;
+    const level = levelForSales(mySalesCount, customLevels);
+    const next = nextLevelForSales(mySalesCount, customLevels);
+    myLevelName = level.name;
     document.getElementById('u-referrals').textContent = myReferralsCount;
     document.getElementById('u-commission').textContent = '$' + earned.toFixed(2);
     document.getElementById('u-sales').textContent = mySalesCount;
-    document.getElementById('u-level').textContent = levelName;
+    document.getElementById('u-level').textContent = level.name;
+    const nextEl = document.getElementById('u-level-next');
+    if (nextEl) {
+      nextEl.textContent = next
+        ? 'Next: ' + next.name + ' — ' + next.minSales + ' sales needed (you have ' + mySalesCount + ')'
+        : 'Top rank reached — Director!';
+    }
+    // Rank-upgrade rewards (default ladder only): Silver $1, Gold $10, Associate $100,
+    // Director $1,000 — filed as claims; the admin approves them (secure, see grantLevelRewards).
+    if (useDefault) await grantLevelRewards(mySalesCount, level.name);
   } catch (e) { /* stats stay at defaults */ }
+}
+
+// Rank-upgrade reward (SECURE): the user NEVER writes their own balance —
+// that would let anyone add money to their own wallet from the browser console.
+// Reaching a level creates a claim in `level_claims` (one per level, deduped by
+// query). The admin approves it in Levels & Rewards and the reward is added to
+// the balance there. Rules allow the user to CREATE only their own claims, with
+// rewardUsd limited to the ladder values (1 / 10 / 100 / 1000).
+async function grantLevelRewards(sales, levelName) {
+  try {
+    const idx = DEFAULT_LEVELS.findIndex(l => l.name === levelName);
+    let claimed = [];
+    for (let i = 0; i <= idx; i++) {
+      const l = DEFAULT_LEVELS[i];
+      if (l.rewardUsd > 0) {
+        const existing = await db.collection('level_claims').where('email', '==', currentUser.email).where('level', '==', l.name).limit(1).get();
+        if (existing.empty) {
+          await db.collection('level_claims').add({ email: currentUser.email, level: l.name, rewardUsd: l.rewardUsd, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+          claimed.push(l);
+          sendAdminEmail('level_claim', { email: currentUser.email, level: l.name, rewardUsd: l.rewardUsd });
+        }
+      }
+    }
+    if (claimed.length) {
+      claimed.forEach(l => toast('Congratulations! You reached ' + l.name + ' — your $' + l.rewardUsd + ' rank award claim was sent. The admin will add it to your balance.' + (l.affiliateBonus ? ' Affiliate bonus unlocked!' : '')));
+    }
+  } catch (e) { /* reward claim is best-effort — the level display still works */ }
 }
 
 let slideTimer = null, slideIdx = 0;
@@ -712,18 +944,68 @@ function chatTune(type) { // 'send' = short pop, 'receive' = two-note ding
 let chatSeen = -1;
 let typingUnsub = null;
 let typingTimer = null;
-function startChat() {
+let chatThreadUnsub = null;
+let chatStatus = 'open';
+
+// ---- Live Support Chat — thread-based, stored in Firestore ----
+// Thread: support_chats/{userEmail} {userEmail, status: 'open'|'closed',
+// createdAt, updatedAt, lastMessage}
+// Messages: support_chats/{userEmail}/messages/{id} {sender, text, createdAt}
+// One-time migration: if the thread does not exist yet, old messages from the
+// flat support_messages collection are copied into the thread once.
+async function ensureChatThread(email) {
+  const ref = db.collection('support_chats').doc(email);
+  const snap = await ref.get();
+  if (snap.exists) return snap.data();
+  const oldSnap = await db.collection('support_messages').where('email', '==', email).get();
+  const msgs = [];
+  oldSnap.forEach(d => msgs.push(d.data()));
+  msgs.sort((a, b) => {
+    const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+    const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+    return ta - tb;
+  });
+  const batch = db.batch();
+  msgs.forEach(m => {
+    batch.set(ref.collection('messages').doc(), { sender: m.sender, text: m.text, createdAt: m.createdAt || firebase.firestore.FieldValue.serverTimestamp() });
+  });
+  batch.set(ref, { userEmail: email, status: 'open', lastMessage: msgs.length ? msgs[msgs.length - 1].text : '', createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  await batch.commit();
+  return { status: 'open' };
+}
+function updateChatStatusUI() {
+  document.getElementById('chat-status').textContent = chatStatus === 'closed' ? 'Closed' : 'Open';
+  document.getElementById('chat-close-btn').style.display = chatStatus === 'closed' ? 'none' : '';
+  document.getElementById('chat-reopen-btn').style.display = chatStatus === 'closed' ? '' : 'none';
+  const closed = chatStatus === 'closed';
+  document.getElementById('chat-input').disabled = closed;
+  document.getElementById('chat-send-btn').disabled = closed;
+  if (closed) document.getElementById('chat-typing').textContent = '';
+}
+async function setChatStatus(status) {
+  await db.collection('support_chats').doc(currentUser.email).set({ status: status, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+  chatStatus = status;
+  updateChatStatusUI();
+}
+document.getElementById('chat-close-btn').addEventListener('click', () => setChatStatus('closed'));
+document.getElementById('chat-reopen-btn').addEventListener('click', () => setChatStatus('open'));
+
+async function startChat() {
   const box = document.getElementById('chat-box');
   chatSeen = -1;
-  chatUnsub = db.collection('support_messages').where('email', '==', currentUser.email)
+  const thread = await ensureChatThread(currentUser.email);
+  chatStatus = (thread && thread.status) || 'open';
+  updateChatStatusUI();
+  if (chatThreadUnsub) chatThreadUnsub();
+  chatThreadUnsub = db.collection('support_chats').doc(currentUser.email)
+    .onSnapshot(doc => {
+      if (doc.exists) { chatStatus = doc.data().status || 'open'; updateChatStatusUI(); }
+    });
+  if (chatUnsub) chatUnsub();
+  chatUnsub = db.collection('support_chats').doc(currentUser.email).collection('messages').orderBy('createdAt')
     .onSnapshot(snap => {
       const msgs = [];
       snap.forEach(doc => msgs.push(doc.data()));
-      msgs.sort((a, b) => {
-        const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
-        const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
-        return ta - tb;
-      });
       if (chatSeen >= 0 && msgs.length > chatSeen && msgs.length && msgs[msgs.length - 1].sender === 'admin') chatTune('receive');
       chatSeen = msgs.length;
       if (!msgs.length) { box.innerHTML = '<p style="color:#6b7280">No messages yet. Write below and send.</p>'; return; }
@@ -731,16 +1013,17 @@ function startChat() {
       msgs.forEach(m => {
         const div = document.createElement('div');
         div.className = 'chat-msg ' + (m.sender === 'admin' ? 'from-admin' : 'from-user');
-        div.textContent = (m.sender === 'admin' ? 'Admin: ' : 'You: ') + m.text;
+        div.textContent = (m.sender === 'admin' ? 'Support: ' : 'You: ') + m.text;
         box.appendChild(div);
       });
       box.scrollTop = box.scrollHeight;
     });
   // Admin typing indicator
+  if (typingUnsub) typingUnsub();
   typingUnsub = db.collection('support_typing').doc(currentUser.email)
     .onSnapshot(doc => {
       const d = doc.exists ? doc.data() : {};
-      document.getElementById('chat-typing').textContent = d.adminTyping ? 'Admin is typing…' : '';
+      document.getElementById('chat-typing').textContent = d.adminTyping ? 'Support is typing…' : '';
     });
 }
 function setUserTyping(on) {
@@ -756,14 +1039,18 @@ document.getElementById('chat-input').addEventListener('input', () => {
 async function sendChat() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
-  if (!text) return;
+  if (!text || chatStatus === 'closed') return;
   input.value = '';
   setUserTyping(false);
   const chatBtn = document.getElementById('chat-send-btn'); chatBtn.disabled = true;
-  await db.collection('support_messages').add({
-    email: currentUser.email, sender: 'user', text: text,
+  await db.collection('support_chats').doc(currentUser.email).collection('messages').add({
+    sender: 'user', text: text,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
+  await db.collection('support_chats').doc(currentUser.email).set({
+    userEmail: currentUser.email, status: 'open', lastMessage: text,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true });
   chatTune('send');
   chatBtn.disabled = false;
 }
