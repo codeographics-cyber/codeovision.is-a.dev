@@ -20,6 +20,9 @@
       <a href="#free-store">Free Store</a>
       <a href="#paid-store">Paid Store</a>
       <a href="#how-to-buy">How to Buy</a>
+      <a href="#mission">Mission</a>
+      <a href="#about">About Us</a>
+      <a href="#contact">Contact</a>
       <a href="dashboard.html" id="dashboard-link" style="display:none">My Dashboard</a>
       <a href="https://www.youtube.com/@Codeographics" target="_blank" rel="noopener">YouTube</a>
       <button class="nav-btn" id="cart-btn">Cart <span class="cart-count" id="cart-count">0</span></button>
@@ -98,11 +101,32 @@
     </div>
   </section>
 
+  <!-- MISSION & VISION -->
+  <section id="mission" class="about reveal">
+    <h2>Our Mission &amp; Vision</h2>
+    <p><strong>Hamara mission logon ko kamyab karna hai — na ke logon ko tang karna.</strong> Hum chahte hain ke aise developers jo apni websites bana kar kaam karna chahte hain, unhein hum apne softwares dein. Hamare apne custom softwares honge jo hum khud banayenge — aur developers unhein use karke apna kaam aage barhayenge.</p>
+    <p>Hum sirf free code nahi dete — hum paid templates, apps aur mukammal solutions bhi banayenge. Har developer ke saath real-time support: aap ka sawal ho to jawab foran milega, taake aap ka kaam kabhi na ruke.</p>
+  </section>
+
   <!-- ABOUT -->
   <section id="about" class="about reveal">
     <h2>About Codeovision</h2>
     <p>Codeovision ek free learning blog aur store hai — yahan hum apne source code, templates aur tutorials dete hain, taake har koi coding seekh sake aur apni website bana sake. Free code hamesha free rahega.</p>
+    <p><strong>2013 se 2026 tak — 13 saal ka website design aur development ka tajurba.</strong> Is arse mein hum ne be-shumar websites, templates aur softwares banaye hain — aur ab yehi tajurba hum aap tak pahuncha rahe hain.</p>
     <p>Videos ke liye hamara YouTube channel dekhein: <a href="https://www.youtube.com/@Codeographics" target="_blank" rel="noopener">EpicQuest Adventures / Codeographics</a>.</p>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="about reveal">
+    <h2>Contact Us</h2>
+    <p>Kisi bhi sawal, order ya support ke liye hum se raabta karein — real-time support milegi.</p>
+    <p><strong>WhatsApp:</strong> <a href="https://wa.me/923037102625" target="_blank" rel="noopener">+92 303 7102625</a><br>
+    <strong>Email:</strong> <a href="mailto:support@codeovision.com">support@codeovision.com</a></p>
+    <h3 style="margin-top:20px">Our Locations</h3>
+    <p>Karachi, Pakistan<br>
+    Multan, Pakistan<br>
+    Sector I-9, Pandora Chungi Stop, Islamabad, Pakistan<br>
+    Deira, Dubai, UAE — hamara office Dubai mein bhi hai.</p>
   </section>
 </main>
 
@@ -110,6 +134,7 @@
   <div class="wrap">
     <p>&copy; 2026 Codeovision — Free code for everyone.</p>
     <p class="foot-note">Free downloads instant hain, bina account ke. Paid orders WhatsApp pe confirm hote hain.</p>
+    <p class="foot-note">WhatsApp: <a href="https://wa.me/923037102625" target="_blank" rel="noopener">+92 303 7102625</a> &nbsp;•&nbsp; Email: <a href="mailto:support@codeovision.com">support@codeovision.com</a> &nbsp;•&nbsp; Karachi • Multan • Islamabad • Dubai</p>
   </div>
 </footer>
 
@@ -354,7 +379,9 @@ function recordOrder() {
   const orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
   if (!FIREBASE_READY || !currentUser) return orderId;
   const items = cart.map(i => { const p = PAID_PRODUCTS.find(x => x.id === i.id); return { id: i.id, title: p.title, price: p.price, qty: i.qty }; });
-  db.collection('orders').add({ orderId: orderId, email: currentUser.email, items: items, total: cartTotal(), status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(function(){});
+  // Order seedha database mein jata hai — admin ko foran dikhta hai. Agar save na ho to user ko foran batayein.
+  db.collection('orders').add({ orderId: orderId, email: currentUser.email, items: items, total: cartTotal(), status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() })
+    .catch(function() { toast('Order save nahi hua — internet check kar ke dobara try karein.'); });
   return orderId;
 }
 
