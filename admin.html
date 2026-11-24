@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel — Codeovision</title>
-<meta name="description" content="Codeovision admin panel — manage products, orders and sales.">
+<title>Admin Dashboard — Codeovision</title>
+<meta name="description" content="Codeovision admin dashboard — products, orders, deposits, withdrawals, refunds and support.">
 <link rel="stylesheet" href="style.css">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -47,88 +47,197 @@
 
   <!-- DASHBOARD -->
   <div id="dashboard" style="display:none">
-    <div class="admin-card">
-      <h2>Dashboard <button class="btn small" id="logout-btn" style="float:right">Logout</button></h2>
-      <p style="color:#6b7280">Logged in as <strong id="admin-who"></strong></p>
-    </div>
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <div class="sidebar-title">Admin Panel</div>
+        <button data-section="sec-overview" class="active">Dashboard</button>
+        <button data-section="sec-products">Products</button>
+        <button data-section="sec-add">Add Product</button>
+        <button data-section="sec-orders">Orders</button>
+        <button data-section="sec-refunds">Refund Requests</button>
+        <button data-section="sec-deposits">Deposits</button>
+        <button data-section="sec-withdrawals">Withdrawals</button>
+        <button data-section="sec-support">Support Chats</button>
+        <button data-section="sec-payments">Payment Settings</button>
+        <button id="sidebar-logout">Logout</button>
+      </aside>
 
-    <!-- STATS -->
-    <div class="stats-grid">
-      <div class="stat-box"><strong id="stat-sales">Rs 0</strong><span>Total Sales</span></div>
-      <div class="stat-box"><strong id="stat-pending">0</strong><span>Pending Orders</span></div>
-      <div class="stat-box"><strong id="stat-paid">0</strong><span>Paid / Approved</span></div>
-      <div class="stat-box"><strong id="stat-products">0</strong><span>Total Products</span></div>
-      <div class="stat-box"><strong id="stat-downloads">0</strong><span>Total Downloads</span></div>
-    </div>
+      <main class="admin-main">
+        <div id="admin-toast" class="admin-toast" style="display:none"></div>
+        <p style="color:#6b7280;margin-bottom:14px">Logged in as <strong id="admin-who"></strong></p>
 
-    <div class="admin-card">
-      <h2>Orders</h2>
-      <p style="color:#6b7280;margin-bottom:12px">Buy Now / Checkout se aane wale orders yahan aate hain. Payment WhatsApp pe confirm karein, phir status badlein — Paid karte hi product ki sale count barh jayegi.</p>
-      <table class="admin-table">
-        <thead><tr><th>Order ID</th><th>Product</th><th>Total</th><th>Date</th><th>Status</th><th></th></tr></thead>
-        <tbody id="orders-body"><tr><td colspan="6">Loading…</td></tr></tbody>
-      </table>
-    </div>
+        <!-- OVERVIEW -->
+        <section id="sec-overview" class="admin-section">
+          <h2>Dashboard</h2>
+          <div class="stats-grid">
+            <div class="stat-box"><strong id="stat-sales">Rs 0</strong><span>Total Sales</span></div>
+            <div class="stat-box"><strong id="stat-pending">0</strong><span>Pending Orders</span></div>
+            <div class="stat-box"><strong id="stat-paid">0</strong><span>Paid / Approved</span></div>
+            <div class="stat-box"><strong id="stat-products">0</strong><span>Total Products</span></div>
+            <div class="stat-box"><strong id="stat-downloads">0</strong><span>Total Downloads</span></div>
+          </div>
+          <div class="admin-card">
+            <h2>Recent Orders</h2>
+            <table class="admin-table">
+              <thead><tr><th>Order ID</th><th>Product</th><th>Total</th><th>Status</th></tr></thead>
+              <tbody id="recent-orders-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
 
-    <div class="admin-card">
-      <h2>Refund Requests</h2>
-      <p style="color:#6b7280;margin-bottom:12px">Users ki refund requests yahan aati hain. Approve karte hi order ka status "refunded" ho jayega.</p>
-      <table class="admin-table">
-        <thead><tr><th>Order ID</th><th>User</th><th>Total</th><th>Reason</th><th>Status</th><th></th></tr></thead>
-        <tbody id="refunds-body"><tr><td colspan="6">Loading…</td></tr></tbody>
-      </table>
-    </div>
+        <!-- PRODUCTS -->
+        <section id="sec-products" class="admin-section" style="display:none">
+          <h2>Products</h2>
+          <div class="admin-card">
+            <h2>Paid Products</h2>
+            <div style="margin-bottom:10px">
+              <label style="font-weight:normal"><input type="checkbox" id="select-all-paid" style="width:auto"> Select All</label>
+              <button class="btn small teal" id="bulk-paid-btn">Download Selected</button>
+            </div>
+            <table class="admin-table">
+              <thead><tr><th></th><th>Title</th><th>Price</th><th>Sold</th><th>Downloads</th><th></th></tr></thead>
+              <tbody id="products-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div class="admin-card">
+            <h2>Free Products</h2>
+            <div style="margin-bottom:10px">
+              <label style="font-weight:normal"><input type="checkbox" id="select-all-free" style="width:auto"> Select All</label>
+              <button class="btn small teal" id="bulk-free-btn">Download Selected</button>
+            </div>
+            <table class="admin-table">
+              <thead><tr><th></th><th>Title</th><th>Tag</th><th>Downloads</th><th></th></tr></thead>
+              <tbody id="free-products-body"><tr><td colspan="5">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
 
-    <div class="admin-card">
-      <h2>Support Chats</h2>
-      <p style="color:#6b7280;margin-bottom:12px">Users ki live chat yahan aati hai — kisi user pe click karein, phir jawab likhein.</p>
-      <div id="support-users" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"><span style="color:#6b7280">Loading…</span></div>
-      <div id="support-convo" style="display:none">
-        <h3 id="support-who" style="margin-bottom:10px"></h3>
-        <div class="chat-box" id="admin-chat-box"></div>
-        <div class="chat-input-row">
-          <input type="text" id="admin-chat-input" placeholder="Jawab likhein…" style="margin-bottom:0">
-          <button class="btn teal" id="admin-chat-send-btn">Send</button>
-        </div>
-      </div>
-    </div>
+        <!-- ADD PRODUCT -->
+        <section id="sec-add" class="admin-section" style="display:none">
+          <h2>Add Product</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Ek hi form se free ya paid product post karein — Type select karein, download link ek hi jagah daalein.</p>
+            <label>Thumbnail Image</label>
+            <input type="file" id="p-thumb-file" accept="image/*">
+            <label>…ya Thumbnail Image URL</label>
+            <input type="text" id="p-thumb-url" placeholder="e.g. https://example.com/image.jpg">
+            <label>Title</label>
+            <input type="text" id="p-title" placeholder="e.g. Premium Landing Page Pack">
+            <label>Description</label>
+            <textarea id="p-desc" rows="3" placeholder="Product ki tafseel"></textarea>
+            <label>Tag</label>
+            <input type="text" id="p-tag" placeholder="e.g. Premium">
+            <label>Type</label>
+            <select id="p-type">
+              <option value="free">Free</option>
+              <option value="paid">Paid</option>
+            </select>
+            <div id="price-row" style="display:none">
+              <label>Price (Rs)</label>
+              <input type="number" id="p-price" placeholder="e.g. 999">
+            </div>
+            <label>Download Link</label>
+            <input type="text" id="p-file" placeholder="e.g. https://drive.google.com/... ya file ka link">
+            <button class="btn teal" id="add-product-btn">Add Product</button>
+            <p id="add-msg" style="color:#15803d;margin-top:10px"></p>
+          </div>
+        </section>
 
-    <div class="admin-card">
-      <h2>Add Product</h2>
-      <p style="color:#6b7280;margin-bottom:12px">Free aur paid dono yahin se post hote hain. Free ka option on karein to price nahi lagega.</p>
-      <label>Thumbnail Image</label>
-      <input type="file" id="p-thumb-file" accept="image/*">
-      <label>…ya Thumbnail Image URL</label>
-      <input type="text" id="p-thumb-url" placeholder="e.g. https://example.com/image.jpg">
-      <label>Title</label>
-      <input type="text" id="p-title" placeholder="e.g. Premium Landing Page Pack">
-      <label>Description</label>
-      <textarea id="p-desc" rows="3" placeholder="Product ki tafseel"></textarea>
-      <label>Tag</label>
-      <input type="text" id="p-tag" placeholder="e.g. Premium">
-      <label>Price (Rs)</label>
-      <input type="number" id="p-price" placeholder="e.g. 999">
-      <label>Download Link <span style="font-weight:normal;color:#6b7280">(free products ke liye)</span></label>
-      <input type="text" id="p-file" placeholder="e.g. https://drive.google.com/... ya file ka link">
-      <label class="check-label"><input type="checkbox" id="p-free" style="width:auto"> Free product — price nahi lagega</label>
-      <button class="btn teal" id="add-product-btn">Add Product</button>
-      <p id="add-msg" style="color:#15803d;margin-top:10px"></p>
-    </div>
+        <!-- ORDERS -->
+        <section id="sec-orders" class="admin-section" style="display:none">
+          <h2>Orders</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Buy Now / Checkout se aane wale orders yahan aate hain. Payment WhatsApp pe confirm karein, phir status badlein — Paid karte hi product ki sale count barh jayegi.</p>
+            <table class="admin-table">
+              <thead><tr><th>Order ID</th><th>Product</th><th>Total</th><th>Date</th><th>Status</th><th></th></tr></thead>
+              <tbody id="orders-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
 
-    <div class="admin-card">
-      <h2>Free Products</h2>
-      <table class="admin-table">
-        <thead><tr><th>Title</th><th>Tag</th><th>Downloads</th><th></th></tr></thead>
-        <tbody id="free-products-body"><tr><td colspan="4">Loading…</td></tr></tbody>
-      </table>
-    </div>
+        <!-- REFUNDS -->
+        <section id="sec-refunds" class="admin-section" style="display:none">
+          <h2>Refund Requests</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Users ki refund requests yahan aati hain. Approve karte hi order ka status "refunded" ho jayega.</p>
+            <table class="admin-table">
+              <thead><tr><th>Order ID</th><th>User</th><th>Total</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+              <tbody id="refunds-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
 
-    <div class="admin-card">
-      <h2>Paid Products</h2>
-      <table class="admin-table">
-        <thead><tr><th>Title</th><th>Price</th><th>Sold</th><th></th></tr></thead>
-        <tbody id="products-body"><tr><td colspan="4">Loading…</td></tr></tbody>
-      </table>
+        <!-- DEPOSITS -->
+        <section id="sec-deposits" class="admin-section" style="display:none">
+          <h2>Deposits</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Users ke deposit requests — payment verify kar ke Approve karein, balance foran add ho jayega.</p>
+            <table class="admin-table">
+              <thead><tr><th>User</th><th>Gateway</th><th>Amount</th><th>TxID</th><th>Status</th><th></th></tr></thead>
+              <tbody id="deposits-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- WITHDRAWALS -->
+        <section id="sec-withdrawals" class="admin-section" style="display:none">
+          <h2>Withdrawals</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Users ke withdrawal requests — Approve karte hi amount balance se kat jayega.</p>
+            <table class="admin-table">
+              <thead><tr><th>User</th><th>Amount</th><th>Gateway</th><th>Account</th><th>Status</th><th></th></tr></thead>
+              <tbody id="withdrawals-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SUPPORT -->
+        <section id="sec-support" class="admin-section" style="display:none">
+          <h2>Support Chats</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Users ki live chat yahan aati hai — kisi user pe click karein, phir jawab likhein.</p>
+            <div id="support-users" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"><span style="color:#6b7280">Loading…</span></div>
+            <div id="support-convo" style="display:none">
+              <h3 id="support-who" style="margin-bottom:10px"></h3>
+              <div class="chat-box" id="admin-chat-box"></div>
+              <div class="chat-input-row">
+                <input type="text" id="admin-chat-input" placeholder="Jawab likhein…" style="margin-bottom:0">
+                <button class="btn teal" id="admin-chat-send-btn">Send</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PAYMENT SETTINGS -->
+        <section id="sec-payments" class="admin-section" style="display:none">
+          <h2>Payment Settings</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Yahan set kiye gaye gateways users ko Deposit aur Withdraw mein dikhte hain.</p>
+            <label>Gateway Name</label>
+            <select id="gw-name">
+              <option>Easypaisa</option>
+              <option>JazzCash</option>
+              <option>NayaPay</option>
+              <option>SadaPay</option>
+              <option>Bank Transfer</option>
+              <option>Other</option>
+            </select>
+            <label>Account Number / Mobile Number</label>
+            <input type="text" id="gw-number" placeholder="e.g. 0300-1234567">
+            <label>Account Title</label>
+            <input type="text" id="gw-title" placeholder="e.g. Codeovision">
+            <button class="btn teal" id="add-gateway-btn">Add Gateway</button>
+            <p id="gw-msg" style="color:#15803d;margin-top:10px"></p>
+          </div>
+          <div class="admin-card">
+            <h2>Saved Gateways</h2>
+            <table class="admin-table">
+              <thead><tr><th>Gateway</th><th>Number</th><th>Title</th><th></th></tr></thead>
+              <tbody id="gateways-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
     </div>
   </div>
 </div>
@@ -163,6 +272,33 @@ if (FIREBASE_READY) {
 const loginCard = document.getElementById('login-card');
 const dashboard = document.getElementById('dashboard');
 
+// ---- Toast notification (upar confirmation) ----
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('admin-toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.display = 'none'; }, 4000);
+}
+
+// ---- Sidebar section switching ----
+document.querySelectorAll('.admin-sidebar button[data-section]').forEach(b => {
+  b.addEventListener('click', () => showSection(b.dataset.section));
+});
+function showSection(id) {
+  document.querySelectorAll('.admin-section').forEach(s => { s.style.display = s.id === id ? 'block' : 'none'; });
+  document.querySelectorAll('.admin-sidebar button[data-section]').forEach(b => b.classList.toggle('active', b.dataset.section === id));
+  if (id === 'sec-products') { loadProducts(); loadFreeProducts(); }
+  if (id === 'sec-orders') loadOrders();
+  if (id === 'sec-refunds') loadRefunds();
+  if (id === 'sec-deposits') loadDeposits();
+  if (id === 'sec-withdrawals') loadWithdrawals();
+  if (id === 'sec-support') loadSupportUsers();
+  if (id === 'sec-payments') loadGateways();
+  if (id === 'sec-overview') { loadStats(); loadRecentOrders(); }
+}
+
 document.getElementById('login-btn').addEventListener('click', async () => {
   const email = document.getElementById('admin-email').value.trim();
   const pass = document.getElementById('admin-pass').value;
@@ -174,12 +310,11 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   } catch (e) { err.textContent = 'Login failed: ' + e.message; }
 });
 
-document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+document.getElementById('sidebar-logout').addEventListener('click', () => auth.signOut());
 
 if (FIREBASE_READY) {
   auth.onAuthStateChanged(async user => {
     if (user) {
-      // Only listed admins can see the dashboard
       const adminDoc = await db.collection('admins').doc(user.email).get().catch(() => null);
       if (!adminDoc || !adminDoc.exists) {
         loginCard.style.display = 'none';
@@ -198,6 +333,10 @@ if (FIREBASE_READY) {
       loadStats();
       loadRefunds();
       loadSupportUsers();
+      loadDeposits();
+      loadWithdrawals();
+      loadGateways();
+      loadRecentOrders();
     } else {
       loginCard.style.display = 'block';
       dashboard.style.display = 'none';
@@ -206,7 +345,7 @@ if (FIREBASE_READY) {
   });
 }
 
-// ---- Stats: total sales, pending, paid, products, downloads ----
+// ---- Stats ----
 async function loadStats() {
   try {
     const ordersSnap = await db.collection('orders').get();
@@ -227,6 +366,21 @@ async function loadStats() {
     document.getElementById('stat-products').textContent = paidSnap.size + freeSnap.size;
     document.getElementById('stat-downloads').textContent = downloads;
   } catch (e) { /* stats load silently fails if rules/data are missing */ }
+}
+
+async function loadRecentOrders() {
+  const body = document.getElementById('recent-orders-body');
+  try {
+    const snap = await db.collection('orders').orderBy('createdAt', 'desc').limit(5).get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">Abhi koi order nahi hai.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const o = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (o.orderId || doc.id) + '</td><td>' + (o.product || (o.items ? o.items.map(i => i.title).join(', ') : '')) + '</td><td>Rs ' + (o.total || o.price || '') + '</td><td><span class="badge ' + (o.status || 'pending') + '">' + (o.status || 'pending') + '</span></td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
 }
 
 async function loadOrders() {
@@ -251,33 +405,85 @@ async function loadProducts() {
   const body = document.getElementById('products-body');
   try {
     const snap = await db.collection('products').orderBy('price').get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">Abhi koi product nahi hai. Upar se add karein.</td></tr>'; return; }
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">Abhi koi product nahi hai. Upar se add karein.</td></tr>'; return; }
     body.innerHTML = '';
     snap.forEach(doc => {
       const p = doc.data();
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (p.title || '') + '</td><td>Rs ' + (p.price || '') + '</td><td>' + (p.sales || 0) + '</td>' +
+      tr.innerHTML = '<td><input type="checkbox" class="prod-check paid-check" data-file="' + (p.file || '') + '" style="width:auto"></td><td>' + (p.title || '') + '</td><td>Rs ' + (p.price || '') + '</td><td>' + (p.sales || 0) + '</td><td>' + (p.downloads || 0) + '</td>' +
         '<td><button class="btn small" onclick="deleteProduct(\'' + doc.id + '\')">Delete</button></td>';
       body.appendChild(tr);
     });
-  } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
+  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
 }
 
 async function loadFreeProducts() {
   const body = document.getElementById('free-products-body');
   try {
     const snap = await db.collection('free_products').orderBy('createdAt', 'desc').get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">Abhi koi free product nahi hai. Upar se add karein.</td></tr>'; return; }
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="5">Abhi koi free product nahi hai. Upar se add karein.</td></tr>'; return; }
     body.innerHTML = '';
     snap.forEach(doc => {
       const p = doc.data();
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (p.title || '') + '</td><td>' + (p.tag || '') + '</td><td>' + (p.downloads || 0) + '</td>' +
+      tr.innerHTML = '<td><input type="checkbox" class="prod-check free-check" data-file="' + (p.file || '') + '" style="width:auto"></td><td>' + (p.title || '') + '</td><td>' + (p.tag || '') + '</td><td>' + (p.downloads || 0) + '</td>' +
         '<td><button class="btn small" onclick="deleteFreeProduct(\'' + doc.id + '\')">Delete</button></td>';
       body.appendChild(tr);
     });
-  } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
+  } catch (e) { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; }
 }
+
+async function setStatus(id, status) {
+  const ref = db.collection('orders').doc(id);
+  const snap = await ref.get();
+  const o = snap.data();
+  await ref.update({ status });
+  if (status === 'paid' && o && o.items) {
+    for (const it of o.items) {
+      if (it.id) {
+        await db.collection('products').doc(it.id).update({ sales: firebase.firestore.FieldValue.increment(it.qty || 1) }).catch(() => {});
+      }
+    }
+  }
+  loadOrders();
+  loadStats();
+  loadProducts();
+  loadRecentOrders();
+}
+async function deleteProduct(id) {
+  if (!confirm('Ye product delete kar dein?')) return;
+  await db.collection('products').doc(id).delete();
+  loadProducts();
+  loadStats();
+}
+async function deleteFreeProduct(id) {
+  if (!confirm('Ye free product delete kar dein?')) return;
+  await db.collection('free_products').doc(id).delete();
+  loadFreeProducts();
+  loadStats();
+}
+
+// ---- Bulk download (selected products) ----
+function bulkDownload(checkClass) {
+  const checked = Array.from(document.querySelectorAll('.' + checkClass + ':checked')).map(c => c.dataset.file).filter(Boolean);
+  if (!checked.length) { showToast('Pehle koi product select karein.'); return; }
+  showToast(checked.length + ' file download ho rahi hain — browser poochhe to multiple downloads allow karein.');
+  checked.forEach((url, i) => {
+    setTimeout(() => {
+      const a = document.createElement('a');
+      a.href = url; a.download = ''; a.target = '_blank';
+      document.body.appendChild(a); a.click(); a.remove();
+    }, i * 600);
+  });
+}
+document.getElementById('bulk-paid-btn').addEventListener('click', () => bulkDownload('paid-check'));
+document.getElementById('bulk-free-btn').addEventListener('click', () => bulkDownload('free-check'));
+document.getElementById('select-all-paid').addEventListener('change', e => {
+  document.querySelectorAll('.paid-check').forEach(c => { c.checked = e.target.checked; });
+});
+document.getElementById('select-all-free').addEventListener('change', e => {
+  document.querySelectorAll('.free-check').forEach(c => { c.checked = e.target.checked; });
+});
 
 // ---- Refund Requests ----
 async function loadRefunds() {
@@ -304,6 +510,59 @@ async function setRefund(refundId, orderDocId, status) {
   loadRefunds();
   loadOrders();
   loadStats();
+  showToast(status === 'approved' ? 'Refund approve ho gaya.' : 'Refund reject kar diya gaya.');
+}
+
+// ---- Deposits ----
+async function loadDeposits() {
+  const body = document.getElementById('deposits-body');
+  try {
+    const snap = await db.collection('deposits').orderBy('createdAt', 'desc').limit(50).get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">Abhi koi deposit request nahi hai.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const d = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (d.email || '') + '</td><td>' + (d.gateway || '') + '</td><td>Rs ' + (d.amount || '') + '</td><td>' + (d.txid || '') + '</td>' +
+        '<td><span class="badge ' + (d.status || 'pending') + '">' + (d.status || 'pending') + '</span></td>' +
+        '<td>' + (d.status === 'pending' ? '<button class="btn small" onclick="setDeposit(\'' + doc.id + '\',\'' + (d.email || '') + '\',' + (Number(d.amount) || 0) + ',\'approved\')">Approve</button> <button class="btn small" onclick="setDeposit(\'' + doc.id + '\',\'' + (d.email || '') + '\',0,\'rejected\')">Reject</button>' : '') + '</td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
+}
+async function setDeposit(id, email, amount, status) {
+  await db.collection('deposits').doc(id).update({ status });
+  if (status === 'approved' && email && amount) {
+    await db.collection('users').doc(email).set({ balance: firebase.firestore.FieldValue.increment(amount) }, { merge: true });
+  }
+  loadDeposits();
+  showToast(status === 'approved' ? 'Deposit approve — balance add ho gaya.' : 'Deposit reject kar diya gaya.');
+}
+
+// ---- Withdrawals ----
+async function loadWithdrawals() {
+  const body = document.getElementById('withdrawals-body');
+  try {
+    const snap = await db.collection('withdrawals').orderBy('createdAt', 'desc').limit(50).get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">Abhi koi withdrawal request nahi hai.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const w = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (w.email || '') + '</td><td>Rs ' + (w.amount || '') + '</td><td>' + (w.gateway || '') + '</td><td>' + (w.account || '') + '</td>' +
+        '<td><span class="badge ' + (w.status || 'pending') + '">' + (w.status || 'pending') + '</span></td>' +
+        '<td>' + (w.status === 'pending' ? '<button class="btn small" onclick="setWithdrawal(\'' + doc.id + '\',\'' + (w.email || '') + '\',' + (Number(w.amount) || 0) + ',\'approved\')">Approve</button> <button class="btn small" onclick="setWithdrawal(\'' + doc.id + '\',\'' + (w.email || '') + '\',0,\'rejected\')">Reject</button>' : '') + '</td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
+}
+async function setWithdrawal(id, email, amount, status) {
+  await db.collection('withdrawals').doc(id).update({ status });
+  if (status === 'approved' && email && amount) {
+    await db.collection('users').doc(email).set({ balance: firebase.firestore.FieldValue.increment(-amount) }, { merge: true });
+  }
+  loadWithdrawals();
+  showToast(status === 'approved' ? 'Withdrawal approve — balance se kat gaya.' : 'Withdrawal reject kar diya gaya.');
 }
 
 // ---- Support Chats ----
@@ -364,43 +623,47 @@ async function sendAdminChat() {
 document.getElementById('admin-chat-send-btn').addEventListener('click', sendAdminChat);
 document.getElementById('admin-chat-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendAdminChat(); });
 
-async function setStatus(id, status) {
-  const ref = db.collection('orders').doc(id);
-  const snap = await ref.get();
-  const o = snap.data();
-  await ref.update({ status });
-  // Paid karte hi har product ki sale count barha dein
-  if (status === 'paid' && o && o.items) {
-    for (const it of o.items) {
-      if (it.id) {
-        await db.collection('products').doc(it.id).update({ sales: firebase.firestore.FieldValue.increment(it.qty || 1) }).catch(() => {});
-      }
-    }
-  }
-  loadOrders();
-  loadStats();
-  loadProducts();
+// ---- Payment Settings (gateways) ----
+async function loadGateways() {
+  const body = document.getElementById('gateways-body');
+  try {
+    const snap = await db.collection('payment_gateways').orderBy('name').get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">Abhi koi gateway set nahi hai. Upar se add karein.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const g = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (g.name || '') + '</td><td>' + (g.number || '') + '</td><td>' + (g.title || '') + '</td>' +
+        '<td><button class="btn small" onclick="deleteGateway(\'' + doc.id + '\')">Delete</button></td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
 }
-async function deleteProduct(id) {
-  if (!confirm('Ye product delete kar dein?')) return;
-  await db.collection('products').doc(id).delete();
-  loadProducts();
-  loadStats();
+async function deleteGateway(id) {
+  if (!confirm('Ye gateway delete kar dein?')) return;
+  await db.collection('payment_gateways').doc(id).delete();
+  loadGateways();
+  showToast('Gateway delete ho gaya.');
 }
-async function deleteFreeProduct(id) {
-  if (!confirm('Ye free product delete kar dein?')) return;
-  await db.collection('free_products').doc(id).delete();
-  loadFreeProducts();
-  loadStats();
-}
-
-// Free toggle: on karte hi price disable ho jata hai
-document.getElementById('p-free').addEventListener('change', e => {
-  document.getElementById('p-price').disabled = e.target.checked;
-  if (e.target.checked) document.getElementById('p-price').value = '';
+document.getElementById('add-gateway-btn').addEventListener('click', async () => {
+  const msg = document.getElementById('gw-msg');
+  msg.textContent = '';
+  const name = document.getElementById('gw-name').value;
+  const number = document.getElementById('gw-number').value.trim();
+  const title = document.getElementById('gw-title').value.trim();
+  if (!number || !title) { msg.textContent = 'Number aur Account Title dono zaroori hain.'; return; }
+  await db.collection('payment_gateways').add({ name, number, title, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+  msg.textContent = 'Gateway add ho gaya — users ko Deposit/Withdraw mein dikhne lagega.';
+  document.getElementById('gw-number').value = '';
+  document.getElementById('gw-title').value = '';
+  loadGateways();
+  showToast('Payment gateway add ho gaya.');
 });
 
-// ---- Add Product (free ya paid — free toggle se decide hota hai) ----
+// ---- Add Product (Type select: Free ya Paid) ----
+document.getElementById('p-type').addEventListener('change', e => {
+  document.getElementById('price-row').style.display = e.target.value === 'paid' ? 'block' : 'none';
+});
 document.getElementById('add-product-btn').addEventListener('click', async () => {
   const msg = document.getElementById('add-msg');
   msg.textContent = '';
@@ -408,14 +671,14 @@ document.getElementById('add-product-btn').addEventListener('click', async () =>
   const title = document.getElementById('p-title').value.trim();
   const desc = document.getElementById('p-desc').value.trim();
   const tag = document.getElementById('p-tag').value.trim() || 'Premium';
+  const type = document.getElementById('p-type').value;
   const price = parseInt(document.getElementById('p-price').value, 10);
   const file = document.getElementById('p-file').value.trim();
-  const isFree = document.getElementById('p-free').checked;
+  const isFree = type === 'free';
   if (!title) { msg.textContent = 'Title zaroori hai.'; return; }
-  if (!isFree && !price) { msg.textContent = 'Paid product ke liye Price zaroori hai (ya Free on karein).'; return; }
-  if (isFree && !file) { msg.textContent = 'Free product ke liye Download Link zaroori hai.'; return; }
+  if (!file) { msg.textContent = 'Download Link zaroori hai.'; return; }
+  if (!isFree && !price) { msg.textContent = 'Paid product ke liye Price zaroori hai.'; return; }
 
-  // Thumbnail: pehle file upload, warna URL
   let thumbnail = document.getElementById('p-thumb-url').value.trim();
   const thumbFile = document.getElementById('p-thumb-file').files[0];
   if (thumbFile) {
@@ -424,22 +687,18 @@ document.getElementById('add-product-btn').addEventListener('click', async () =>
       const ref = storage.ref('thumbnails/' + Date.now() + '_' + thumbFile.name);
       await ref.put(thumbFile);
       thumbnail = await ref.getDownloadURL();
-    } catch (e) { msg.textContent = 'Thumbnail upload failed: ' + e.message; return; }
+    } catch (e) { msg.textContent = 'Thumbnail upload failed: ' + e.message + ' (Free plan pe Storage band hai — image URL use karein.)'; return; }
   }
 
-  const data = { title, desc, tag, thumbnail: thumbnail || '', isFree: isFree, price: isFree ? 0 : price, downloads: 0, sales: 0, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+  const data = { title, desc, tag, thumbnail: thumbnail || '', isFree: isFree, price: isFree ? 0 : price, file: file, downloads: 0, sales: 0, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
   if (isFree) {
-    data.file = file;
     data.page = '';
     await db.collection('free_products').add(data);
-    msg.textContent = 'Free product add ho gaya — Free Store pe dikhne lagega!';
-    loadFreeProducts();
   } else {
     data.features = [];
     await db.collection('products').add(data);
-    msg.textContent = 'Paid product add ho gaya — Paid Store pe dikhne lagega!';
-    loadProducts();
   }
+  msg.textContent = '';
   document.getElementById('p-title').value = '';
   document.getElementById('p-desc').value = '';
   document.getElementById('p-tag').value = '';
@@ -447,9 +706,12 @@ document.getElementById('add-product-btn').addEventListener('click', async () =>
   document.getElementById('p-file').value = '';
   document.getElementById('p-thumb-url').value = '';
   document.getElementById('p-thumb-file').value = '';
-  document.getElementById('p-free').checked = false;
-  document.getElementById('p-price').disabled = false;
+  document.getElementById('p-type').value = 'free';
+  document.getElementById('price-row').style.display = 'none';
+  loadProducts();
+  loadFreeProducts();
   loadStats();
+  showToast('Aap ki product add ho gayi hai!');
 });
 </script>
 </body>

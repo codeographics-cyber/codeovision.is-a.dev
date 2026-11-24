@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Dashboard — Codeovision</title>
-<meta name="description" content="Your Codeovision account — your orders, refunds and live support chat with the admin.">
+<meta name="description" content="Your Codeovision account — balance, orders, deposit, withdraw, refunds and live support chat with the admin.">
 <link rel="stylesheet" href="style.css">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -19,16 +19,15 @@
       <a href="index.html#free-store">Free Store</a>
       <a href="index.html#paid-store">Paid Store</a>
       <a href="dashboard.html" class="active">My Dashboard</a>
-      <button class="nav-btn" id="logout-btn" style="display:none">Logout</button>
     </nav>
   </div>
 </header>
 
 <div class="admin-wrap">
-  <!-- LOGIN (jab tak login na ho) -->
+  <!-- LOGIN -->
   <div class="admin-card" id="login-card">
     <h2>My Dashboard — Login</h2>
-    <p style="color:#6b7280;margin-bottom:16px">Apne orders, refunds aur support chat dekhne ke liye login karein. Account nahi hai? <a href="index.html">Home page</a> pe ja kar free account banayein.</p>
+    <p style="color:#6b7280;margin-bottom:16px">Apne orders, balance, deposit/withdraw aur support chat dekhne ke liye login karein. Account nahi hai? <a href="index.html">Home page</a> pe ja kar free account banayein.</p>
     <label>Email</label>
     <input type="email" id="dash-email" placeholder="aapki email">
     <label>Password</label>
@@ -39,35 +38,115 @@
 
   <!-- USER DASHBOARD -->
   <div id="user-dashboard" style="display:none">
-    <div class="admin-card">
-      <h2>My Dashboard <button class="btn small" id="dash-logout-btn" style="float:right">Logout</button></h2>
-      <p style="color:#6b7280">Logged in as <strong id="dash-who"></strong></p>
-    </div>
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <div class="sidebar-title">My Account</div>
+        <button data-section="sec-u-overview" class="active">Dashboard</button>
+        <button data-section="sec-u-orders">My Orders</button>
+        <button data-section="sec-u-deposit">Deposit</button>
+        <button data-section="sec-u-withdraw">Withdraw</button>
+        <button data-section="sec-u-chat">Support Chat</button>
+        <button id="user-sidebar-logout">Logout</button>
+      </aside>
 
-    <div class="stats-grid">
-      <div class="stat-box"><strong id="u-total">0</strong><span>Total Orders</span></div>
-      <div class="stat-box"><strong id="u-pending">0</strong><span>Pending Orders</span></div>
-      <div class="stat-box"><strong id="u-paid">0</strong><span>Paid / Delivered</span></div>
-      <div class="stat-box"><strong id="u-refunds">0</strong><span>Refund Requests</span></div>
-    </div>
+      <main class="admin-main">
+        <p style="color:#6b7280;margin-bottom:14px">Logged in as <strong id="dash-who"></strong></p>
 
-    <div class="admin-card">
-      <h2>My Orders</h2>
-      <p style="color:#6b7280;margin-bottom:12px">Aap ke saare orders yahan dikhte hain. Paid order pe refund maang sakte hain.</p>
-      <table class="admin-table">
-        <thead><tr><th>Order ID</th><th>Product</th><th>Total</th><th>Date</th><th>Status</th><th></th></tr></thead>
-        <tbody id="my-orders-body"><tr><td colspan="6">Loading…</td></tr></tbody>
-      </table>
-    </div>
+        <!-- OVERVIEW -->
+        <section id="sec-u-overview" class="admin-section">
+          <h2>Dashboard</h2>
+          <div class="stats-grid">
+            <div class="stat-box"><strong id="u-balance">Rs 0</strong><span>My Balance</span></div>
+            <div class="stat-box"><strong id="u-total">0</strong><span>Total Orders</span></div>
+            <div class="stat-box"><strong id="u-pending">0</strong><span>Pending Orders</span></div>
+            <div class="stat-box"><strong id="u-paid">0</strong><span>Paid / Delivered</span></div>
+          </div>
+          <div class="admin-card">
+            <h2>Quick Actions</h2>
+            <button class="btn teal" onclick="showUSection('sec-u-deposit')">Deposit Karein</button>
+            <button class="btn" onclick="showUSection('sec-u-withdraw')">Withdraw Karein</button>
+            <button class="btn" onclick="showUSection('sec-u-chat')">Support Chat</button>
+          </div>
+        </section>
 
-    <div class="admin-card">
-      <h2>Live Support Chat — Admin se seedha baat karein</h2>
-      <p style="color:#6b7280;margin-bottom:12px">Koi masla ho to yahan likhein — admin aap ko yahin jawab dega.</p>
-      <div class="chat-box" id="chat-box"><p style="color:#6b7280">Abhi koi message nahi hai. Neeche likh kar bhej dein.</p></div>
-      <div class="chat-input-row">
-        <input type="text" id="chat-input" placeholder="Apna message likhein…" style="margin-bottom:0">
-        <button class="btn teal" id="chat-send-btn">Send</button>
-      </div>
+        <!-- MY ORDERS -->
+        <section id="sec-u-orders" class="admin-section" style="display:none">
+          <h2>My Orders</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Aap ke saare orders yahan dikhte hain. Paid order pe refund maang sakte hain.</p>
+            <table class="admin-table">
+              <thead><tr><th>Order ID</th><th>Product</th><th>Total</th><th>Date</th><th>Status</th><th></th></tr></thead>
+              <tbody id="my-orders-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- DEPOSIT -->
+        <section id="sec-u-deposit" class="admin-section" style="display:none">
+          <h2>Deposit</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Balance add karne ke liye neeche diye gaye kisi bhi gateway pe payment karein, phir request submit karein. Admin verify kar ke balance add kar dega.</p>
+            <div id="deposit-gateways" style="margin-bottom:14px"><span style="color:#6b7280">Gateways load ho rahe hain…</span></div>
+            <label>Gateway Select Karein</label>
+            <select id="dep-gateway"><option value="">— Select —</option></select>
+            <label>Amount (Rs)</label>
+            <input type="number" id="dep-amount" placeholder="e.g. 1000">
+            <label>Transaction ID (TxID)</label>
+            <input type="text" id="dep-txid" placeholder="Payment ka TxID / reference number">
+            <button class="btn teal" id="dep-submit-btn">Submit Deposit Request</button>
+            <p id="dep-msg" style="margin-top:10px"></p>
+            <div id="dep-whatsapp" style="display:none;margin-top:14px;padding:14px;border:1px solid #0d9488;border-radius:10px;background:#f0fdfa">
+              <strong>Request submit ho gayi!</strong>
+              <p style="margin:8px 0">Jaldi approve ke liye apni payment ka screenshot is WhatsApp number pe bhej dein:</p>
+              <p style="font-size:18px;margin:8px 0"><strong>+92 303 7102625</strong></p>
+              <a class="btn teal" id="dep-wa-btn" href="https://wa.me/923037102625" target="_blank" rel="noopener">WhatsApp pe Screenshot Bhejein</a>
+            </div>
+          </div>
+          <div class="admin-card">
+            <h2>My Deposit Requests</h2>
+            <table class="admin-table">
+              <thead><tr><th>Gateway</th><th>Amount</th><th>TxID</th><th>Status</th></tr></thead>
+              <tbody id="my-deposits-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- WITHDRAW -->
+        <section id="sec-u-withdraw" class="admin-section" style="display:none">
+          <h2>Withdraw</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Aap ka balance: <strong id="wd-balance">Rs 0</strong></p>
+            <label>Gateway Select Karein</label>
+            <select id="wd-gateway"><option value="">— Select —</option></select>
+            <label>Amount (Rs)</label>
+            <input type="number" id="wd-amount" placeholder="e.g. 500">
+            <label>Account Number (jis pe paise chahiye)</label>
+            <input type="text" id="wd-account" placeholder="e.g. 0300-1234567">
+            <button class="btn teal" id="wd-submit-btn">Submit Withdraw Request</button>
+            <p id="wd-msg" style="margin-top:10px"></p>
+          </div>
+          <div class="admin-card">
+            <h2>My Withdraw Requests</h2>
+            <table class="admin-table">
+              <thead><tr><th>Gateway</th><th>Amount</th><th>Account</th><th>Status</th></tr></thead>
+              <tbody id="my-withdrawals-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SUPPORT CHAT -->
+        <section id="sec-u-chat" class="admin-section" style="display:none">
+          <h2>Live Support Chat — Admin se seedha baat karein</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Koi masla ho to yahan likhein — admin aap ko yahin jawab dega.</p>
+            <div class="chat-box" id="chat-box"><p style="color:#6b7280">Abhi koi message nahi hai. Neeche likh kar bhej dein.</p></div>
+            <div class="chat-input-row">
+              <input type="text" id="chat-input" placeholder="Apna message likhein…" style="margin-bottom:0">
+              <button class="btn teal" id="chat-send-btn">Send</button>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   </div>
 </div>
@@ -89,11 +168,26 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
+const WHATSAPP_NUMBER = '923037102625';
 
 const loginCard = document.getElementById('login-card');
 const userDash = document.getElementById('user-dashboard');
 let currentUser = null;
 let chatUnsub = null;
+let myBalance = 0;
+
+// ---- Sidebar section switching ----
+document.querySelectorAll('.admin-sidebar button[data-section]').forEach(b => {
+  b.addEventListener('click', () => showUSection(b.dataset.section));
+});
+function showUSection(id) {
+  document.querySelectorAll('.admin-section').forEach(s => { s.style.display = s.id === id ? 'block' : 'none'; });
+  document.querySelectorAll('.admin-sidebar button[data-section]').forEach(b => b.classList.toggle('active', b.dataset.section === id));
+  if (id === 'sec-u-orders') loadMyOrders();
+  if (id === 'sec-u-deposit') { loadGateways(); loadMyDeposits(); }
+  if (id === 'sec-u-withdraw') { loadGateways(); loadMyWithdrawals(); loadBalance(); }
+  if (id === 'sec-u-overview') { loadMyOrders(); loadBalance(); }
+}
 
 document.getElementById('dash-login-btn').addEventListener('click', async () => {
   const email = document.getElementById('dash-email').value.trim();
@@ -103,25 +197,60 @@ document.getElementById('dash-login-btn').addEventListener('click', async () => 
   try { await auth.signInWithEmailAndPassword(email, pass); }
   catch (e) { err.textContent = 'Login failed: ' + e.message; }
 });
-document.getElementById('dash-logout-btn').addEventListener('click', () => auth.signOut());
-document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+document.getElementById('user-sidebar-logout').addEventListener('click', () => auth.signOut());
 
 auth.onAuthStateChanged(user => {
   currentUser = user;
   if (user) {
     loginCard.style.display = 'none';
     userDash.style.display = 'block';
-    document.getElementById('logout-btn').style.display = '';
     document.getElementById('dash-who').textContent = user.email;
     loadMyOrders();
+    loadBalance();
+    loadGateways();
     startChat();
   } else {
     loginCard.style.display = 'block';
     userDash.style.display = 'none';
-    document.getElementById('logout-btn').style.display = 'none';
     if (chatUnsub) { chatUnsub(); chatUnsub = null; }
   }
 });
+
+async function loadBalance() {
+  try {
+    const doc = await db.collection('users').doc(currentUser.email).get();
+    myBalance = doc.exists ? Number(doc.data().balance || 0) : 0;
+  } catch (e) { myBalance = 0; }
+  document.getElementById('u-balance').textContent = 'Rs ' + myBalance.toLocaleString('en-PK');
+  document.getElementById('wd-balance').textContent = 'Rs ' + myBalance.toLocaleString('en-PK');
+}
+
+// ---- Payment gateways (admin ne set kiye) ----
+async function loadGateways() {
+  const box = document.getElementById('deposit-gateways');
+  const depSel = document.getElementById('dep-gateway');
+  const wdSel = document.getElementById('wd-gateway');
+  try {
+    const snap = await db.collection('payment_gateways').orderBy('name').get();
+    if (snap.empty) {
+      box.innerHTML = '<span style="color:#6b7280">Abhi koi payment gateway set nahi hai — admin se raabta karein.</span>';
+      return;
+    }
+    box.innerHTML = '';
+    depSel.innerHTML = '<option value="">— Select —</option>';
+    wdSel.innerHTML = '<option value="">— Select —</option>';
+    snap.forEach(doc => {
+      const g = doc.data();
+      const div = document.createElement('div');
+      div.style.cssText = 'padding:10px;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:8px';
+      div.innerHTML = '<strong>' + g.name + '</strong> — ' + g.number + ' (' + g.title + ')';
+      box.appendChild(div);
+      const o1 = document.createElement('option'); o1.value = g.name; o1.textContent = g.name + ' — ' + g.number;
+      const o2 = o1.cloneNode(true);
+      depSel.appendChild(o1); wdSel.appendChild(o2);
+    });
+  } catch (e) { box.innerHTML = '<span style="color:#dc2626">Error: ' + e.message + '</span>'; }
+}
 
 // ---- My Orders + counts ----
 async function loadMyOrders() {
@@ -148,7 +277,6 @@ async function loadMyOrders() {
     document.getElementById('u-total').textContent = total;
     document.getElementById('u-pending').textContent = pending;
     document.getElementById('u-paid').textContent = paid;
-    document.getElementById('u-refunds').textContent = refundsSnap.size;
     if (!rows.length) { body.innerHTML = '<tr><td colspan="6">Abhi koi order nahi hai.</td></tr>'; return; }
     body.innerHTML = '';
     rows.forEach(({ id, o }) => {
@@ -175,6 +303,92 @@ async function requestRefund(orderDocId, orderId) {
   });
   alert('Refund request bhej di gayi hai. Admin jald jawab dega.');
   loadMyOrders();
+}
+
+// ---- Deposit ----
+document.getElementById('dep-submit-btn').addEventListener('click', async () => {
+  const msg = document.getElementById('dep-msg');
+  msg.textContent = '';
+  const gateway = document.getElementById('dep-gateway').value;
+  const amount = parseInt(document.getElementById('dep-amount').value, 10);
+  const txid = document.getElementById('dep-txid').value.trim();
+  if (!gateway) { msg.textContent = 'Gateway select karein.'; msg.style.color = '#dc2626'; return; }
+  if (!amount || amount <= 0) { msg.textContent = 'Sahi amount likhein.'; msg.style.color = '#dc2626'; return; }
+  if (!txid) { msg.textContent = 'TxID likhein.'; msg.style.color = '#dc2626'; return; }
+  await db.collection('deposits').add({
+    email: currentUser.email, gateway: gateway, amount: amount, txid: txid, status: 'pending',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  msg.textContent = 'Deposit request submit ho gayi hai.';
+  msg.style.color = '#15803d';
+  const waText = encodeURIComponent('Assalamualaikum! Main ne Codeovision pe deposit kiya hai.\nAmount: Rs ' + amount + '\nGateway: ' + gateway + '\nTxID: ' + txid + '\nEmail: ' + currentUser.email + '\nScreenshot attach kar raha hoon, please approve kar dein.');
+  document.getElementById('dep-wa-btn').href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waText;
+  document.getElementById('dep-whatsapp').style.display = 'block';
+  document.getElementById('dep-amount').value = '';
+  document.getElementById('dep-txid').value = '';
+  loadMyDeposits();
+});
+async function loadMyDeposits() {
+  const body = document.getElementById('my-deposits-body');
+  try {
+    const snap = await db.collection('deposits').where('email', '==', currentUser.email).get();
+    const rows = [];
+    snap.forEach(doc => rows.push(doc.data()));
+    rows.sort((a, b) => {
+      const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+      const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+      return tb - ta;
+    });
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="4">Abhi koi deposit nahi hai.</td></tr>'; return; }
+    body.innerHTML = '';
+    rows.forEach(d => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (d.gateway || '') + '</td><td>Rs ' + (d.amount || '') + '</td><td>' + (d.txid || '') + '</td><td><span class="badge ' + (d.status || 'pending') + '">' + (d.status || 'pending') + '</span></td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
+}
+
+// ---- Withdraw ----
+document.getElementById('wd-submit-btn').addEventListener('click', async () => {
+  const msg = document.getElementById('wd-msg');
+  msg.textContent = '';
+  const gateway = document.getElementById('wd-gateway').value;
+  const amount = parseInt(document.getElementById('wd-amount').value, 10);
+  const account = document.getElementById('wd-account').value.trim();
+  if (!gateway) { msg.textContent = 'Gateway select karein.'; msg.style.color = '#dc2626'; return; }
+  if (!amount || amount <= 0) { msg.textContent = 'Sahi amount likhein.'; msg.style.color = '#dc2626'; return; }
+  if (amount > myBalance) { msg.textContent = 'Amount aap ke balance (Rs ' + myBalance + ') se zyada hai.'; msg.style.color = '#dc2626'; return; }
+  if (!account) { msg.textContent = 'Account number likhein.'; msg.style.color = '#dc2626'; return; }
+  await db.collection('withdrawals').add({
+    email: currentUser.email, gateway: gateway, amount: amount, account: account, status: 'pending',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  msg.textContent = 'Withdraw request submit ho gayi hai. Admin approve karega.';
+  msg.style.color = '#15803d';
+  document.getElementById('wd-amount').value = '';
+  document.getElementById('wd-account').value = '';
+  loadMyWithdrawals();
+});
+async function loadMyWithdrawals() {
+  const body = document.getElementById('my-withdrawals-body');
+  try {
+    const snap = await db.collection('withdrawals').where('email', '==', currentUser.email).get();
+    const rows = [];
+    snap.forEach(doc => rows.push(doc.data()));
+    rows.sort((a, b) => {
+      const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+      const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+      return tb - ta;
+    });
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="4">Abhi koi withdrawal nahi hai.</td></tr>'; return; }
+    body.innerHTML = '';
+    rows.forEach(w => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (w.gateway || '') + '</td><td>Rs ' + (w.amount || '') + '</td><td>' + (w.account || '') + '</td><td><span class="badge ' + (w.status || 'pending') + '">' + (w.status || 'pending') + '</span></td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
 }
 
 // ---- Live Support Chat ----
