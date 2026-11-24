@@ -2,7 +2,7 @@
 // NOTE: Payment number/title and prices are placeholders — Kinza to confirm.
 const PAYMENT = {
   easypaisa: "03037102625",    // CONFIRMED 24 Nov 2026 — Bilal's Easypaisa number
-  jazzcash: "03XX-XXXXXXX",    // TODO: Bilal's JazzCash number
+  jazzcash: "03037102625",     // CONFIRMED 24 Nov 2026 — same number for JazzCash (Bilal)
   title: "Muhammad Bilal Anjum",  // CONFIRMED 24 Nov 2026 — Easypaisa account title
   till: "983055951",           // CONFIRMED 24 Nov 2026 — Raast Till number
   tillTitle: "Codeographics",  // CONFIRMED 24 Nov 2026 — Till title
