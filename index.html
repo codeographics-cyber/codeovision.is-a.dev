@@ -104,15 +104,18 @@
   <!-- MISSION & VISION -->
   <section id="mission" class="about reveal">
     <h2>Our Mission &amp; Vision</h2>
-    <p><strong>Hamara mission logon ko kamyab karna hai — na ke logon ko tang karna.</strong> Hum chahte hain ke aise developers jo apni websites bana kar kaam karna chahte hain, unhein hum apne softwares dein. Hamare apne custom softwares honge jo hum khud banayenge — aur developers unhein use karke apna kaam aage barhayenge.</p>
-    <p>Hum sirf free code nahi dete — hum paid templates, apps aur mukammal solutions bhi banayenge. Har developer ke saath real-time support: aap ka sawal ho to jawab foran milega, taake aap ka kaam kabhi na ruke.</p>
+    <p><strong>Hamara mission logon ko kamyab karna hai — na ke logon ko tang karna.</strong> Hum chahte hain ke aise developers jo apni websites bana kar kaam karna chahte hain, unhein hum apne softwares dein. Hamare apne custom softwares honge jo hum khud banayenge — aur developers unhein use karke apna kaam aage barhayenge, apni websites banayenge, apne clients ko serve karenge aur apni rozi kamaenge.</p>
+    <p>Hum sirf free code nahi dete. Hum paid templates, premium packs, custom software aur mobile apps bhi banayenge — har cheez jo ek developer ko apna kaam shuru karne aur barhane ke liye chahiye. Jo cheez free mil sakti hai wo free milegi, aur jo premium hai wo munasib qeemat par milegi — koi dhoka nahi, koi chhupa hua charge nahi.</p>
+    <p><strong>Hamari vision</strong> ye hai ke Pakistan aur duniya bhar ke developers ke paas aik aisa platform ho jahan se wo seekh bhi saken, code bhi le saken, aur apna business bhi khada kar saken. Hum har developer ki kamyabi mein shareek hona chahte hain — aap kamyab honge to hum kamyab honge.</p>
+    <p><strong>Real-time support:</strong> aap ka koi sawal ho, koi masla ho, ya order ki confirmation chahiye ho — hum se WhatsApp ya live chat pe raabta karein, jawab foran milega. Aap ka kaam kabhi nahi rukega.</p>
   </section>
 
   <!-- ABOUT -->
   <section id="about" class="about reveal">
     <h2>About Codeovision</h2>
     <p>Codeovision ek free learning blog aur store hai — yahan hum apne source code, templates aur tutorials dete hain, taake har koi coding seekh sake aur apni website bana sake. Free code hamesha free rahega.</p>
-    <p><strong>2013 se 2026 tak — 13 saal ka website design aur development ka tajurba.</strong> Is arse mein hum ne be-shumar websites, templates aur softwares banaye hain — aur ab yehi tajurba hum aap tak pahuncha rahe hain.</p>
+    <p><strong>2013 se 2026 tak — 13 saal ka website design aur development ka tajurba.</strong> Is arse mein hum ne be-shumar websites, templates aur softwares banaye hain — chhoti business websites se le kar mukammal web applications tak. Har project se hum ne kuch seekha, aur ab yehi tajurba hum aap tak pahuncha rahe hain — taake aap ko wohi ghaltiyan na karni paren jo hum ne shuru mein ki thin.</p>
+    <p>Hum kya karte hain: free source code aur templates, premium website packs, custom software development, aur mobile apps. Humara kaam sirf code bechna nahi — hum developers ko tayyar karte hain, unhein tools dete hain, aur unki kamyabi tak unke saath chalte hain.</p>
     <p>Videos ke liye hamara YouTube channel dekhein: <a href="https://www.youtube.com/@Codeographics" target="_blank" rel="noopener">EpicQuest Adventures / Codeographics</a>.</p>
   </section>
 
@@ -165,6 +168,7 @@
       <div class="pay-box">
         <p><strong>Easypaisa:</strong> <span id="pay-easypaisa"></span></p>
         <p><strong>JazzCash:</strong> <span id="pay-jazzcash"></span></p>
+        <p><strong>Raast Till:</strong> <span id="pay-till"></span> (<span id="pay-till-title"></span>)</p>
         <p><strong>Account Title:</strong> <span id="pay-title"></span></p>
       </div>
       <p class="modal-note">Payment bhejne ke baad screenshot WhatsApp pe bhejein — confirm hote hi aap ko download link mil jayega. Aap ka order ID neeche wale message mein hoga.</p>
@@ -366,6 +370,8 @@ function showCheckout() {
     document.getElementById('checkout-total').textContent = 'Total: Rs ' + cartTotal().toLocaleString('en-PK');
     document.getElementById('pay-easypaisa').textContent = PAYMENT.easypaisa;
     document.getElementById('pay-jazzcash').textContent = PAYMENT.jazzcash;
+    document.getElementById('pay-till').textContent = PAYMENT.till;
+    document.getElementById('pay-till-title').textContent = PAYMENT.tillTitle;
     document.getElementById('pay-title').textContent = PAYMENT.title;
     const orderId = recordOrder();
     const msg = encodeURIComponent('Assalamualaikum, mera order hai (Order ID: ' + orderId + '):\n' + lines.join('\n') + '\nTotal: Rs ' + cartTotal() + '\nPayment bhej di hai, screenshot ye raha.');
