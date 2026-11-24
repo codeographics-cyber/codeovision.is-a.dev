@@ -295,3 +295,34 @@ table.admin-table tr:hover td { background: rgba(255,255,255,.03); }
 @media (max-width: 768px) {
   .admin-wrap { margin: 20px 10px; padding: 18px 12px; border-radius: 14px; }
 }
+
+/* ---- v10: Store sections — distinct premium backgrounds ---- */
+.store-section { border-radius: 18px; padding: 28px 24px; margin-top: 44px; }
+.free-section { background: linear-gradient(160deg, #ecfdf5, #d1fae5); border: 1px solid #a7f3d0; }
+.free-section .section-title span { color: #0f766e; }
+.paid-section { background: linear-gradient(135deg, #0b1220, #1e1b4b 60%, #312e81); border: 1px solid #e3c06a; box-shadow: 0 14px 34px rgba(11,18,32,.35); }
+.paid-section .section-title { color: #fff; }
+.paid-section .section-title span { color: #e3c06a; }
+.paid-section .section-sub { color: #c7d2fe; }
+
+/* ---- v10: Store cards — coloured backgrounds, pretty buttons ---- */
+.free-card { background: linear-gradient(160deg, #ffffff, #ecfdf5); border-top: 4px solid #0d9488; }
+.paid-card { background: linear-gradient(160deg, #fffbeb, #fef3c7); border-top: 4px solid #e3c06a; }
+.card .btn { border-radius: 30px; box-shadow: 0 6px 16px rgba(0,0,0,.18); padding: 12px 26px; }
+.free-card .btn { background: linear-gradient(135deg, #0d9488, #0f766e); color: #fff; }
+.free-card .btn:hover { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+.paid-card .btn { background: linear-gradient(135deg, #e3c06a, #b8934a); color: #0b1220; }
+.paid-card .btn:hover { background: linear-gradient(135deg, #f0d48a, #e3c06a); }
+.paid-card .price { color: #92400e; }
+
+/* ---- v10: Info grids — Mission / Vision / About / Contact mini-sections ---- */
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-top: 18px; }
+.info-card { background: #fff; border-radius: 14px; padding: 22px; box-shadow: 0 2px 10px rgba(0,0,0,.08); border-top: 4px solid #e3c06a; transition: transform .25s, box-shadow .25s; }
+.info-card:hover { transform: translateY(-4px); box-shadow: 0 12px 26px rgba(0,0,0,.14); }
+.info-card.teal { border-top-color: #0d9488; }
+.info-card h3 { font-size: 19px; margin-bottom: 8px; color: #0b1220; }
+.info-card p { color: #4b5563; font-size: 15px; margin-bottom: 0; }
+@media (max-width: 768px) {
+  .store-section { padding: 20px 14px; margin-top: 32px; }
+  .info-grid { grid-template-columns: 1fr; }
+}
