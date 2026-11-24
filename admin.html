@@ -24,19 +24,19 @@
 
 <div class="admin-wrap">
   <div class="notice" id="setup-notice" style="display:none">
-    <strong>Firebase setup pending:</strong> Admin panel ka database abhi connect nahi hua.
-    Firebase project banne ke baad is page mein config lagayenge — phir login aur products/orders yahin se manage honge.
+    <strong>Firebase setup pending:</strong> The admin panel database is not connected yet.
+    Once the Firebase project is created, add the config to this page — then login, products and orders will be managed from here.
   </div>
 
   <div class="notice" id="not-admin" style="display:none">
-    <strong>Access denied:</strong> <span id="not-admin-who"></span> admin nahi hai. Sirf admin list mein shamil email se admin panel khulta hai.
-    <br><button class="btn small" onclick="location.reload()" style="margin-top:10px">Wapas Login Karein</button>
+    <strong>Access denied:</strong> <span id="not-admin-who"></span> is not an admin. Only an email in the admin list can open the admin panel.
+    <br><button class="btn small" onclick="location.reload()" style="margin-top:10px">Login Again</button>
   </div>
 
   <!-- LOGIN -->
   <div class="admin-card" id="login-card">
     <h2>Admin Login</h2>
-    <p style="color:#6b7280;margin-bottom:16px">Sirf Codeovision admin login kar sakta hai.</p>
+    <p style="color:#6b7280;margin-bottom:16px">Only the Codeovision admin can log in.</p>
     <label>Email</label>
     <input type="email" id="admin-email" placeholder="codeographics@gmail.com">
     <label>Password</label>
@@ -123,7 +123,7 @@
         <section id="sec-pending" class="admin-section" style="display:none">
           <h2>Pending Products</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Naye add kiye gaye products pehle yahan aate hain. Approve karne par hi front pe dikhte hain.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Newly added products appear here first. They only show on the front site after approval.</p>
             <h2>Paid — Pending</h2>
             <table class="admin-table">
               <thead><tr><th>Image</th><th>Title</th><th>Price</th><th></th></tr></thead>
@@ -143,16 +143,16 @@
         <section id="sec-add" class="admin-section" style="display:none">
           <h2>Add Product</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Ek hi form se free ya paid product post karein — Type select karein, download link ek hi jagah daalein.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Post a free or paid product from one form — select the Type, and paste the download link in one place.</p>
             <label>Thumbnail Image</label>
             <input type="file" id="p-thumb-file" accept="image/*">
-            <p style="color:#6b7280;font-size:13px;margin:-6px 0 12px">Recommended size: 1200×630px — kisi bhi size ki image ek hi frame mein auto-resize ho kar dikhegi, front pe sab pictures ek jaisi lagengi.</p>
-            <label>…ya Thumbnail Image URL</label>
+            <p style="color:#6b7280;font-size:13px;margin:-6px 0 12px">Recommended size: 1200×630px — any image auto-resizes into one frame, so all pictures look uniform on the front site.</p>
+            <label>…or Thumbnail Image URL</label>
             <input type="text" id="p-thumb-url" placeholder="e.g. https://example.com/image.jpg">
             <label>Title</label>
             <input type="text" id="p-title" placeholder="e.g. Premium Landing Page Pack">
             <label>Description</label>
-            <textarea id="p-desc" rows="3" placeholder="Product ki tafseel"></textarea>
+            <textarea id="p-desc" rows="3" placeholder="Product details"></textarea>
             <label>Tag</label>
             <input type="text" id="p-tag" placeholder="e.g. Premium">
             <label>Type</label>
@@ -165,7 +165,7 @@
               <input type="number" id="p-price" placeholder="e.g. 999">
             </div>
             <label>Download Link</label>
-            <input type="text" id="p-file" placeholder="e.g. https://drive.google.com/... ya file ka link">
+            <input type="text" id="p-file" placeholder="e.g. https://drive.google.com/... or a file link">
             <button class="btn teal" id="add-product-btn">Add Product</button>
             <p id="add-msg" style="color:#15803d;margin-top:10px"></p>
           </div>
@@ -175,7 +175,7 @@
         <section id="sec-orders" class="admin-section" style="display:none">
           <h2>Orders</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Buy Now / Checkout se aane wale orders yahan aate hain. Payment WhatsApp pe confirm karein, phir status badlein — Paid karte hi product ki sale count barh jayegi.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Orders from Buy Now / Checkout appear here. Confirm the payment on WhatsApp, then change the status — marking Paid increases the product's sale count.</p>
             <table class="admin-table">
               <thead><tr><th>Order ID</th><th>Product</th><th>Total</th><th>Date</th><th>Status</th><th></th></tr></thead>
               <tbody id="orders-body"><tr><td colspan="6">Loading…</td></tr></tbody>
@@ -187,7 +187,7 @@
         <section id="sec-refunds" class="admin-section" style="display:none">
           <h2>Refund Requests</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Users ki refund requests yahan aati hain. Approve karte hi order ka status "refunded" ho jayega.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Users' refund requests appear here. Approving one changes the order status to "refunded".</p>
             <table class="admin-table">
               <thead><tr><th>Order ID</th><th>User</th><th>Total</th><th>Reason</th><th>Status</th><th></th></tr></thead>
               <tbody id="refunds-body"><tr><td colspan="6">Loading…</td></tr></tbody>
@@ -199,7 +199,7 @@
         <section id="sec-deposits" class="admin-section" style="display:none">
           <h2>Deposits</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Users ke deposit requests — payment verify kar ke Approve karein, balance foran add ho jayega.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Users' deposit requests — verify the payment, then Approve, and the balance is added instantly.</p>
             <table class="admin-table">
               <thead><tr><th>User</th><th>Gateway</th><th>Amount</th><th>TxID</th><th>Status</th><th></th></tr></thead>
               <tbody id="deposits-body"><tr><td colspan="6">Loading…</td></tr></tbody>
@@ -211,7 +211,7 @@
         <section id="sec-withdrawals" class="admin-section" style="display:none">
           <h2>Withdrawals</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Users ke withdrawal requests — Approve karte hi amount balance se kat jayega.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Users' withdrawal requests — approving one deducts the amount from the balance.</p>
             <table class="admin-table">
               <thead><tr><th>User</th><th>Amount</th><th>Gateway</th><th>Account</th><th>Status</th><th></th></tr></thead>
               <tbody id="withdrawals-body"><tr><td colspan="6">Loading…</td></tr></tbody>
@@ -223,7 +223,7 @@
         <section id="sec-reviews" class="admin-section" style="display:none">
           <h2>Reviews</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Users ke reviews real-time yahan dikhte hain — jaisi hi koi review de, yahan aa jata hai. Admin chahe to koi bhi review delete kar sakta hai.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Users' reviews appear here in real time — as soon as someone posts a review, it shows up here. The admin can delete any review.</p>
             <table class="admin-table">
               <thead><tr><th>Product</th><th>User</th><th>Rating</th><th>Review</th><th></th></tr></thead>
               <tbody id="reviews-body"><tr><td colspan="5">Loading…</td></tr></tbody>
@@ -236,7 +236,7 @@
           <h2>Affiliate / Referrals</h2>
           <div class="admin-card">
             <h2>Commission Setting</h2>
-            <p style="color:#6b7280;margin-bottom:12px">Refer karne wale ko har sale par kitna % commission milega — yahan set karein.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Set the % commission a referrer earns on every sale.</p>
             <label>Commission (%)</label>
             <input type="number" id="aff-pct" placeholder="e.g. 10" min="0" max="100">
             <button class="btn teal" id="save-aff-btn">Save Commission</button>
@@ -244,7 +244,7 @@
           </div>
           <div class="admin-card">
             <h2>Commissions</h2>
-            <p style="color:#6b7280;margin-bottom:12px">Approve karte hi referrer ke wallet balance mein commission add ho jayega.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Approving adds the commission to the referrer's wallet balance.</p>
             <table class="admin-table">
               <thead><tr><th>Referrer</th><th>Buyer</th><th>Product</th><th>Total</th><th>Commission</th><th>Status</th><th></th></tr></thead>
               <tbody id="commissions-body"><tr><td colspan="7">Loading…</td></tr></tbody>
@@ -256,13 +256,13 @@
         <section id="sec-support" class="admin-section" style="display:none">
           <h2>Support Chats</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Users ki live chat yahan aati hai — kisi user pe click karein, phir jawab likhein.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Users' live chats appear here — click a user, then write your reply.</p>
             <div id="support-users" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"><span style="color:#6b7280">Loading…</span></div>
             <div id="support-convo" style="display:none">
               <h3 id="support-who" style="margin-bottom:10px"></h3>
               <div class="chat-box" id="admin-chat-box"></div>
               <div class="chat-input-row">
-                <input type="text" id="admin-chat-input" placeholder="Jawab likhein…" style="margin-bottom:0">
+                <input type="text" id="admin-chat-input" placeholder="Write your reply…" style="margin-bottom:0">
                 <button class="btn teal" id="admin-chat-send-btn">Send</button>
               </div>
             </div>
@@ -273,7 +273,7 @@
         <section id="sec-payments" class="admin-section" style="display:none">
           <h2>Payment Settings</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Yahan set kiye gaye gateways users ko Deposit aur Withdraw mein dikhte hain.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Gateways set here appear for users in Deposit and Withdraw.</p>
             <label>Gateway Name</label>
             <select id="gw-name">
               <option>Easypaisa</option>
@@ -380,7 +380,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   const pass = document.getElementById('admin-pass').value;
   const err = document.getElementById('login-error');
   err.textContent = '';
-  if (!FIREBASE_READY) { err.textContent = 'Firebase setup pending hai — pehle project connect karein.'; return; }
+  if (!FIREBASE_READY) { err.textContent = 'Firebase setup is pending — connect the project first.'; return; }
   try {
     await auth.signInWithEmailAndPassword(email, pass);
   } catch (e) { err.textContent = 'Login failed: ' + e.message; }
@@ -437,7 +437,7 @@ async function loadStats() {
     });
     const paidSnap = await db.collection('products').get();
     const freeSnap = await db.collection('free_products').get();
-    let downloads = 0, approved = 6, pendingProducts = 0; // 6 built-in products (3 free + 3 paid) hamesha approved hain
+    let downloads = 0, approved = 6, pendingProducts = 0; // 6 built-in products (3 free + 3 paid) are always approved
     paidSnap.forEach(doc => { const p = doc.data(); downloads += Number(p.downloads || 0); if (p.status === 'pending') pendingProducts++; else approved++; });
     freeSnap.forEach(doc => { const p = doc.data(); downloads += Number(p.downloads || 0); if (p.status === 'pending') pendingProducts++; else approved++; });
     document.getElementById('stat-sales').textContent = 'Rs ' + sales.toLocaleString('en-PK');
@@ -454,7 +454,7 @@ async function loadRecentOrders() {
   const body = document.getElementById('recent-orders-body');
   try {
     const snap = await db.collection('orders').orderBy('createdAt', 'desc').limit(5).get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">Abhi koi order nahi hai.</td></tr>'; return; }
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">No orders yet.</td></tr>'; return; }
     body.innerHTML = '';
     snap.forEach(doc => {
       const o = doc.data();
@@ -469,7 +469,7 @@ async function loadOrders() {
   const body = document.getElementById('orders-body');
   try {
     const snap = await db.collection('orders').orderBy('createdAt', 'desc').limit(50).get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">Abhi koi order nahi hai.</td></tr>'; return; }
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">No orders yet.</td></tr>'; return; }
     body.innerHTML = '';
     snap.forEach(doc => {
       const o = doc.data();
@@ -491,14 +491,14 @@ async function loadProducts() {
     body.innerHTML = '';
     snap.forEach(doc => {
       const p = doc.data();
-      if (p.status === 'pending') return; // pending alag section mein hain
+      if (p.status === 'pending') return; // pending products live in their own section
       rows++;
       const tr = document.createElement('tr');
       tr.innerHTML = '<td><input type="checkbox" class="prod-check paid-check" data-file="' + (p.file || '') + '" style="width:auto"></td><td>' + (p.thumbnail ? '<img class="thumb-sm" src="' + p.thumbnail + '" alt="">' : '') + '</td><td>' + (p.title || '') + '</td><td>Rs ' + (p.price || '') + '</td><td>' + (p.sales || 0) + '</td><td>' + (p.downloads || 0) + '</td>' +
         '<td><button class="btn small" onclick="deleteProduct(\'' + doc.id + '\')">Delete</button></td>';
       body.appendChild(tr);
     });
-    if (!rows) body.innerHTML = '<tr><td colspan="7">Abhi koi approved paid product nahi hai. Add Product se add karein, phir Pending mein approve karein.</td></tr>';
+    if (!rows) body.innerHTML = '<tr><td colspan="7">No approved paid products yet. Add one from Add Product, then approve it in Pending.</td></tr>';
   } catch (e) { body.innerHTML = '<tr><td colspan="7">Error: ' + e.message + '</td></tr>'; }
 }
 
@@ -517,11 +517,11 @@ async function loadFreeProducts() {
         '<td><button class="btn small" onclick="deleteFreeProduct(\'' + doc.id + '\')">Delete</button></td>';
       body.appendChild(tr);
     });
-    if (!rows) body.innerHTML = '<tr><td colspan="6">Abhi koi approved free product nahi hai. Add Product se add karein, phir Pending mein approve karein.</td></tr>';
+    if (!rows) body.innerHTML = '<tr><td colspan="6">No approved free products yet. Add one from Add Product, then approve it in Pending.</td></tr>';
   } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
 }
 
-// ---- Pending Products (approve karne par hi front pe dikhte hain) ----
+// ---- Pending Products (only show on the front site after approval) ----
 async function loadPendingProducts() {
   const paidBody = document.getElementById('pending-paid-body');
   const freeBody = document.getElementById('pending-free-body');
@@ -536,7 +536,7 @@ async function loadPendingProducts() {
         '<td><button class="btn small teal" onclick="approveProduct(\'products\',\'' + doc.id + '\')">Approve</button> <button class="btn small" onclick="deleteProduct(\'' + doc.id + '\')">Delete</button></td>';
       paidBody.appendChild(tr);
     });
-    if (!rows) paidBody.innerHTML = '<tr><td colspan="4">Koi pending paid product nahi hai.</td></tr>';
+    if (!rows) paidBody.innerHTML = '<tr><td colspan="4">No pending paid products.</td></tr>';
     const freeSnap = await db.collection('free_products').where('status', '==', 'pending').get();
     rows = 0;
     freeBody.innerHTML = '';
@@ -547,7 +547,7 @@ async function loadPendingProducts() {
         '<td><button class="btn small teal" onclick="approveProduct(\'free_products\',\'' + doc.id + '\')">Approve</button> <button class="btn small" onclick="deleteFreeProduct(\'' + doc.id + '\')">Delete</button></td>';
       freeBody.appendChild(tr);
     });
-    if (!rows) freeBody.innerHTML = '<tr><td colspan="4">Koi pending free product nahi hai.</td></tr>';
+    if (!rows) freeBody.innerHTML = '<tr><td colspan="4">No pending free products.</td></tr>';
   } catch (e) {
     paidBody.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>';
     freeBody.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>';
@@ -559,7 +559,7 @@ async function approveProduct(col, id) {
   loadProducts();
   loadFreeProducts();
   loadStats();
-  showToast('Product approve ho gaya — ab front pe dikhega.');
+  showToast('Product approved — it will now show on the front site.');
 }
 
 async function setStatus(id, status) {
@@ -580,13 +580,13 @@ async function setStatus(id, status) {
   loadRecentOrders();
 }
 async function deleteProduct(id) {
-  if (!confirm('Ye product delete kar dein?')) return;
+  if (!confirm('Delete this product?')) return;
   await db.collection('products').doc(id).delete();
   loadProducts();
   loadStats();
 }
 async function deleteFreeProduct(id) {
-  if (!confirm('Ye free product delete kar dein?')) return;
+  if (!confirm('Delete this free product?')) return;
   await db.collection('free_products').doc(id).delete();
   loadFreeProducts();
   loadStats();
@@ -595,8 +595,8 @@ async function deleteFreeProduct(id) {
 // ---- Bulk download (selected products) ----
 function bulkDownload(checkClass) {
   const checked = Array.from(document.querySelectorAll('.' + checkClass + ':checked')).map(c => c.dataset.file).filter(Boolean);
-  if (!checked.length) { showToast('Pehle koi product select karein.'); return; }
-  showToast(checked.length + ' file download ho rahi hain — browser poochhe to multiple downloads allow karein.');
+  if (!checked.length) { showToast('Select a product first.'); return; }
+  showToast(checked.length + ' files are downloading — if the browser asks, allow multiple downloads.');
   checked.forEach((url, i) => {
     setTimeout(() => {
       const a = document.createElement('a');
@@ -619,7 +619,7 @@ async function loadRefunds() {
   const body = document.getElementById('refunds-body');
   try {
     const snap = await db.collection('refunds').orderBy('createdAt', 'desc').limit(50).get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">Abhi koi refund request nahi hai.</td></tr>'; return; }
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">No refund requests yet.</td></tr>'; return; }
     body.innerHTML = '';
     snap.forEach(doc => {
       const r = doc.data();
@@ -639,7 +639,7 @@ async function setRefund(refundId, orderDocId, status) {
   loadRefunds();
   loadOrders();
   loadStats();
-  showToast(status === 'approved' ? 'Refund approve ho gaya.' : 'Refund reject kar diya gaya.');
+  showToast(status === 'approved' ? 'Refund approved.' : 'Refund rejected.');
 }
 
 // ---- Deposits ----
@@ -647,7 +647,7 @@ async function loadDeposits() {
   const body = document.getElementById('deposits-body');
   try {
     const snap = await db.collection('deposits').orderBy('createdAt', 'desc').limit(50).get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">Abhi koi deposit request nahi hai.</td></tr>'; return; }
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">No deposit requests yet.</td></tr>'; return; }
     body.innerHTML = '';
     snap.forEach(doc => {
       const d = doc.data();
@@ -665,7 +665,7 @@ async function setDeposit(id, email, amount, status) {
     await db.collection('users').doc(email).set({ balance: firebase.firestore.FieldValue.increment(amount) }, { merge: true });
   }
   loadDeposits();
-  showToast(status === 'approved' ? 'Deposit approve — balance add ho gaya.' : 'Deposit reject kar diya gaya.');
+  showToast(status === 'approved' ? 'Deposit approved — balance added.' : 'Deposit rejected.');
 }
 
 // ---- Withdrawals ----
@@ -673,7 +673,7 @@ async function loadWithdrawals() {
   const body = document.getElementById('withdrawals-body');
   try {
     const snap = await db.collection('withdrawals').orderBy('createdAt', 'desc').limit(50).get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">Abhi koi withdrawal request nahi hai.</td></tr>'; return; }
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">No withdrawal requests yet.</td></tr>'; return; }
     body.innerHTML = '';
     snap.forEach(doc => {
       const w = doc.data();
@@ -691,17 +691,17 @@ async function setWithdrawal(id, email, amount, status) {
     await db.collection('users').doc(email).set({ balance: firebase.firestore.FieldValue.increment(-amount) }, { merge: true });
   }
   loadWithdrawals();
-  showToast(status === 'approved' ? 'Withdrawal approve — balance se kat gaya.' : 'Withdrawal reject kar diya gaya.');
+  showToast(status === 'approved' ? 'Withdrawal approved — amount deducted from balance.' : 'Withdrawal rejected.');
 }
 
-// ---- Reviews (real-time — jaisi hi review aaye, yahan dikhe) ----
+// ---- Reviews (real-time — appear here as soon as they arrive) ----
 let reviewsUnsub = null;
 function loadReviews() {
   const body = document.getElementById('reviews-body');
   if (reviewsUnsub) reviewsUnsub();
   reviewsUnsub = db.collection('reviews').orderBy('createdAt', 'desc').limit(100)
     .onSnapshot(snap => {
-      if (snap.empty) { body.innerHTML = '<tr><td colspan="5">Abhi koi review nahi hai.</td></tr>'; return; }
+      if (snap.empty) { body.innerHTML = '<tr><td colspan="5">No reviews yet.</td></tr>'; return; }
       body.innerHTML = '';
       snap.forEach(doc => {
         const r = doc.data();
@@ -713,9 +713,9 @@ function loadReviews() {
     }, e => { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; });
 }
 async function deleteReview(id) {
-  if (!confirm('Ye review delete kar dein?')) return;
+  if (!confirm('Delete this review?')) return;
   await db.collection('reviews').doc(id).delete();
-  showToast('Review delete ho gaya.');
+  showToast('Review deleted.');
 }
 
 // ---- Affiliate / Referrals ----
@@ -723,21 +723,21 @@ async function loadAffiliateSettings() {
   try {
     const doc = await db.collection('settings').doc('affiliate').get();
     if (doc.exists) document.getElementById('aff-pct').value = doc.data().commissionPercent ?? '';
-  } catch (e) { /* settings abhi set nahi */ }
+  } catch (e) { /* settings not set yet */ }
 }
 document.getElementById('save-aff-btn').addEventListener('click', async () => {
   const msg = document.getElementById('aff-msg');
   const pct = parseInt(document.getElementById('aff-pct').value, 10);
-  if (isNaN(pct) || pct < 0 || pct > 100) { msg.textContent = '0 se 100 ke beech % likhein.'; return; }
+  if (isNaN(pct) || pct < 0 || pct > 100) { msg.textContent = 'Enter a % between 0 and 100.'; return; }
   await db.collection('settings').doc('affiliate').set({ commissionPercent: pct, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
-  msg.textContent = 'Commission ' + pct + '% save ho gaya — ab referral sales par yehi % milega.';
-  showToast('Affiliate commission ' + pct + '% set ho gaya.');
+  msg.textContent = 'Commission " + pct + "% saved — referral sales will now earn this %.';
+  showToast('Affiliate commission set to " + pct + "%.');
 });
 async function loadCommissions() {
   const body = document.getElementById('commissions-body');
   try {
     const snap = await db.collection('commissions').orderBy('createdAt', 'desc').limit(50).get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="7">Abhi koi commission nahi hai.</td></tr>'; return; }
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="7">No commissions yet.</td></tr>'; return; }
     body.innerHTML = '';
     snap.forEach(doc => {
       const c = doc.data();
@@ -755,7 +755,7 @@ async function setCommission(id, referrerEmail, amount, status) {
     await db.collection('users').doc(referrerEmail).set({ balance: firebase.firestore.FieldValue.increment(amount) }, { merge: true });
   }
   loadCommissions();
-  showToast(status === 'approved' ? 'Commission approve — referrer ke balance mein add ho gaya.' : 'Commission reject kar diya gaya.');
+  showToast(status === 'approved' ? 'Commission approved — added to the referrer balance.' : 'Commission rejected.');
 }
 
 // ---- Support Chats ----
@@ -767,7 +767,7 @@ async function loadSupportUsers() {
     const snap = await db.collection('support_messages').orderBy('createdAt', 'desc').limit(200).get();
     const emails = [];
     snap.forEach(doc => { const e = doc.data().email; if (e && !emails.includes(e)) emails.push(e); });
-    if (!emails.length) { wrap.innerHTML = '<span style="color:#6b7280">Abhi koi chat nahi hai.</span>'; return; }
+    if (!emails.length) { wrap.innerHTML = '<span style="color:#6b7280">No chats yet.</span>'; return; }
     wrap.innerHTML = '';
     emails.forEach(e => {
       const b = document.createElement('button');
@@ -797,7 +797,7 @@ function openSupportConvo(email) {
       msgs.forEach(m => {
         const div = document.createElement('div');
         div.className = 'chat-msg ' + (m.sender === 'admin' ? 'from-admin' : 'from-user');
-        div.textContent = (m.sender === 'admin' ? 'Aap: ' : m.email + ': ') + m.text;
+        div.textContent = (m.sender === 'admin' ? 'You: ' : m.email + ': ') + m.text;
         box.appendChild(div);
       });
       box.scrollTop = box.scrollHeight;
@@ -821,7 +821,7 @@ async function loadGateways() {
   const body = document.getElementById('gateways-body');
   try {
     const snap = await db.collection('payment_gateways').orderBy('name').get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">Abhi koi gateway set nahi hai. Upar se add karein.</td></tr>'; return; }
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">No gateway set yet. Add one above.</td></tr>'; return; }
     body.innerHTML = '';
     snap.forEach(doc => {
       const g = doc.data();
@@ -840,7 +840,7 @@ function editGateway(id, name, number, title) {
   document.getElementById('gw-title').value = title;
   document.getElementById('add-gateway-btn').textContent = 'Update Gateway';
   document.getElementById('cancel-gw-edit').style.display = '';
-  document.getElementById('gw-msg').textContent = 'Gateway edit ho raha hai — Save karne ke liye Update Gateway dabayein.';
+  document.getElementById('gw-msg').textContent = 'Editing gateway — press Update Gateway to save.';
 }
 document.getElementById('cancel-gw-edit').addEventListener('click', () => {
   editingGatewayId = null;
@@ -851,10 +851,10 @@ document.getElementById('cancel-gw-edit').addEventListener('click', () => {
   document.getElementById('gw-msg').textContent = '';
 });
 async function deleteGateway(id) {
-  if (!confirm('Ye gateway delete kar dein?')) return;
+  if (!confirm('Delete this gateway?')) return;
   await db.collection('payment_gateways').doc(id).delete();
   loadGateways();
-  showToast('Gateway delete ho gaya.');
+  showToast('Gateway deleted.');
 }
 document.getElementById('add-gateway-btn').addEventListener('click', async () => {
   const msg = document.getElementById('gw-msg');
@@ -862,18 +862,18 @@ document.getElementById('add-gateway-btn').addEventListener('click', async () =>
   const name = document.getElementById('gw-name').value;
   const number = document.getElementById('gw-number').value.trim();
   const title = document.getElementById('gw-title').value.trim();
-  if (!number || !title) { msg.textContent = 'Number aur Account Title dono zaroori hain.'; return; }
+  if (!number || !title) { msg.textContent = 'Number and Account Title are both required.'; return; }
   if (editingGatewayId) {
     await db.collection('payment_gateways').doc(editingGatewayId).update({ name, number, title });
-    msg.textContent = 'Gateway update ho gaya.';
+    msg.textContent = 'Gateway updated.';
     editingGatewayId = null;
     document.getElementById('add-gateway-btn').textContent = 'Add Gateway';
     document.getElementById('cancel-gw-edit').style.display = 'none';
-    showToast('Payment gateway update ho gaya.');
+    showToast('Payment gateway updated.');
   } else {
     await db.collection('payment_gateways').add({ name, number, title, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-    msg.textContent = 'Gateway add ho gaya — users ko Deposit/Withdraw mein dikhne lagega.';
-    showToast('Payment gateway add ho gaya.');
+    msg.textContent = 'Gateway added — it will now appear for users in Deposit/Withdraw.';
+    showToast('Payment gateway added.');
   }
   document.getElementById('gw-number').value = '';
   document.getElementById('gw-title').value = '';
@@ -887,7 +887,7 @@ document.getElementById('p-type').addEventListener('change', e => {
 document.getElementById('add-product-btn').addEventListener('click', async () => {
   const msg = document.getElementById('add-msg');
   msg.textContent = '';
-  if (!FIREBASE_READY) { msg.textContent = 'Firebase setup pending hai.'; return; }
+  if (!FIREBASE_READY) { msg.textContent = 'Firebase setup is pending.'; return; }
   const title = document.getElementById('p-title').value.trim();
   const desc = document.getElementById('p-desc').value.trim();
   const tag = document.getElementById('p-tag').value.trim() || 'Premium';
@@ -895,19 +895,19 @@ document.getElementById('add-product-btn').addEventListener('click', async () =>
   const price = parseInt(document.getElementById('p-price').value, 10);
   const file = document.getElementById('p-file').value.trim();
   const isFree = type === 'free';
-  if (!title) { msg.textContent = 'Title zaroori hai.'; return; }
-  if (!file) { msg.textContent = 'Download Link zaroori hai.'; return; }
-  if (!isFree && !price) { msg.textContent = 'Paid product ke liye Price zaroori hai.'; return; }
+  if (!title) { msg.textContent = 'Title is required.'; return; }
+  if (!file) { msg.textContent = 'Download Link is required.'; return; }
+  if (!isFree && !price) { msg.textContent = 'Price is required for a paid product.'; return; }
 
   let thumbnail = document.getElementById('p-thumb-url').value.trim();
   const thumbFile = document.getElementById('p-thumb-file').files[0];
   if (thumbFile) {
     try {
-      msg.textContent = 'Thumbnail upload ho rahi hai…';
+      msg.textContent = 'Uploading thumbnail…';
       const ref = storage.ref('thumbnails/' + Date.now() + '_' + thumbFile.name);
       await ref.put(thumbFile);
       thumbnail = await ref.getDownloadURL();
-    } catch (e) { msg.textContent = 'Thumbnail upload failed: ' + e.message + ' (Free plan pe Storage band hai — image URL use karein.)'; return; }
+    } catch (e) { msg.textContent = 'Thumbnail upload failed: " + e.message + " (Storage is disabled on the free plan — use an image URL.)'; return; }
   }
 
   const data = { title, desc, tag, thumbnail: thumbnail || '', isFree: isFree, price: isFree ? 0 : price, file: file, downloads: 0, sales: 0, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() };
@@ -932,7 +932,7 @@ document.getElementById('add-product-btn').addEventListener('click', async () =>
   loadFreeProducts();
   loadPendingProducts();
   loadStats();
-  showToast('Aap ki product pending mein add ho gayi hai — approve karne par front pe dikhegi!');
+  showToast('Your product was added to Pending — it will show on the front site after approval!');
 });
 </script>
 </body>

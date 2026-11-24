@@ -27,9 +27,9 @@
   <!-- LOGIN -->
   <div class="admin-card" id="login-card">
     <h2>My Dashboard — Login</h2>
-    <p style="color:#6b7280;margin-bottom:16px">Apne orders, balance, deposit/withdraw aur support chat dekhne ke liye login karein. Account nahi hai? <a href="index.html">Home page</a> pe ja kar free account banayein.</p>
+    <p style="color:#6b7280;margin-bottom:16px">Log in to see your orders, balance, deposits/withdrawals and support chat. No account? Go to the <a href="index.html">home page</a> and create a free account.</p>
     <label>Email</label>
-    <input type="email" id="dash-email" placeholder="aapki email">
+    <input type="email" id="dash-email" placeholder="your email">
     <label>Password</label>
     <input type="password" id="dash-pass" placeholder="Password">
     <button class="btn teal" id="dash-login-btn">Login</button>
@@ -66,8 +66,8 @@
           </div>
           <div class="admin-card">
             <h2>Quick Actions</h2>
-            <button class="btn teal" onclick="showUSection('sec-u-deposit')">Deposit Karein</button>
-            <button class="btn" onclick="showUSection('sec-u-withdraw')">Withdraw Karein</button>
+            <button class="btn teal" onclick="showUSection('sec-u-deposit')">Deposit</button>
+            <button class="btn" onclick="showUSection('sec-u-withdraw')">Withdraw</button>
             <button class="btn" onclick="showUSection('sec-u-chat')">Support Chat</button>
           </div>
         </section>
@@ -76,7 +76,7 @@
         <section id="sec-u-orders" class="admin-section" style="display:none">
           <h2>My Orders</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Aap ke saare orders yahan dikhte hain. Paid order pe refund maang sakte hain.</p>
+            <p style="color:#6b7280;margin-bottom:12px">All your orders appear here. You can request a refund on a paid order.</p>
             <table class="admin-table">
               <thead><tr><th>Order ID</th><th>Product</th><th>Total</th><th>Date</th><th>Status</th><th></th></tr></thead>
               <tbody id="my-orders-body"><tr><td colspan="6">Loading…</td></tr></tbody>
@@ -88,21 +88,21 @@
         <section id="sec-u-deposit" class="admin-section" style="display:none">
           <h2>Deposit</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Balance add karne ke liye neeche diye gaye kisi bhi gateway pe payment karein, phir request submit karein. Admin verify kar ke balance add kar dega.</p>
-            <div id="deposit-gateways" style="margin-bottom:14px"><span style="color:#6b7280">Gateways load ho rahe hain…</span></div>
-            <label>Gateway Select Karein</label>
+            <p style="color:#6b7280;margin-bottom:12px">To add balance, pay on any gateway below, then submit your request. The admin will verify it and add your balance.</p>
+            <div id="deposit-gateways" style="margin-bottom:14px"><span style="color:#6b7280">Loading gateways…</span></div>
+            <label>Select Gateway</label>
             <select id="dep-gateway"><option value="">— Select —</option></select>
             <label>Amount (Rs)</label>
             <input type="number" id="dep-amount" placeholder="e.g. 1000">
             <label>Transaction ID (TxID)</label>
-            <input type="text" id="dep-txid" placeholder="Payment ka TxID / reference number">
+            <input type="text" id="dep-txid" placeholder="Payment TxID / reference number">
             <button class="btn teal" id="dep-submit-btn">Submit Deposit Request</button>
             <p id="dep-msg" style="margin-top:10px"></p>
             <div id="dep-whatsapp" style="display:none;margin-top:14px;padding:14px;border:1px solid #0d9488;border-radius:10px;background:#f0fdfa">
-              <strong>Request submit ho gayi!</strong>
-              <p style="margin:8px 0">Jaldi approve ke liye apni payment ka screenshot is WhatsApp number pe bhej dein:</p>
+              <strong>Request submitted!</strong>
+              <p style="margin:8px 0">For fast approval, send your payment screenshot to this WhatsApp number:</p>
               <p style="font-size:18px;margin:8px 0"><strong>+92 303 7102625</strong></p>
-              <a class="btn teal" id="dep-wa-btn" href="https://wa.me/923037102625" target="_blank" rel="noopener">WhatsApp pe Screenshot Bhejein</a>
+              <a class="btn teal" id="dep-wa-btn" href="https://wa.me/923037102625" target="_blank" rel="noopener">Send Screenshot on WhatsApp</a>
             </div>
           </div>
           <div class="admin-card">
@@ -118,12 +118,12 @@
         <section id="sec-u-withdraw" class="admin-section" style="display:none">
           <h2>Withdraw</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Aap ka balance: <strong id="wd-balance">Rs 0</strong></p>
-            <label>Gateway Select Karein</label>
+            <p style="color:#6b7280;margin-bottom:12px">Your balance: <strong id="wd-balance">Rs 0</strong></p>
+            <label>Select Gateway</label>
             <select id="wd-gateway"><option value="">— Select —</option></select>
             <label>Amount (Rs)</label>
             <input type="number" id="wd-amount" placeholder="e.g. 500">
-            <label>Account Number (jis pe paise chahiye)</label>
+            <label>Account Number (where you want the money)</label>
             <input type="text" id="wd-account" placeholder="e.g. 0300-1234567">
             <button class="btn teal" id="wd-submit-btn">Submit Withdraw Request</button>
             <p id="wd-msg" style="margin-top:10px"></p>
@@ -141,7 +141,7 @@
         <section id="sec-u-referrals" class="admin-section" style="display:none">
           <h2>My Referrals — Affiliate Marketing</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Har product ka apna affiliate link hai — link share karein, jo aap ke link se khareede us par admin-set commission aap ke balance mein aayega.</p>
+            <p style="color:#6b7280;margin-bottom:12px">Every product has its own affiliate link — share your link, and when someone buys through it, the admin-set commission goes to your balance.</p>
             <p style="margin-bottom:12px">Total Earned: <strong id="ref-earned">Rs 0</strong></p>
             <div id="my-ref-links"><span style="color:#6b7280">Loading…</span></div>
           </div>
@@ -156,12 +156,12 @@
 
         <!-- SUPPORT CHAT -->
         <section id="sec-u-chat" class="admin-section" style="display:none">
-          <h2>Live Support Chat — Admin se seedha baat karein</h2>
+          <h2>Live Support Chat — Talk Directly to the Admin</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Koi masla ho to yahan likhein — admin aap ko yahin jawab dega.</p>
-            <div class="chat-box" id="chat-box"><p style="color:#6b7280">Abhi koi message nahi hai. Neeche likh kar bhej dein.</p></div>
+            <p style="color:#6b7280;margin-bottom:12px">If you have any issue, write here — the admin will reply to you right here.</p>
+            <div class="chat-box" id="chat-box"><p style="color:#6b7280">No messages yet. Write below and send.</p></div>
             <div class="chat-input-row">
-              <input type="text" id="chat-input" placeholder="Apna message likhein…" style="margin-bottom:0">
+              <input type="text" id="chat-input" placeholder="Write your message…" style="margin-bottom:0">
               <button class="btn teal" id="chat-send-btn">Send</button>
             </div>
           </div>
@@ -266,7 +266,7 @@ async function loadGateways() {
   try {
     const snap = await db.collection('payment_gateways').orderBy('name').get();
     if (snap.empty) {
-      box.innerHTML = '<span style="color:#6b7280">Abhi koi payment gateway set nahi hai — admin se raabta karein.</span>';
+      box.innerHTML = '<span style="color:#6b7280">No payment gateway is set yet — please contact the admin.</span>';
       return;
     }
     box.innerHTML = '';
@@ -310,7 +310,7 @@ async function loadMyOrders() {
     document.getElementById('u-total').textContent = total;
     document.getElementById('u-pending').textContent = pending;
     document.getElementById('u-paid').textContent = paid;
-    if (!rows.length) { body.innerHTML = '<tr><td colspan="6">Abhi koi order nahi hai.</td></tr>'; return; }
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="6">No orders yet.</td></tr>'; return; }
     body.innerHTML = '';
     rows.forEach(({ id, o }) => {
       const canRefund = (o.status === 'paid' || o.status === 'delivered') && !refundedOrders.has(o.orderId);
@@ -324,8 +324,8 @@ async function loadMyOrders() {
 }
 
 async function requestRefund(orderDocId, orderId) {
-  const reason = prompt('Refund ki wajah likhein (optional):') || '';
-  if (!confirm('Is order ke liye refund request bhej dein?')) return;
+  const reason = prompt('Write the refund reason (optional):') || '';
+  if (!confirm('Send a refund request for this order?')) return;
   const snap = await db.collection('orders').doc(orderDocId).get();
   const o = snap.data() || {};
   await db.collection('refunds').add({
@@ -334,7 +334,7 @@ async function requestRefund(orderDocId, orderId) {
     total: o.total || o.price || 0, reason: reason, status: 'requested',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
-  alert('Refund request bhej di gayi hai. Admin jald jawab dega.');
+  alert('Refund request sent. The admin will reply soon.');
   loadMyOrders();
 }
 
@@ -345,16 +345,16 @@ document.getElementById('dep-submit-btn').addEventListener('click', async () => 
   const gateway = document.getElementById('dep-gateway').value;
   const amount = parseInt(document.getElementById('dep-amount').value, 10);
   const txid = document.getElementById('dep-txid').value.trim();
-  if (!gateway) { msg.textContent = 'Gateway select karein.'; msg.style.color = '#dc2626'; return; }
-  if (!amount || amount <= 0) { msg.textContent = 'Sahi amount likhein.'; msg.style.color = '#dc2626'; return; }
-  if (!txid) { msg.textContent = 'TxID likhein.'; msg.style.color = '#dc2626'; return; }
+  if (!gateway) { msg.textContent = 'Select a gateway.'; msg.style.color = '#dc2626'; return; }
+  if (!amount || amount <= 0) { msg.textContent = 'Enter a valid amount.'; msg.style.color = '#dc2626'; return; }
+  if (!txid) { msg.textContent = 'Enter the TxID.'; msg.style.color = '#dc2626'; return; }
   await db.collection('deposits').add({
     email: currentUser.email, gateway: gateway, amount: amount, txid: txid, status: 'pending',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
-  msg.textContent = 'Deposit request submit ho gayi hai.';
+  msg.textContent = 'Deposit request submitted.';
   msg.style.color = '#15803d';
-  const waText = encodeURIComponent('Assalamualaikum! Main ne Codeovision pe deposit kiya hai.\nAmount: Rs ' + amount + '\nGateway: ' + gateway + '\nTxID: ' + txid + '\nEmail: ' + currentUser.email + '\nScreenshot attach kar raha hoon, please approve kar dein.');
+  const waText = encodeURIComponent('Hello! I deposited on Codeovision.\nAmount: Rs " + amount + "\nGateway: " + gateway + "\nTxID: " + txid + "\nEmail: " + currentUser.email + "\nAttaching the screenshot, please approve it.');
   document.getElementById('dep-wa-btn').href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waText;
   document.getElementById('dep-whatsapp').style.display = 'block';
   document.getElementById('dep-amount').value = '';
@@ -372,7 +372,7 @@ async function loadMyDeposits() {
       const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
       return tb - ta;
     });
-    if (!rows.length) { body.innerHTML = '<tr><td colspan="4">Abhi koi deposit nahi hai.</td></tr>'; return; }
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="4">No deposits yet.</td></tr>'; return; }
     body.innerHTML = '';
     rows.forEach(d => {
       const tr = document.createElement('tr');
@@ -389,15 +389,15 @@ document.getElementById('wd-submit-btn').addEventListener('click', async () => {
   const gateway = document.getElementById('wd-gateway').value;
   const amount = parseInt(document.getElementById('wd-amount').value, 10);
   const account = document.getElementById('wd-account').value.trim();
-  if (!gateway) { msg.textContent = 'Gateway select karein.'; msg.style.color = '#dc2626'; return; }
-  if (!amount || amount <= 0) { msg.textContent = 'Sahi amount likhein.'; msg.style.color = '#dc2626'; return; }
-  if (amount > myBalance) { msg.textContent = 'Amount aap ke balance (Rs ' + myBalance + ') se zyada hai.'; msg.style.color = '#dc2626'; return; }
-  if (!account) { msg.textContent = 'Account number likhein.'; msg.style.color = '#dc2626'; return; }
+  if (!gateway) { msg.textContent = 'Select a gateway.'; msg.style.color = '#dc2626'; return; }
+  if (!amount || amount <= 0) { msg.textContent = 'Enter a valid amount.'; msg.style.color = '#dc2626'; return; }
+  if (amount > myBalance) { msg.textContent = 'Amount is more than your balance (Rs " + myBalance + ").'; msg.style.color = '#dc2626'; return; }
+  if (!account) { msg.textContent = 'Enter the account number.'; msg.style.color = '#dc2626'; return; }
   await db.collection('withdrawals').add({
     email: currentUser.email, gateway: gateway, amount: amount, account: account, status: 'pending',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
-  msg.textContent = 'Withdraw request submit ho gayi hai. Admin approve karega.';
+  msg.textContent = 'Withdraw request submitted. The admin will approve it.';
   msg.style.color = '#15803d';
   document.getElementById('wd-amount').value = '';
   document.getElementById('wd-account').value = '';
@@ -414,7 +414,7 @@ async function loadMyWithdrawals() {
       const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
       return tb - ta;
     });
-    if (!rows.length) { body.innerHTML = '<tr><td colspan="4">Abhi koi withdrawal nahi hai.</td></tr>'; return; }
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="4">No withdrawals yet.</td></tr>'; return; }
     body.innerHTML = '';
     rows.forEach(w => {
       const tr = document.createElement('tr');
@@ -424,7 +424,7 @@ async function loadMyWithdrawals() {
   } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
 }
 
-// ---- My Referrals (har product ka apna affiliate link) ----
+// ---- My Referrals (every product has its own affiliate link) ----
 function myAffiliateLink(pid) {
   const base = location.origin + location.pathname.replace('dashboard.html', 'index.html');
   return base + '?ref=' + encodeURIComponent(currentUser.email) + '&product=' + encodeURIComponent(pid);
@@ -439,7 +439,7 @@ async function loadMyRefLinks() {
     paidSnap.forEach(doc => { const p = doc.data(); if (p.status === 'pending') return; if (!products.find(x => x.id === doc.id)) products.push({ id: doc.id, title: p.title, price: p.price }); });
     const freeSnap = await db.collection('free_products').get();
     freeSnap.forEach(doc => { const p = doc.data(); if (p.status === 'pending') return; if (!products.find(x => x.id === doc.id)) products.push({ id: doc.id, title: p.title, price: 0 }); });
-  } catch (e) { /* Firestore products na mile to built-in links phir bhi dikhte hain */ }
+  } catch (e) { /* if Firestore products fail to load, built-in links still show */ }
   box.innerHTML = '';
   products.forEach(p => {
     const div = document.createElement('div');
@@ -448,11 +448,11 @@ async function loadMyRefLinks() {
     div.innerHTML = '<strong>' + p.title + '</strong>' + (p.price ? ' — Rs ' + p.price : ' — Free') + '<br><span class="affil-link">' + myAffiliateLink(p.id) + '</span><br><button class="btn small" style="margin-top:6px" onclick="copyRefLink(\'' + p.id + '\')">Copy Link</button>';
     box.appendChild(div);
   });
-  if (!products.length) box.innerHTML = '<span style="color:#6b7280">Abhi koi product nahi hai.</span>';
+  if (!products.length) box.innerHTML = '<span style="color:#6b7280">No products yet.</span>';
 }
 function copyRefLink(pid) {
   const link = myAffiliateLink(pid);
-  if (navigator.clipboard) navigator.clipboard.writeText(link).then(() => alert('Affiliate link copy ho gaya!')).catch(() => alert(link));
+  if (navigator.clipboard) navigator.clipboard.writeText(link).then(() => alert('Affiliate link copied!')).catch(() => alert(link));
   else alert(link);
 }
 async function loadMyCommissions() {
@@ -463,7 +463,7 @@ async function loadMyCommissions() {
     const rows = [];
     snap.forEach(doc => { const c = doc.data(); rows.push(c); if (c.status === 'approved') earned += Number(c.amount || 0); });
     document.getElementById('ref-earned').textContent = 'Rs ' + earned.toLocaleString('en-PK');
-    if (!rows.length) { body.innerHTML = '<tr><td colspan="5">Abhi koi commission nahi hai — apna affiliate link share karein!</td></tr>'; return; }
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="5">No commissions yet — share your affiliate link!</td></tr>'; return; }
     rows.sort((a, b) => {
       const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
       const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
@@ -490,12 +490,12 @@ function startChat() {
         const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
         return ta - tb;
       });
-      if (!msgs.length) { box.innerHTML = '<p style="color:#6b7280">Abhi koi message nahi hai. Neeche likh kar bhej dein.</p>'; return; }
+      if (!msgs.length) { box.innerHTML = '<p style="color:#6b7280">No messages yet. Write below and send.</p>'; return; }
       box.innerHTML = '';
       msgs.forEach(m => {
         const div = document.createElement('div');
         div.className = 'chat-msg ' + (m.sender === 'admin' ? 'from-admin' : 'from-user');
-        div.textContent = (m.sender === 'admin' ? 'Admin: ' : 'Aap: ') + m.text;
+        div.textContent = (m.sender === 'admin' ? 'Admin: ' : 'You: ') + m.text;
         box.appendChild(div);
       });
       box.scrollTop = box.scrollHeight;

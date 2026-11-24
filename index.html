@@ -102,6 +102,7 @@
   </section>
 
   <!-- MISSION & VISION -->
+  <hr class="gold-divider">
   <section id="mission" class="about reveal">
     <h2>Our Mission &amp; Vision</h2>
     <p><strong>Hamara mission logon ko kamyab karna hai — na ke logon ko tang karna.</strong> Hum chahte hain ke aise developers jo apni websites bana kar kaam karna chahte hain, unhein hum apne softwares dein. Hamare apne custom softwares honge jo hum khud banayenge — aur developers unhein use karke apna kaam aage barhayenge, apni websites banayenge, apne clients ko serve karenge aur apni rozi kamaenge.</p>
@@ -133,8 +134,10 @@
   </section>
 </main>
 
+<hr class="gold-divider">
 <footer class="site-footer">
   <div class="wrap">
+    <a class="logo footer-logo" href="index.html">Code<span>ovision</span></a>
     <p>&copy; 2026 Codeovision — Free code for everyone.</p>
     <p class="foot-note">Free downloads instant hain, bina account ke. Paid orders WhatsApp pe confirm hote hain.</p>
     <p class="foot-note">WhatsApp: <a href="https://wa.me/923037102625" target="_blank" rel="noopener">+92 303 7102625</a> &nbsp;•&nbsp; Email: <a href="mailto:support@codeovision.com">support@codeovision.com</a> &nbsp;•&nbsp; Karachi • Multan • Islamabad • Dubai</p>
@@ -171,7 +174,7 @@
         <p><strong>JazzCash:</strong> <span id="pay-jazzcash"></span></p>
         <p><strong>Account Title:</strong> <span id="pay-title"></span></p>
       </div>
-      <p class="modal-note">Payment bhejne ke baad screenshot WhatsApp pe bhejein — confirm hote hi aap ko download link mil jayega. Aap ka order ID neeche wale message mein hoga.</p>
+      <p class="modal-note">After sending the payment, send the screenshot on WhatsApp — once confirmed, you will receive your download link. Your order ID is in the message below.</p>
       <a class="btn whatsapp-btn" id="wa-order" href="#" target="_blank" rel="noopener">WhatsApp Pe Order Karein</a>
     </div>
   </div>
@@ -200,12 +203,12 @@
 <div class="modal" id="review-modal" aria-hidden="true">
   <div class="modal-box">
     <button class="modal-close" id="review-close">&times;</button>
-    <h3 id="review-title">Review Dein</h3>
+    <h3 id="review-title">Write a Review</h3>
     <div id="review-stars" style="margin:10px 0">
       <button class="star-btn on" data-star="1">★</button><button class="star-btn on" data-star="2">★</button><button class="star-btn on" data-star="3">★</button><button class="star-btn on" data-star="4">★</button><button class="star-btn on" data-star="5">★</button>
     </div>
     <label class="fld-label">Aap ki rai</label>
-    <textarea id="review-text" class="fld" rows="3" placeholder="Product kaisa laga?"></textarea>
+    <textarea id="review-text" class="fld" rows="3" placeholder="How did you like the product?"></textarea>
     <button class="btn" id="review-submit" style="width:100%">Submit Review</button>
     <p id="review-error" style="color:#dc2626;margin-top:10px;font-size:14px"></p>
   </div>
@@ -254,8 +257,8 @@ function freeCard(p) {
     '<p class="count-line">⬇ <span class="dl-count">' + (p.downloads || 0) + '</span> downloads</p>' +
     '<p class="rating-line" data-rating-for="' + p.id + '">★ — (0 reviews)</p>' +
     '<div class="reviews-list" data-reviews-for="' + p.id + '"></div>' +
-    '<button class="btn small review-btn" data-id="' + p.id + '" data-title="' + String(p.title).replace(/"/g, '&quot;') + '">Review Dein</button>' +
-    '<div class="affil-box" data-affil-for="' + p.id + '" style="display:none">Share &amp; Earn — aap ka affiliate link:<br><span class="affil-link"></span><br><button class="btn small copy-affil-btn" data-id="' + p.id + '" style="margin-top:6px">Copy Link</button></div>';
+    '<button class="btn small review-btn" data-id="' + p.id + '" data-title="' + String(p.title).replace(/"/g, '&quot;') + '">Write a Review</button>' +
+    '<div class="affil-box" data-affil-for="' + p.id + '" style="display:none">Share &amp; Earn — your affiliate link:<br><span class="affil-link"></span><br><button class="btn small copy-affil-btn" data-id="' + p.id + '" style="margin-top:6px">Copy Link</button></div>';
   return card;
 }
 function paidCard(p) {
@@ -272,8 +275,8 @@ function paidCard(p) {
     '<p class="count-line">🛒 <span class="sold-count">' + (p.sales || 0) + '</span> sold</p>' +
     '<p class="rating-line" data-rating-for="' + p.id + '">★ — (0 reviews)</p>' +
     '<div class="reviews-list" data-reviews-for="' + p.id + '"></div>' +
-    '<button class="btn small review-btn" data-id="' + p.id + '" data-title="' + String(p.title).replace(/"/g, '&quot;') + '">Review Dein</button>' +
-    '<div class="affil-box" data-affil-for="' + p.id + '" style="display:none">Share &amp; Earn — aap ka affiliate link:<br><span class="affil-link"></span><br><button class="btn small copy-affil-btn" data-id="' + p.id + '" style="margin-top:6px">Copy Link</button></div>';
+    '<button class="btn small review-btn" data-id="' + p.id + '" data-title="' + String(p.title).replace(/"/g, '&quot;') + '">Write a Review</button>' +
+    '<div class="affil-box" data-affil-for="' + p.id + '" style="display:none">Share &amp; Earn — your affiliate link:<br><span class="affil-link"></span><br><button class="btn small copy-affil-btn" data-id="' + p.id + '" style="margin-top:6px">Copy Link</button></div>';
   return card;
 }
 FREE_PRODUCTS.forEach(p => freeGrid.appendChild(freeCard(p)));
@@ -330,11 +333,11 @@ let reviewProductId = null, reviewProductTitle = '', reviewStars = 5;
 document.addEventListener('click', e => {
   const btn = e.target.closest('.review-btn');
   if (btn) {
-    if (!currentUser) { toast('Review dene ke liye pehle login karein.'); openAuth('login'); return; }
+    if (!currentUser) { toast('Please log in first to write a review.'); openAuth('login'); return; }
     reviewProductId = btn.dataset.id;
     reviewProductTitle = btn.dataset.title;
     reviewStars = 5;
-    document.getElementById('review-title').textContent = 'Review Dein — ' + reviewProductTitle;
+    document.getElementById('review-title').textContent = 'Write a Review — ' + reviewProductTitle;
     document.querySelectorAll('#review-stars .star-btn').forEach(b => b.classList.toggle('on', Number(b.dataset.star) <= 5));
     document.getElementById('review-text').value = '';
     document.getElementById('review-error').textContent = '';
@@ -350,7 +353,7 @@ document.addEventListener('click', e => {
   const copy = e.target.closest('.copy-affil-btn');
   if (copy) {
     const link = affiliateLink(copy.dataset.id);
-    if (navigator.clipboard) navigator.clipboard.writeText(link).then(() => toast('Affiliate link copy ho gaya!')).catch(() => toast(link));
+    if (navigator.clipboard) navigator.clipboard.writeText(link).then(() => toast('Affiliate link copied!')).catch(() => toast(link));
     else toast(link);
   }
 });
@@ -359,7 +362,7 @@ document.getElementById('review-modal').addEventListener('click', e => { if (e.t
 document.getElementById('review-submit').addEventListener('click', async () => {
   const err = document.getElementById('review-error');
   const text = document.getElementById('review-text').value.trim();
-  if (!text) { err.textContent = 'Apni rai likhein.'; return; }
+  if (!text) { err.textContent = 'Please write your review.'; return; }
   try {
     await db.collection('reviews').add({
       productId: reviewProductId, productTitle: reviewProductTitle,
@@ -367,7 +370,7 @@ document.getElementById('review-submit').addEventListener('click', async () => {
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     document.getElementById('review-modal').classList.remove('open');
-    toast('Shukriya! Aap ka review save ho gaya.');
+    toast('Thank you! Your review has been saved.');
     loadAllRatings();
   } catch (e) { err.textContent = e.message; }
 });
@@ -406,13 +409,13 @@ function addToCart(id, openCart) {
   if (item) item.qty++;
   else cart.push({ id: id, qty: 1 });
   saveCart();
-  toast('Cart mein add ho gaya!');
+  toast('Added to cart!');
   if (openCart) openDrawer();
 }
 function renderCart() {
   document.getElementById('cart-count').textContent = cartCount();
   const box = document.getElementById('cart-items');
-  if (!cart.length) { box.innerHTML = '<p style="color:#6b7280">Cart khaali hai.</p>'; }
+  if (!cart.length) { box.innerHTML = '<p style="color:#6b7280">Your cart is empty.</p>'; }
   else {
     box.innerHTML = '';
     cart.forEach(i => {
@@ -457,7 +460,7 @@ drawer.addEventListener('click', e => { if (e.target === drawer) closeDrawer(); 
 // ---- Checkout (paid = account required) ----
 const checkoutModal = document.getElementById('checkout-modal');
 document.getElementById('checkout-btn').addEventListener('click', () => {
-  if (!cart.length) { toast('Cart khaali hai — pehle kuch add karein.'); return; }
+  if (!cart.length) { toast('Your cart is empty — add something first.'); return; }
   closeDrawer();
   showCheckout();
 });
@@ -470,7 +473,7 @@ function showCheckout() {
   const body = document.getElementById('checkout-body');
   if (!FIREBASE_READY) {
     needAuth.style.display = 'block';
-    needAuth.innerHTML = '<p>Checkout setup pending hai — Firebase connect hote hi paid checkout on ho jayega. Free downloads abhi bhi bina account ke mil rahe hain.</p>';
+    needAuth.innerHTML = '<p>Checkout setup is pending — paid checkout will turn on once Firebase is connected. Free downloads are still available without an account.</p>';
     body.style.display = 'none';
   } else if (!currentUser) {
     needAuth.style.display = 'block';
@@ -487,7 +490,7 @@ function showCheckout() {
     document.getElementById('pay-till-title').textContent = PAYMENT.tillTitle;
     document.getElementById('pay-title').textContent = PAYMENT.title;
     const orderId = recordOrder();
-    const msg = encodeURIComponent('Assalamualaikum, mera order hai (Order ID: ' + orderId + '):\n' + lines.join('\n') + '\nTotal: Rs ' + cartTotal() + '\nPayment bhej di hai, screenshot ye raha.');
+    const msg = encodeURIComponent('Hello, here is my order (Order ID: ' + orderId + '):\n' + lines.join('\n') + '\nTotal: Rs ' + cartTotal() + '\nI have sent the payment, here is the screenshot.');
     document.getElementById('wa-order').href = 'https://wa.me/' + PAYMENT.whatsapp + '?text=' + msg;
   }
   checkoutModal.classList.add('open');
@@ -502,7 +505,7 @@ function recordOrder() {
   // Order seedha database mein jata hai — admin ko foran dikhta hai. Agar save na ho to user ko foran batayein.
   db.collection('orders').add({ orderId: orderId, email: currentUser.email, items: items, total: total, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() })
     .then(async () => { await recordCommission(orderId, items, total); })
-    .catch(function() { toast('Order save nahi hua — internet check kar ke dobara try karein.'); });
+    .catch(function() { toast('Order could not be saved — check your internet and try again.'); });
   return orderId;
 }
 
@@ -543,7 +546,7 @@ function setAuthMode(mode) {
   document.getElementById('auth-submit').textContent = mode === 'login' ? 'Login' : 'Create Account';
 }
 document.getElementById('auth-btn').addEventListener('click', () => {
-  if (currentUser) { if (confirm('Logout kar dein? (' + currentUser.email + ')')) auth.signOut(); return; }
+  if (currentUser) { if (confirm('Log out? (' + currentUser.email + ')')) auth.signOut(); return; }
   openAuth('login');
 });
 document.getElementById('tab-login').addEventListener('click', () => setAuthMode('login'));
@@ -556,8 +559,8 @@ document.getElementById('auth-submit').addEventListener('click', async () => {
   const err = document.getElementById('auth-error');
   const msg = document.getElementById('auth-msg');
   err.textContent = ''; msg.textContent = '';
-  if (!FIREBASE_READY) { err.textContent = 'Auth setup pending hai — Firebase connect hote hi login on ho jayega.'; return; }
-  if (!email || pass.length < 6) { err.textContent = 'Sahi email aur kam se kam 6 characters ka password likhein.'; return; }
+  if (!FIREBASE_READY) { err.textContent = 'Auth setup is pending — login will turn on once Firebase is connected.'; return; }
+  if (!email || pass.length < 6) { err.textContent = 'Enter a valid email and a password of at least 6 characters.'; return; }
   try {
     if (authMode === 'login') await auth.signInWithEmailAndPassword(email, pass);
     else {
@@ -572,7 +575,7 @@ document.getElementById('auth-submit').addEventListener('click', async () => {
         }, { merge: true }).catch(function(){});
       }
     }
-    msg.textContent = 'Ho gaya! Welcome.';
+    msg.textContent = 'Done! Welcome.';
     setTimeout(() => { closeAuth(); showCheckoutIfCart(); }, 800);
   } catch (e) { err.textContent = e.message; }
 });

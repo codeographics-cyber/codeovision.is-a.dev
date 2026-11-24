@@ -236,3 +236,62 @@ table.admin-table th { background: #f9fafb; }
   .sidebar-overlay[hidden] { display: none; }
   .admin-sidebar button { font-size: 15px; padding: 12px 14px; }
 }
+
+/* ---- v9: Animated logo — 8 animation types (Bilal: logo animated ho, 7-8 tarah ki) ---- */
+.logo { position: relative; display: inline-block; animation: logoFloat 4s ease-in-out infinite, logoGlow 3s ease-in-out infinite, logoBreathe 5s ease-in-out infinite, logoScale 4s ease-in-out infinite; }
+.logo span { position: relative; background: linear-gradient(90deg, #e3c06a, #fff2c4, #e3c06a, #b8934a, #e3c06a); background-size: 220% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: logoGradient 4s linear infinite; }
+.logo span::after { content: ""; position: absolute; top: 0; left: -70%; width: 45%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.85), transparent); transform: skewX(-20deg); animation: logoShine 3.2s ease-in-out infinite; pointer-events: none; }
+.logo::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #e3c06a; margin-right: 8px; vertical-align: middle; animation: logoDot 2s ease-in-out infinite; }
+.logo::after { content: ""; position: absolute; left: 0; bottom: -5px; height: 2px; width: 100%; background: linear-gradient(90deg, transparent, #e3c06a, transparent); animation: logoUnderline 3.5s ease-in-out infinite; }
+@keyframes logoFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes logoGlow { 0%,100% { text-shadow: 0 0 0 rgba(227,192,106,0); } 50% { text-shadow: 0 0 18px rgba(227,192,106,.65); } }
+@keyframes logoBreathe { 0%,100% { letter-spacing: 0; } 50% { letter-spacing: 1.5px; } }
+@keyframes logoScale { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+@keyframes logoGradient { to { background-position: 220% center; } }
+@keyframes logoShine { 0%,55% { left: -70%; } 100% { left: 130%; } }
+@keyframes logoDot { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: .55; } }
+@keyframes logoUnderline { 0%,100% { transform: scaleX(.25); opacity: .4; } 50% { transform: scaleX(1); opacity: 1; } }
+.footer-logo { font-size: 24px; margin-bottom: 10px; }
+
+/* ---- v9: Gold scheme top to bottom (front) ---- */
+.section-title { position: relative; padding-bottom: 12px; }
+.section-title::after { content: ""; display: block; width: 64px; height: 4px; background: linear-gradient(90deg, #e3c06a, #b8934a); border-radius: 2px; margin-top: 10px; animation: goldGrow 1.2s ease both; }
+@keyframes goldGrow { from { width: 0; } to { width: 64px; } }
+.gold-divider { height: 3px; border: none; background: linear-gradient(90deg, transparent, #e3c06a, transparent); margin: 44px 0 0; }
+.card { border-top: 3px solid transparent; }
+.card:hover { border-top-color: #e3c06a; }
+.step-num { background: linear-gradient(135deg, #e3c06a, #b8934a); color: #0b1220; }
+.strip { border-top: 2px solid #e3c06a; border-bottom: 2px solid #e3c06a; }
+.btn { position: relative; overflow: hidden; }
+.btn::after { content: ""; position: absolute; top: 0; left: -80%; width: 50%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent); transform: skewX(-20deg); animation: btnShine 3.5s ease-in-out infinite; pointer-events: none; }
+@keyframes btnShine { 0%,60% { left: -80%; } 100% { left: 130%; } }
+
+/* ---- v9: Footer redo — dark gradient + gold top border ---- */
+.site-footer { background: linear-gradient(135deg, #0b1220, #1e1b4b 55%, #312e81); color: #d1d5db; padding: 40px 0 30px; margin-top: 44px; font-size: 14px; border-top: 3px solid #e3c06a; animation: fadeUp .8s ease both; }
+.site-footer a { color: #e3c06a; }
+.site-footer p { color: #d1d5db; }
+.foot-note { color: #9ca3af; }
+
+/* ---- v9: Dashboard gradient theme (Freepik-style, original CSS) ---- */
+.admin-wrap { background: linear-gradient(160deg, #1e1b4b 0%, #312e81 45%, #4c1d95 100%); border-radius: 18px; padding: 26px 22px; }
+.admin-card { background: #1e1b4b; color: #e5e7eb; border: 1px solid rgba(255,255,255,.09); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.admin-card h2, .admin-card h3 { color: #fff; }
+.admin-card p { color: #c7d2fe; }
+.admin-card label { color: #e5e7eb; }
+.admin-card input, .admin-card textarea, .admin-card select { background: #312e81; border-color: #4c4f8a; color: #fff; }
+.admin-card input::placeholder, .admin-card textarea::placeholder { color: #9ca3af; }
+.admin-sidebar { background: linear-gradient(180deg, #0b1220, #1e1b4b); border: 1px solid rgba(255,255,255,.08); }
+.stat-box { background: linear-gradient(135deg, #312e81, #1e1b4b); border: 1px solid rgba(255,255,255,.09); }
+.stat-box strong { color: #4ade80; font-size: 28px; }
+.stat-box span { color: #c7d2fe; }
+table.admin-table th { background: #312e81; color: #e3c06a; }
+table.admin-table th, table.admin-table td { border-bottom-color: rgba(255,255,255,.09); color: #e5e7eb; }
+table.admin-table tr:hover td { background: rgba(255,255,255,.03); }
+.chat-box { background: #312e81; border-color: #4c4f8a; }
+.chat-msg.from-admin { background: #1e1b4b; border-color: #4c4f8a; color: #e5e7eb; }
+.notice { background: #312e81; color: #fef3c7; border-color: #e3c06a; }
+.admin-main > p { color: #c7d2fe; }
+#dep-whatsapp { background: #1e1b4b !important; border-color: #22c55e !important; color: #e5e7eb; }
+@media (max-width: 768px) {
+  .admin-wrap { margin: 20px 10px; padding: 18px 12px; border-radius: 14px; }
+}
