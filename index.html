@@ -3,61 +3,101 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Codeovision — Free Source Code &amp; Tutorials</title>
-<meta name="description" content="Codeovision — free source code, tutorials and website templates. Download, use and learn.">
+<title>Codeovision — Free Source Code, Premium Templates &amp; Store</title>
+<meta name="description" content="Codeovision — free source code, tutorials, premium website templates and a store. Pay with Easypaisa / JazzCash.">
 <link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
+
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="logo" href="index.html">Code<span>ovision</span></a>
     <nav>
-      <a href="index.html" class="active">Home</a>
-      <a href="#posts">Free Code</a>
-      <a href="#about">About</a>
+      <a href="#home" class="active">Home</a>
+      <a href="#free-store">Free Store</a>
+      <a href="#paid-store">Paid Store</a>
+      <a href="#how-to-buy">How to Buy</a>
       <a href="https://www.youtube.com/@Codeographics" target="_blank" rel="noopener">YouTube</a>
+      <a href="admin.html" class="admin-link">Admin</a>
     </nav>
   </div>
 </header>
 
-<section class="hero">
-  <div class="wrap">
-    <h1>Free Source Code, Tutorials &amp; Templates</h1>
-    <p>Har code bilkul free hai — download karein, apni website mein use karein aur seekhein. Koi paisa nahi, koi signup nahi.</p>
-    <a class="btn" href="#posts">Free Code Dekhein</a>
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="wrap hero-inner">
+    <div class="hero-text fade-up">
+      <span class="hero-badge">100% Free Code &nbsp;•&nbsp; Premium Templates</span>
+      <h1>Build Your Website.<br><span class="gold">Free Code. Pro Results.</span></h1>
+      <p class="typed-line"><span id="typed"></span><span class="caret">|</span></p>
+      <p class="hero-sub">Free source code, tutorials aur premium website templates — download karein, seekhein aur apni website banayein. Koi signup nahi, koi chhupa charge nahi.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#free-store">Free Code Lein</a>
+        <a class="btn outline" href="#paid-store">Paid Store Dekhein</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><strong>3+</strong><span>Free Downloads</span></div>
+        <div class="stat"><strong>3</strong><span>Premium Packs</span></div>
+        <div class="stat"><strong>Rs 0</strong><span>Free Code</span></div>
+      </div>
+    </div>
+    <div class="hero-code fade-up">
+      <div class="code-window float">
+        <div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span>portfolio.html</span></div>
+<pre><code><span class="c-tag">&lt;header&gt;</span>
+  <span class="c-tag">&lt;h1&gt;</span>Your Name<span class="c-tag">&lt;/h1&gt;</span>
+  <span class="c-tag">&lt;p&gt;</span>Web Developer<span class="c-tag">&lt;/p&gt;</span>
+<span class="c-tag">&lt;/header&gt;</span>
+
+<span class="c-tag">&lt;section&gt;</span>
+  <span class="c-com">&lt;!-- Your projects here --&gt;</span>
+<span class="c-tag">&lt;/section&gt;</span></code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<section class="strip">
+  <div class="wrap strip-inner reveal">
+    <span>✓ No Signup</span><span>✓ Instant Download</span><span>✓ Easypaisa / JazzCash</span><span>✓ WhatsApp Support</span>
   </div>
 </section>
 
 <main class="wrap">
-  <h2 id="posts">Latest Free Code</h2>
-  <div class="grid">
 
-    <article class="card">
-      <span class="tag">HTML Template</span>
-      <h3>Free HTML Portfolio Template</h3>
-      <p>Ek complete one-page portfolio website — header, about, projects aur contact section ke saath. Sirf file kholein aur apna naam likh dein.</p>
-      <a class="btn small" href="posts/free-html-portfolio-template.html">View &amp; Download</a>
-    </article>
+  <!-- FREE STORE -->
+  <section id="free-store">
+    <h2 class="section-title reveal">Free Store <span>— 100% Free</span></h2>
+    <p class="section-sub reveal">Ye sab code bilkul free hai — download karein aur use karein.</p>
+    <div class="grid" id="free-grid"></div>
+  </section>
 
-    <article class="card">
-      <span class="tag">CSS</span>
-      <h3>CSS Button Animations</h3>
-      <p>5 khoobsurat animated buttons — hover glow, slide, gradient aur bounce effects. Copy-paste karein, apni site mein lagayein.</p>
-      <a class="btn small" href="posts/css-button-animations.html">View &amp; Download</a>
-    </article>
+  <!-- PAID STORE -->
+  <section id="paid-store">
+    <h2 class="section-title reveal">Paid Store <span>— Premium Packs</span></h2>
+    <p class="section-sub reveal">Premium templates aur project packs. Payment Easypaisa ya JazzCash se — manual, asaan aur safe.</p>
+    <div class="grid" id="paid-grid"></div>
+  </section>
 
-    <article class="card">
-      <span class="tag">JavaScript</span>
-      <h3>JavaScript Image Slider</h3>
-      <p>Auto-play image slider with prev/next buttons aur dots — sirf HTML, CSS aur JavaScript, koi library nahi chahiye.</p>
-      <a class="btn small" href="posts/javascript-image-slider.html">View &amp; Download</a>
-    </article>
+  <!-- HOW TO BUY -->
+  <section id="how-to-buy" class="how reveal">
+    <h2 class="section-title">Kaise Kharidein? <span>— 3 Asaan Steps</span></h2>
+    <div class="steps">
+      <div class="step"><span class="step-num">1</span><h3>Product Choose Karein</h3><p>Paid Store se apna pack choose karein aur "Buy Now" pe click karein.</p></div>
+      <div class="step"><span class="step-num">2</span><h3>Payment Bhejein</h3><p>Easypaisa ya JazzCash pe payment bhejein. Number order box mein likha hoga.</p></div>
+      <div class="step"><span class="step-num">3</span><h3>WhatsApp Pe Screenshot Bhejein</h3><p>Payment ka screenshot WhatsApp pe bhejein — confirm hote hi download link mil jayega.</p></div>
+    </div>
+  </section>
 
-  </div>
-
-  <section id="about" class="about">
+  <!-- ABOUT -->
+  <section id="about" class="about reveal">
     <h2>About Codeovision</h2>
-    <p>Codeovision ek free learning blog hai — yahan hum apne source code, templates aur tutorials bilkul free mein dete hain, taake har koi coding seekh sake aur apni website bana sake.</p>
+    <p>Codeovision ek free learning blog aur store hai — yahan hum apne source code, templates aur tutorials dete hain, taake har koi coding seekh sake aur apni website bana sake. Free code hamesha free rahega.</p>
     <p>Videos ke liye hamara YouTube channel dekhein: <a href="https://www.youtube.com/@Codeographics" target="_blank" rel="noopener">EpicQuest Adventures / Codeographics</a>.</p>
   </section>
 </main>
@@ -65,7 +105,109 @@
 <footer class="site-footer">
   <div class="wrap">
     <p>&copy; 2026 Codeovision — Free code for everyone.</p>
+    <p class="foot-note">Free downloads instant hain. Paid orders WhatsApp pe confirm hote hain.</p>
   </div>
 </footer>
+
+<!-- ORDER MODAL -->
+<div class="modal" id="order-modal" aria-hidden="true">
+  <div class="modal-box">
+    <button class="modal-close" id="modal-close">&times;</button>
+    <h3 id="modal-title">Buy Now</h3>
+    <p class="modal-price" id="modal-price"></p>
+    <div class="pay-box">
+      <p><strong>Easypaisa:</strong> <span id="pay-easypaisa"></span></p>
+      <p><strong>JazzCash:</strong> <span id="pay-jazzcash"></span></p>
+      <p><strong>Account Title:</strong> <span id="pay-title"></span></p>
+    </div>
+    <p class="modal-note">Payment bhejne ke baad screenshot WhatsApp pe bhejein — confirm hote hi aap ko download link mil jayega.</p>
+    <a class="btn whatsapp-btn" id="wa-order" href="#" target="_blank" rel="noopener">WhatsApp Pe Order Karein</a>
+  </div>
+</div>
+
+<script src="js/products.js"></script>
+<script>
+// ---- Firebase (orders) — config filled after project setup ----
+const firebaseConfig = {
+  apiKey: "TODO",
+  authDomain: "TODO",
+  projectId: "TODO",
+  storageBucket: "TODO",
+  messagingSenderId: "TODO",
+  appId: "TODO"
+};
+const FIREBASE_READY = firebaseConfig.apiKey !== "TODO";
+let db = null;
+if (FIREBASE_READY) { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); }
+function recordOrder(p) {
+  if (!FIREBASE_READY) return '';
+  const orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
+  db.collection('orders').add({ orderId: orderId, product: p.title, price: p.price, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(function(){});
+  return orderId;
+}
+
+// ---- Render stores ----
+const freeGrid = document.getElementById('free-grid');
+FREE_PRODUCTS.forEach(p => {
+  const card = document.createElement('article');
+  card.className = 'card reveal';
+  card.innerHTML = '<span class="tag">FREE • ' + p.tag + '</span><h3>' + p.title + '</h3><p>' + p.desc + '</p>' +
+    '<a class="btn small" href="' + p.page + '">View &amp; Download</a>';
+  freeGrid.appendChild(card);
+});
+
+const paidGrid = document.getElementById('paid-grid');
+PAID_PRODUCTS.forEach(p => {
+  const feats = p.features.map(f => '<li>' + f + '</li>').join('');
+  const card = document.createElement('article');
+  card.className = 'card paid reveal';
+  card.innerHTML = '<span class="tag gold-tag">' + p.tag + '</span><h3>' + p.title + '</h3><p>' + p.desc + '</p>' +
+    '<ul class="feats">' + feats + '</ul>' +
+    '<p class="price">Rs ' + p.price.toLocaleString('en-PK') + '</p>' +
+    '<button class="btn small buy-btn" data-id="' + p.id + '">Buy Now</button>';
+  paidGrid.appendChild(card);
+});
+
+// ---- Order modal ----
+const modal = document.getElementById('order-modal');
+document.querySelectorAll('.buy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const p = PAID_PRODUCTS.find(x => x.id === btn.dataset.id);
+    document.getElementById('modal-title').textContent = p.title;
+    document.getElementById('modal-price').textContent = 'Price: Rs ' + p.price.toLocaleString('en-PK');
+    document.getElementById('pay-easypaisa').textContent = PAYMENT.easypaisa;
+    document.getElementById('pay-jazzcash').textContent = PAYMENT.jazzcash;
+    document.getElementById('pay-title').textContent = PAYMENT.title;
+    const orderId = recordOrder(p);
+    const msg = encodeURIComponent('Assalamualaikum, mujhe "' + p.title + '" khareedna hai. Price: Rs ' + p.price + (orderId ? '. Order ID: ' + orderId : '') + '. Payment bhej di hai, screenshot ye raha.');
+    document.getElementById('wa-order').href = 'https://wa.me/' + PAYMENT.whatsapp + '?text=' + msg;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+  });
+});
+document.getElementById('modal-close').addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+function closeModal() { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); }
+
+// ---- Typing effect ----
+const phrases = ['HTML Templates', 'CSS Animations', 'JavaScript Projects', 'Premium Website Packs'];
+let pi = 0, ci = 0, deleting = false;
+const typedEl = document.getElementById('typed');
+function typeLoop() {
+  const word = phrases[pi];
+  typedEl.textContent = word.slice(0, ci);
+  if (!deleting && ci < word.length) { ci++; setTimeout(typeLoop, 70); }
+  else if (!deleting) { deleting = true; setTimeout(typeLoop, 1400); }
+  else if (ci > 0) { ci--; setTimeout(typeLoop, 35); }
+  else { deleting = false; pi = (pi + 1) % phrases.length; setTimeout(typeLoop, 300); }
+}
+typeLoop();
+
+// ---- Scroll reveal ----
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
 </body>
 </html>

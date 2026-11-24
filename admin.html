@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Codeovision</title>
+<meta name="description" content="Codeovision admin panel — manage products and orders.">
+<link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="index.html">Code<span>ovision</span></a>
+    <nav>
+      <a href="index.html">View Site</a>
+      <a href="admin.html" class="active">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<div class="admin-wrap">
+  <div class="notice" id="setup-notice" style="display:none">
+    <strong>Firebase setup pending:</strong> Admin panel ka database abhi connect nahi hua.
+    Firebase project banne ke baad is page mein config lagayenge — phir login aur products/orders yahin se manage honge.
+  </div>
+
+  <!-- LOGIN -->
+  <div class="admin-card" id="login-card">
+    <h2>Admin Login</h2>
+    <p style="color:#6b7280;margin-bottom:16px">Sirf Codeovision admin login kar sakta hai.</p>
+    <label>Email</label>
+    <input type="email" id="admin-email" placeholder="codeographics@gmail.com">
+    <label>Password</label>
+    <input type="password" id="admin-pass" placeholder="Admin password">
+    <button class="btn teal" id="login-btn">Login</button>
+    <p id="login-error" style="color:#dc2626;margin-top:10px"></p>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" style="display:none">
+    <div class="admin-card">
+      <h2>Dashboard <button class="btn small" id="logout-btn" style="float:right">Logout</button></h2>
+      <p style="color:#6b7280">Logged in as <strong id="admin-who"></strong></p>
+    </div>
+
+    <div class="admin-card">
+      <h2>Orders</h2>
+      <p style="color:#6b7280;margin-bottom:12px">Buy Now pe click karne wale orders yahan aate hain. Payment WhatsApp pe confirm karein, phir status badlein.</p>
+      <table class="admin-table">
+        <thead><tr><th>Order ID</th><th>Product</th><th>Price</th><th>Date</th><th>Status</th><th></th></tr></thead>
+        <tbody id="orders-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="admin-card">
+      <h2>Add Paid Product</h2>
+      <label>Title</label>
+      <input type="text" id="p-title" placeholder="e.g. Premium Landing Page Pack">
+      <label>Description</label>
+      <textarea id="p-desc" rows="3" placeholder="Product ki tafseel"></textarea>
+      <label>Price (Rs)</label>
+      <input type="number" id="p-price" placeholder="e.g. 999">
+      <label>Tag</label>
+      <input type="text" id="p-tag" placeholder="e.g. Premium">
+      <button class="btn teal" id="add-product-btn">Add Product</button>
+      <p id="add-msg" style="color:#15803d;margin-top:10px"></p>
+    </div>
+
+    <div class="admin-card">
+      <h2>Paid Products</h2>
+      <table class="admin-table">
+        <thead><tr><th>Title</th><th>Price</th><th>Tag</th><th></th></tr></thead>
+        <tbody id="products-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap"><p>&copy; 2026 Codeovision — Admin Panel</p></div>
+</footer>
+
+<script src="js/products.js"></script>
+<script>
+// ---- Firebase config: FILL AFTER FIREBASE PROJECT SETUP ----
+// Firebase console se "Web app" config yahan paste karein.
+const firebaseConfig = {
+  apiKey: "TODO",
+  authDomain: "TODO",
+  projectId: "TODO",
+  storageBucket: "TODO",
+  messagingSenderId: "TODO",
+  appId: "TODO"
+};
+const FIREBASE_READY = firebaseConfig.apiKey !== "TODO";
+
+let db = null, auth = null;
+if (FIREBASE_READY) {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+  auth = firebase.auth();
+} else {
+  document.getElementById('setup-notice').style.display = 'block';
+}
+
+const loginCard = document.getElementById('login-card');
+const dashboard = document.getElementById('dashboard');
+
+document.getElementById('login-btn').addEventListener('click', async () => {
+  const email = document.getElementById('admin-email').value.trim();
+  const pass = document.getElementById('admin-pass').value;
+  const err = document.getElementById('login-error');
+  err.textContent = '';
+  if (!FIREBASE_READY) { err.textContent = 'Firebase setup pending hai — pehle project connect karein.'; return; }
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch (e) { err.textContent = 'Login failed: ' + e.message; }
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+
+if (FIREBASE_READY) {
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      loginCard.style.display = 'none';
+      dashboard.style.display = 'block';
+      document.getElementById('admin-who').textContent = user.email;
+      loadOrders();
+      loadProducts();
+    } else {
+      loginCard.style.display = 'block';
+      dashboard.style.display = 'none';
+    }
+  });
+}
+
+async function loadOrders() {
+  const body = document.getElementById('orders-body');
+  try {
+    const snap = await db.collection('orders').orderBy('createdAt', 'desc').limit(50).get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">Abhi koi order nahi hai.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const o = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (o.orderId || doc.id) + '</td><td>' + (o.product || '') + '</td><td>Rs ' + (o.price || '') + '</td><td>' + (o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleString() : '') + '</td>' +
+        '<td><span class="badge ' + (o.status || 'pending') + '">' + (o.status || 'pending') + '</span></td>' +
+        '<td>' + (o.status !== 'delivered' ? '<button class="btn small" onclick="setStatus(\'' + doc.id + '\',\'delivered\')">Mark Delivered</button>' : '') + '</td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
+}
+
+async function loadProducts() {
+  const body = document.getElementById('products-body');
+  try {
+    const snap = await db.collection('products').orderBy('price').get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">Abhi koi product nahi hai. Upar se add karein.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const p = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (p.title || '') + '</td><td>Rs ' + (p.price || '') + '</td><td>' + (p.tag || '') + '</td>' +
+        '<td><button class="btn small" onclick="deleteProduct(\'' + doc.id + '\')">Delete</button></td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
+}
+
+async function setStatus(id, status) {
+  await db.collection('orders').doc(id).update({ status });
+  loadOrders();
+}
+async function deleteProduct(id) {
+  if (!confirm('Ye product delete kar dein?')) return;
+  await db.collection('products').doc(id).delete();
+  loadProducts();
+}
+
+document.getElementById('add-product-btn').addEventListener('click', async () => {
+  const msg = document.getElementById('add-msg');
+  msg.textContent = '';
+  if (!FIREBASE_READY) { msg.textContent = 'Firebase setup pending hai.'; return; }
+  const title = document.getElementById('p-title').value.trim();
+  const desc = document.getElementById('p-desc').value.trim();
+  const price = parseInt(document.getElementById('p-price').value, 10);
+  const tag = document.getElementById('p-tag').value.trim() || 'Premium';
+  if (!title || !price) { msg.textContent = 'Title aur Price zaroori hain.'; return; }
+  await db.collection('products').add({ title, desc, price, tag, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+  msg.textContent = 'Product add ho gaya!';
+  document.getElementById('p-title').value = '';
+  document.getElementById('p-desc').value = '';
+  document.getElementById('p-price').value = '';
+  document.getElementById('p-tag').value = '';
+  loadProducts();
+});
+</script>
+</body>
+</html>
