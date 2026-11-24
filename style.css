@@ -37,14 +37,14 @@ a:hover { text-decoration: underline; }
 .mobile-menu a:hover { color: #e3c06a; text-decoration: none; background: rgba(227,192,106,.08); border-radius: 8px; }
 
 @media (max-width: 760px) {
-  .header-inner { flex-wrap: nowrap; gap: 8px; }
-  .logo { font-size: 20px; line-height: 1.1; margin-top: -3px; }
-  .site-header nav { flex-wrap: nowrap; gap: 8px; }
+  .header-inner { flex-wrap: nowrap; gap: 10px; padding-left: 16px; padding-right: 16px; }
+  .logo { font-size: 23px; line-height: 1.1; margin-top: -3px; }
+  .site-header nav { flex-wrap: nowrap; gap: 10px; }
   .site-header nav a { display: none; }
-  .site-header nav .nav-btn { margin-left: 0; padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+  .site-header #auth-btn { display: none; }
+  .site-header nav .nav-btn { margin-left: 0; padding: 9px 12px; font-size: 14px; white-space: nowrap; height: 38px; display: inline-flex; align-items: center; }
   #cart-btn { order: 1; }
-  #auth-btn { order: 2; }
-  .hamburger { display: inline-flex; order: 3; margin-left: 0; width: 38px; height: 36px; padding: 8px 9px; }
+  .hamburger { display: inline-flex; order: 2; margin-left: 0; width: 38px; height: 38px; padding: 10px 9px; }
 }
 
 /* Hero */
@@ -273,7 +273,6 @@ table.admin-table th { background: #f9fafb; }
 .logo { position: relative; display: inline-block; animation: logoFloat 4s ease-in-out infinite, logoGlow 3s ease-in-out infinite, logoBreathe 5s ease-in-out infinite, logoScale 4s ease-in-out infinite; }
 .logo span { position: relative; background: linear-gradient(90deg, #e3c06a, #fff2c4, #e3c06a, #b8934a, #e3c06a); background-size: 220% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: logoGradient 4s linear infinite; }
 .logo span::after { content: ""; position: absolute; top: 0; left: -70%; width: 45%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.85), transparent); transform: skewX(-20deg); animation: logoShine 3.2s ease-in-out infinite; pointer-events: none; }
-.logo::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #e3c06a; margin-right: 8px; vertical-align: middle; animation: logoDot 2s ease-in-out infinite; }
 .logo::after { content: ""; position: absolute; left: 0; bottom: -5px; height: 2px; width: 100%; background: linear-gradient(90deg, transparent, #e3c06a, transparent); animation: logoUnderline 3.5s ease-in-out infinite; }
 @keyframes logoFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 @keyframes logoGlow { 0%,100% { text-shadow: 0 0 0 rgba(227,192,106,0); } 50% { text-shadow: 0 0 18px rgba(227,192,106,.65); } }
@@ -336,6 +335,25 @@ table.admin-table tr:hover td { background: rgba(255,255,255,.03); }
 .paid-section .section-title { color: #fff; }
 .paid-section .section-title span { color: #e3c06a; }
 .paid-section .section-sub { color: #c7d2fe; }
+
+/* ---- v13: Premium dark front — blog + free store match the top scheme ---- */
+.free-section { background: linear-gradient(135deg, #0b1220, #0f766e 60%, #134e4a); border: 1px solid #0d9488; box-shadow: 0 14px 34px rgba(11,18,32,.35); }
+.free-section .section-title { color: #fff; }
+.free-section .section-title span { color: #5eead4; }
+.free-section .section-sub { color: #d1d5db; }
+#blog.about { background: linear-gradient(135deg, #0b1220, #1e1b4b 60%, #312e81); border: 1px solid rgba(227,192,106,.4); box-shadow: 0 14px 34px rgba(11,18,32,.35); }
+#blog.about .section-title { color: #fff; }
+#blog.about .section-title span { color: #e3c06a; }
+#blog.about .section-sub { color: #c7d2fe; }
+
+/* ---- v13: Drawer login button (mobile header login lives in the menu) ---- */
+.drawer-auth-btn { display: block; width: 100%; background: #e3c06a; color: #0b1220; font-weight: 700; font-size: 16px; padding: 12px; border: none; border-radius: 10px; cursor: pointer; margin: 8px 0 14px; font-family: inherit; }
+.drawer-auth-btn:hover { background: #d4af5a; }
+
+/* ---- v13: Footer premium boost ---- */
+.site-footer { padding: 48px 0 36px; box-shadow: 0 -10px 34px rgba(227,192,106,.12); }
+.site-footer .footer-logo { font-size: 28px; }
+.site-footer p { margin-bottom: 8px; }
 
 /* ---- v10: Store cards — coloured backgrounds, pretty buttons ---- */
 .free-card { background: linear-gradient(160deg, #ffffff, #ecfdf5); border-top: 4px solid #0d9488; }

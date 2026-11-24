@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Codeovision — Free Source Code &amp; Tutorials for Developers</title>
 <meta name="description" content="Codeovision is a free developer resource — free source code, tutorials and website templates for developers. Free downloads need no account. Premium templates also available.">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -37,6 +37,7 @@
 <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
 <aside class="mobile-menu" id="mobile-menu" aria-label="Site menu">
   <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Close menu">&times;</button>
+  <button class="drawer-auth-btn" id="drawer-auth-btn">Login / Signup</button>
   <a href="#home">Home</a>
   <a href="#blog">Blog</a>
   <a href="#free-store">Free Store</a>
@@ -1150,10 +1151,12 @@ document.getElementById('auth-submit').addEventListener('click', async () => {
 function showCheckoutIfCart() { if (cart.length && checkoutModal.classList.contains('open')) showCheckout(); }
 function updateAuthUI() {
   const btn = document.getElementById('auth-btn');
+  const drawerAuthBtn = document.getElementById('drawer-auth-btn');
   const dashLink = document.getElementById('dashboard-link');
   const drawerDashLink = document.getElementById('drawer-dashboard-link');
-  if (!FIREBASE_READY) { btn.textContent = 'Login / Signup'; dashLink.style.display = 'none'; if (drawerDashLink) drawerDashLink.style.display = 'none'; return; }
+  if (!FIREBASE_READY) { btn.textContent = 'Login / Signup'; if (drawerAuthBtn) drawerAuthBtn.textContent = 'Login / Signup'; dashLink.style.display = 'none'; if (drawerDashLink) drawerDashLink.style.display = 'none'; return; }
   btn.textContent = currentUser ? currentUser.email.split('@')[0] + ' (Logout)' : 'Login / Signup';
+  if (drawerAuthBtn) drawerAuthBtn.textContent = btn.textContent;
   dashLink.style.display = currentUser ? '' : 'none';
   if (drawerDashLink) drawerDashLink.style.display = currentUser ? '' : 'none';
   refreshAffilBoxes();
@@ -1229,6 +1232,8 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   btn.addEventListener('click', () => { menu.classList.contains('open') ? closeMenu() : openMenu(); });
   overlay.addEventListener('click', closeMenu);
   if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+  const drawerAuth = document.getElementById('drawer-auth-btn');
+  if (drawerAuth) drawerAuth.addEventListener('click', () => { closeMenu(); const authBtn = document.getElementById('auth-btn'); if (authBtn) authBtn.click(); });
   menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
 })();
