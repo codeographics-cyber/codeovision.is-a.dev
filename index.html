@@ -16,6 +16,7 @@
   <div class="wrap header-inner">
     <a class="logo" href="index.html">Code<span>ovision</span></a>
     <nav>
+      <button class="hamburger" id="hamburger-btn" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
       <a href="#home" class="active">Home</a>
       <a href="#blog">Blog</a>
       <a href="#free-store">Free Store</a>
@@ -31,6 +32,22 @@
     </nav>
   </div>
 </header>
+
+<!-- Mobile side menu (hamburger — shows on mobile only) -->
+<div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
+<aside class="mobile-menu" id="mobile-menu" aria-label="Site menu">
+  <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Close menu">&times;</button>
+  <a href="#home">Home</a>
+  <a href="#blog">Blog</a>
+  <a href="#free-store">Free Store</a>
+  <a href="#paid-store">Premium Templates</a>
+  <a href="#how-to-buy">How to Buy</a>
+  <a href="#mission">Mission</a>
+  <a href="#about">About Us</a>
+  <a href="#contact">Contact</a>
+  <a href="dashboard.html" id="drawer-dashboard-link" style="display:none">My Dashboard</a>
+  <a href="https://www.youtube.com/@Codeographics" target="_blank" rel="noopener">YouTube</a>
+</aside>
 
 <!-- BANNER SLIDER — 5 company banners -->
 <section class="banner-slider" id="banner-slider" aria-label="Codeovision highlights">
@@ -1134,9 +1151,11 @@ function showCheckoutIfCart() { if (cart.length && checkoutModal.classList.conta
 function updateAuthUI() {
   const btn = document.getElementById('auth-btn');
   const dashLink = document.getElementById('dashboard-link');
-  if (!FIREBASE_READY) { btn.textContent = 'Login / Signup'; dashLink.style.display = 'none'; return; }
+  const drawerDashLink = document.getElementById('drawer-dashboard-link');
+  if (!FIREBASE_READY) { btn.textContent = 'Login / Signup'; dashLink.style.display = 'none'; if (drawerDashLink) drawerDashLink.style.display = 'none'; return; }
   btn.textContent = currentUser ? currentUser.email.split('@')[0] + ' (Logout)' : 'Login / Signup';
   dashLink.style.display = currentUser ? '' : 'none';
+  if (drawerDashLink) drawerDashLink.style.display = currentUser ? '' : 'none';
   refreshAffilBoxes();
   loadWishlist();
   // Abandoned cart: restore the saved cart for this user (if the local cart is empty).
@@ -1196,6 +1215,22 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   track.addEventListener('mouseenter', () => clearInterval(timer));
   track.addEventListener('mouseleave', restart);
   restart();
+})();
+
+// ---- Mobile hamburger menu (side drawer, mobile only) ----
+(function () {
+  const btn = document.getElementById('hamburger-btn');
+  const menu = document.getElementById('mobile-menu');
+  const overlay = document.getElementById('mobile-menu-overlay');
+  const closeBtn = document.getElementById('mobile-menu-close');
+  if (!btn || !menu || !overlay) return;
+  function closeMenu() { menu.classList.remove('open'); overlay.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); document.body.style.overflow = ''; }
+  function openMenu() { menu.classList.add('open'); overlay.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); document.body.style.overflow = 'hidden'; }
+  btn.addEventListener('click', () => { menu.classList.contains('open') ? closeMenu() : openMenu(); });
+  overlay.addEventListener('click', closeMenu);
+  if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
 })();
 </script>
 </body>
