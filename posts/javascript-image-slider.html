@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Image Slider — Codeovision</title>
+<meta name="description" content="Free auto-play JavaScript image slider with prev/next buttons and dots. No library needed.">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="../index.html">Code<span>ovision</span></a>
+    <nav>
+      <a href="../index.html">Home</a>
+      <a href="../index.html#posts">Free Code</a>
+      <a href="../index.html#about">About</a>
+      <a href="https://www.youtube.com/@Codeographics" target="_blank" rel="noopener">YouTube</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="post">
+    <span class="tag">JavaScript</span>
+    <h1>JavaScript Image Slider</h1>
+    <p class="date">24 November 2026</p>
+    <p>Auto-play image slider with prev/next buttons aur dots — sirf HTML, CSS aur JavaScript, koi library nahi chahiye. Apni images daal dein aur slider tayyar.</p>
+
+    <h2>Kya kuch hai is mein?</h2>
+    <ul>
+      <li>Auto-play har 3 second mein slide badalta hai</li>
+      <li>Prev / Next buttons aur neeche dots</li>
+      <li>Responsive — mobile pe bhi sahi chalta hai</li>
+    </ul>
+
+    <h2>Kaise use karein?</h2>
+    <ol>
+      <li>File download karein.</li>
+      <li>Slides mein apni images ke link daal dein.</li>
+      <li>File browser mein kholein — slider chal jayega.</li>
+    </ol>
+
+    <div class="download-box">
+      <p><strong>100% Free — Download karein:</strong></p>
+      <a class="btn" href="../downloads/image-slider.html" download>Download image-slider.html</a>
+    </div>
+
+    <h2>Code ka chhota hissa</h2>
+    <pre><code>let current = 0;
+const slides = document.querySelectorAll('.slide');
+
+function show(n) {
+  slides[current].classList.remove('active');
+  current = (n + slides.length) % slides.length;
+  slides[current].classList.add('active');
+}
+setInterval(() =&gt; show(current + 1), 3000);</code></pre>
+
+    <a class="back" href="../index.html">&larr; Wapas Home pe</a>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap"><p>&copy; 2026 Codeovision — Free code for everyone.</p></div>
+</footer>
+</body>
+</html>
