@@ -1,5 +1,5 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: "Segoe UI", Arial, sans-serif; background: #f3f4f6; color: #1f2937; line-height: 1.6; }
+body { font-family: "Segoe UI", Arial, sans-serif; background: linear-gradient(180deg, #0b1220 0%, #134e4a 14%, #0f766e 24%, #1e1b4b 48%, #312e81 68%, #4c1d95 84%, #0b1220 100%); color: #e5e7eb; line-height: 1.6; }
 .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
 a { color: #0d9488; text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -354,6 +354,13 @@ table.admin-table tr:hover td { background: rgba(255,255,255,.03); }
 .site-footer { padding: 48px 0 36px; box-shadow: 0 -10px 34px rgba(227,192,106,.12); }
 .site-footer .footer-logo { font-size: 28px; }
 .site-footer p { margin-bottom: 8px; }
+
+/* ---- v14: Whole-page multi-colour theme (no white background left) ---- */
+.about { background: linear-gradient(135deg, #0b1220, #1e1b4b 60%, #312e81); border: 1px solid rgba(227,192,106,.35); box-shadow: 0 14px 34px rgba(11,18,32,.35); }
+.about h2 { color: #fff; }
+.about > p { color: #d1d5db; }
+.how .section-title { color: #fff; }
+.how .section-title span { color: #e3c06a; }
 
 /* ---- v10: Store cards — coloured backgrounds, pretty buttons ---- */
 .free-card { background: linear-gradient(160deg, #ffffff, #ecfdf5); border-top: 4px solid #0d9488; }
