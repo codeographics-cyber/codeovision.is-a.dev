@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Button Animations — Free Code by Codeovision</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; background: #f3f4f6; text-align: center; padding: 50px 20px; }
+  h1 { margin-bottom: 10px; }
+  p { color: #6b7280; margin-bottom: 30px; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+  button { font-size: 16px; font-weight: bold; padding: 13px 30px; border: none; border-radius: 8px; cursor: pointer; }
+
+  /* 1. Glow */
+  .btn-glow { background: #0d9488; color: #fff; transition: box-shadow .3s; }
+  .btn-glow:hover { box-shadow: 0 0 20px rgba(13,148,136,.8); }
+
+  /* 2. Slide */
+  .btn-slide { background: #0b1220; color: #fff; position: relative; overflow: hidden; z-index: 1; }
+  .btn-slide::before { content: ""; position: absolute; inset: 0; background: #e3c06a; transform: translateX(-101%); transition: transform .3s; z-index: -1; }
+  .btn-slide:hover::before { transform: translateX(0); }
+  .btn-slide:hover { color: #0b1220; }
+
+  /* 3. Gradient */
+  .btn-gradient { background: linear-gradient(90deg, #0d9488, #e3c06a); color: #fff; background-size: 200% 100%; transition: background-position .4s; }
+  .btn-gradient:hover { background-position: 100% 0; }
+
+  /* 4. Bounce */
+  .btn-bounce { background: #e3c06a; color: #0b1220; transition: transform .2s; }
+  .btn-bounce:hover { transform: translateY(-4px) scale(1.05); }
+
+  /* 5. Outline */
+  .btn-outline { background: transparent; color: #0d9488; border: 2px solid #0d9488; transition: all .3s; }
+  .btn-outline:hover { background: #0d9488; color: #fff; }
+</style>
+</head>
+<body>
+  <h1>CSS Button Animations</h1>
+  <p>Free code by Codeovision — hover karein aur dekhein!</p>
+  <div class="row">
+    <button class="btn-glow">Glow Button</button>
+    <button class="btn-slide">Slide Button</button>
+    <button class="btn-gradient">Gradient Button</button>
+    <button class="btn-bounce">Bounce Button</button>
+    <button class="btn-outline">Outline Button</button>
+  </div>
+</body>
+</html>

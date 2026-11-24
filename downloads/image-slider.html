@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Image Slider — Free Code by Codeovision</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; background: #f3f4f6; text-align: center; padding: 40px 20px; }
+  h1 { margin-bottom: 20px; }
+  .slider { position: relative; max-width: 700px; height: 300px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+  .slide { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 28px; font-weight: bold; opacity: 0; transition: opacity .6s; }
+  .slide.active { opacity: 1; }
+  .slide:nth-child(1) { background: linear-gradient(135deg, #0d9488, #0b1220); }
+  .slide:nth-child(2) { background: linear-gradient(135deg, #e3c06a, #b45309); }
+  .slide:nth-child(3) { background: linear-gradient(135deg, #7c3aed, #0b1220); }
+  .nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,.5); color: #fff; border: none; font-size: 22px; padding: 10px 14px; cursor: pointer; border-radius: 50%; z-index: 2; }
+  .prev { left: 12px; }
+  .next { right: 12px; }
+  .dots { margin-top: 16px; }
+  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #cbd5e1; margin: 0 5px; cursor: pointer; }
+  .dot.active { background: #0d9488; }
+</style>
+</head>
+<body>
+  <h1>JavaScript Image Slider</h1>
+  <div class="slider">
+    <div class="slide active">Slide 1 — Apni image yahan lagayein</div>
+    <div class="slide">Slide 2 — Apni image yahan lagayein</div>
+    <div class="slide">Slide 3 — Apni image yahan lagayein</div>
+    <button class="nav prev" onclick="show(current - 1)">&#10094;</button>
+    <button class="nav next" onclick="show(current + 1)">&#10095;</button>
+  </div>
+  <div class="dots">
+    <span class="dot active" onclick="show(0)"></span>
+    <span class="dot" onclick="show(1)"></span>
+    <span class="dot" onclick="show(2)"></span>
+  </div>
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.dot');
+
+  function show(n) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+  }
+  setInterval(() => show(current + 1), 3000);
+</script>
+</body>
+</html>
