@@ -37,11 +37,14 @@ a:hover { text-decoration: underline; }
 .mobile-menu a:hover { color: #e3c06a; text-decoration: none; background: rgba(227,192,106,.08); border-radius: 8px; }
 
 @media (max-width: 760px) {
-  .header-inner { flex-wrap: nowrap; }
-  .logo { font-size: 22px; }
+  .header-inner { flex-wrap: nowrap; gap: 8px; }
+  .logo { font-size: 20px; line-height: 1.1; margin-top: -3px; }
+  .site-header nav { flex-wrap: nowrap; gap: 8px; }
   .site-header nav a { display: none; }
-  .hamburger { display: inline-flex; }
-  .nav-btn { margin-left: 8px; padding: 6px 10px; }
+  .site-header nav .nav-btn { margin-left: 0; padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+  #cart-btn { order: 1; }
+  #auth-btn { order: 2; }
+  .hamburger { display: inline-flex; order: 3; margin-left: 0; width: 38px; height: 36px; padding: 8px 9px; }
 }
 
 /* Hero */
