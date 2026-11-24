@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Codeovision — Free Source Code, Premium Templates &amp; Store</title>
-<meta name="description" content="Codeovision — free source code, tutorials, premium website templates and a store. Free downloads need no account. Paid orders pay with Easypaisa / JazzCash.">
+<title>Codeovision — Free Source Code &amp; Tutorials for Developers</title>
+<meta name="description" content="Codeovision is a free developer resource — free source code, tutorials and website templates for developers. Free downloads need no account. Premium templates also available.">
 <link rel="stylesheet" href="style.css">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -17,8 +17,9 @@
     <a class="logo" href="index.html">Code<span>ovision</span></a>
     <nav>
       <a href="#home" class="active">Home</a>
+      <a href="#blog">Blog</a>
       <a href="#free-store">Free Store</a>
-      <a href="#paid-store">Paid Store</a>
+      <a href="#paid-store">Premium Templates</a>
       <a href="#how-to-buy">How to Buy</a>
       <a href="#mission">Mission</a>
       <a href="#about">About Us</a>
@@ -31,23 +32,77 @@
   </div>
 </header>
 
+<!-- BANNER SLIDER — 5 company banners -->
+<section class="banner-slider" id="banner-slider" aria-label="Codeovision highlights">
+  <div class="banner-track" id="banner-track">
+    <div class="banner-slide active" style="background-image:url('images/banner-1-free-code.jpg')">
+      <div class="banner-overlay"></div>
+      <div class="wrap banner-content">
+        <span class="banner-badge">100% Free — No Account Needed</span>
+        <h2>Free Source Code <span class="gold">for Developers</span></h2>
+        <p>Download free HTML, CSS &amp; JavaScript code and build your own website today. Free code stays free, forever.</p>
+        <a class="btn" href="#free-store">Free Downloads</a>
+      </div>
+    </div>
+    <div class="banner-slide" style="background-image:url('images/banner-2-premium.jpg')">
+      <div class="banner-overlay"></div>
+      <div class="wrap banner-content">
+        <span class="banner-badge">Premium Templates — From $1.78</span>
+        <h2>Premium Website Packs <span class="gold">— Pro Results</span></h2>
+        <p>Professional templates and project packs. Pay easily with Easypaisa or JazzCash — download after payment verification.</p>
+        <a class="btn" href="#paid-store">Premium Templates</a>
+      </div>
+    </div>
+    <div class="banner-slide" style="background-image:url('images/banner-3-custom.jpg')">
+      <div class="banner-overlay"></div>
+      <div class="wrap banner-content">
+        <span class="banner-badge">13 Years Experience — 2013–2026</span>
+        <h2>Custom Software <span class="gold">Built For You</span></h2>
+        <p>We build websites, web apps and mobile apps for your business — designed, developed and delivered by Codeovision.</p>
+        <a class="btn" href="#contact">Contact Us</a>
+      </div>
+    </div>
+    <div class="banner-slide" style="background-image:url('images/banner-4-tutorials.jpg')">
+      <div class="banner-overlay"></div>
+      <div class="wrap banner-content">
+        <span class="banner-badge">Learn By Doing — Free Tutorials</span>
+        <h2>Learn HTML, CSS &amp; JavaScript <span class="gold">Step By Step</span></h2>
+        <p>Every tutorial comes with free, ready-to-use source code. Learn, build and earn — at your own pace.</p>
+        <a class="btn" href="#blog">Free Tutorials</a>
+      </div>
+    </div>
+    <div class="banner-slide banner-support">
+      <div class="banner-overlay"></div>
+      <div class="wrap banner-content">
+        <span class="banner-badge">Real-Time Support — WhatsApp</span>
+        <h2>Any Question? <span class="gold">We Reply Instantly</span></h2>
+        <p>Order confirmation, payment help or any issue — reach us on WhatsApp +92 303 7102625. Karachi • Multan • Islamabad • Dubai.</p>
+        <a class="btn whatsapp-btn" href="https://wa.me/923037102625" target="_blank" rel="noopener">Chat on WhatsApp</a>
+      </div>
+    </div>
+  </div>
+  <button class="banner-arrow prev" id="banner-prev" aria-label="Previous banner">‹</button>
+  <button class="banner-arrow next" id="banner-next" aria-label="Next banner">›</button>
+  <div class="banner-dots" id="banner-dots"></div>
+</section>
+
 <!-- HERO -->
 <section class="hero" id="home">
   <div class="blob blob1"></div>
   <div class="blob blob2"></div>
   <div class="wrap hero-inner">
     <div class="hero-text fade-up">
-      <span class="hero-badge">100% Free Code &nbsp;•&nbsp; Premium Templates</span>
-      <h1>Build Your Website.<br><span class="gold">Free Code. Pro Results.</span></h1>
+      <span class="hero-badge">Free Source Code &amp; Tutorials for Developers</span>
+      <h1>Free Source Code &amp; Tutorials<br><span class="gold">for Developers.</span></h1>
       <p class="typed-line"><span id="typed"></span><span class="caret">|</span></p>
-      <p class="hero-sub">Free source code, tutorials aur premium website templates — download karein, seekhein aur apni website banayein. Free code ke liye koi account nahi chahiye. Paid packs ke liye free account banayein.</p>
+      <p class="hero-sub">Codeovision is a free developer resource — free source code, tutorials and website templates. Download the code, follow the tutorials and build your own website. Free code needs no account.</p>
       <div class="hero-cta">
-        <a class="btn" href="#free-store">Free Code Lein</a>
-        <a class="btn outline" href="#paid-store">Paid Store Dekhein</a>
+        <a class="btn" href="#blog">Free Tutorials</a>
+        <a class="btn outline" href="#paid-store">Premium Templates</a>
       </div>
       <div class="hero-stats">
         <div class="stat"><strong>3+</strong><span>Free Downloads</span></div>
-        <div class="stat"><strong>3</strong><span>Premium Packs</span></div>
+        <div class="stat"><strong>3</strong><span>Free Tutorials</span></div>
         <div class="stat"><strong>$0</strong><span>Free Code</span></div>
       </div>
     </div>
@@ -70,11 +125,34 @@
 <!-- TRUST STRIP -->
 <section class="strip">
   <div class="wrap strip-inner reveal">
-    <span>✓ Free Downloads — No Account</span><span>✓ Instant Download</span><span>✓ Easypaisa / JazzCash</span><span>✓ WhatsApp Support</span>
+    <span>✓ Free Downloads — No Account</span><span>✓ Instant Download</span><span>✓ Free Tutorials for Developers</span><span>✓ WhatsApp Support</span>
   </div>
 </section>
 
 <main class="wrap">
+
+  <!-- BLOG: FREE CODE & TUTORIALS -->
+  <section id="blog" class="about reveal">
+    <h2 class="section-title">Free Code &amp; Tutorials <span>— for Developers</span></h2>
+    <p class="section-sub reveal">Learn by doing — every tutorial comes with free, ready-to-use source code.</p>
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>Free HTML Portfolio Template</h3>
+        <p>Build your own portfolio website with this free, ready-to-use HTML template. Full source code included.</p>
+        <p><a href="posts/free-html-portfolio-template.html">Read tutorial →</a></p>
+      </div>
+      <div class="info-card teal">
+        <h3>CSS Button Animations</h3>
+        <p>Learn how to create beautiful animated buttons with pure CSS. Step-by-step tutorial with free source code.</p>
+        <p><a href="posts/css-button-animations.html">Read tutorial →</a></p>
+      </div>
+      <div class="info-card">
+        <h3>JavaScript Image Slider</h3>
+        <p>Build a smooth JavaScript image slider from scratch. Full tutorial with free downloadable code.</p>
+        <p><a href="posts/javascript-image-slider.html">Read tutorial →</a></p>
+      </div>
+    </div>
+  </section>
 
   <!-- PRODUCT SEARCH -->
   <div class="search-bar" id="store-search-bar">
@@ -97,24 +175,6 @@
     <h2 class="section-title reveal">Free Store <span>— 100% Free, No Account Needed</span></h2>
     <p class="section-sub reveal">All of this code is completely free — download as a guest, no account needed.</p>
     <div class="grid" id="free-grid"></div>
-  </section>
-
-  <!-- PAID STORE -->
-  <section id="paid-store" class="store-section paid-section">
-    <h2 class="section-title reveal">Paid Store <span>— Premium Packs</span></h2>
-    <p class="section-sub reveal">Premium templates and project packs. Create a free account, add to cart, and pay with Easypaisa or JazzCash.</p>
-    <div class="grid" id="paid-grid"></div>
-  </section>
-
-  <!-- HOW TO BUY -->
-  <section id="how-to-buy" class="how reveal">
-    <h2 class="section-title">How to Buy? <span>— 4 Easy Steps</span></h2>
-    <div class="steps">
-      <div class="step"><span class="step-num">1</span><h3>Add to Cart</h3><p>Add your packs to the cart from the Paid Store.</p></div>
-      <div class="step"><span class="step-num">2</span><h3>Create an Account</h3><p>Create a free account or log in — required for paid orders.</p></div>
-      <div class="step"><span class="step-num">3</span><h3>Send Payment</h3><p>Pay with Easypaisa or JazzCash. The number is shown at checkout.</p></div>
-      <div class="step"><span class="step-num">4</span><h3>Screenshot on WhatsApp</h3><p>Send the payment screenshot on WhatsApp — your download link arrives once confirmed.</p></div>
-    </div>
   </section>
 
   <!-- MISSION & VISION -->
@@ -143,7 +203,7 @@
     <div class="info-grid">
       <div class="info-card teal">
         <h3>Who We Are</h3>
-        <p>Codeovision is a free learning blog and store. We share our own source code, templates and tutorials — so anyone can learn coding and build websites. Free code stays free, forever.</p>
+        <p>Codeovision is a platform where developers share and learn free source code and tutorials. We share our own source code, templates and tutorials — so anyone can learn coding and build websites. Free code stays free, forever.</p>
       </div>
       <div class="info-card">
         <h3>13 Years of Experience</h3>
@@ -155,6 +215,24 @@
       </div>
     </div>
     <p style="margin-top:18px">Watch our videos on YouTube: <a href="https://www.youtube.com/@Codeographics" target="_blank" rel="noopener">EpicQuest Adventures / Codeographics</a>.</p>
+  </section>
+
+  <!-- PREMIUM TEMPLATES -->
+  <section id="paid-store" class="store-section paid-section">
+    <h2 class="section-title reveal">Premium Templates</h2>
+    <p class="section-sub reveal">Premium website templates and project packs. Create a free account, add to cart, and pay with Easypaisa or JazzCash.</p>
+    <div class="grid" id="paid-grid"></div>
+  </section>
+
+  <!-- HOW TO BUY -->
+  <section id="how-to-buy" class="how reveal">
+    <h2 class="section-title">How to Buy? <span>— 4 Easy Steps</span></h2>
+    <div class="steps">
+      <div class="step"><span class="step-num">1</span><h3>Add to Cart</h3><p>Add your packs to the cart from Premium Templates.</p></div>
+      <div class="step"><span class="step-num">2</span><h3>Create an Account</h3><p>Create a free account or log in — required for paid orders.</p></div>
+      <div class="step"><span class="step-num">3</span><h3>Send Payment</h3><p>Pay with Easypaisa or JazzCash. The number is shown at checkout.</p></div>
+      <div class="step"><span class="step-num">4</span><h3>Screenshot on WhatsApp</h3><p>Send the payment screenshot on WhatsApp — your download link arrives once confirmed.</p></div>
+    </div>
   </section>
 
   <!-- CONTACT -->
@@ -185,7 +263,7 @@
   <section id="refund-policy" class="about reveal">
     <h2>Refund Policy</h2>
     <p id="refund-policy-text">If a product does not work as described, request a refund from your dashboard. The admin reviews every request.</p>
-    <p style="color:#6b7280;font-size:14px">Digital goods are delivered after payment verification. Once a file is downloaded or a licence key is activated, a refund is given only if the file or key genuinely does not work. An approved refund revokes download access and the licence key, and reverses any affiliate commission on that order.</p>
+    <p style="color:#6b7280;font-size:14px">Digital goods are delivered after payment verification. Once a file is downloaded, a refund is given only if the file genuinely does not work. An approved refund revokes download access and reverses any affiliate commission on that order.</p>
   </section>
 
 <hr class="gold-divider">
@@ -889,21 +967,35 @@ function recordOrder(opts) {
 // needs ONE click on the FormSubmit activation link in that inbox; after that
 // every submission arrives automatically. If email fails, the order is still
 // safe in the database — nothing is blocked.
+// ---- Email notifications (EXACT spec, Bilal 24 Nov ~19:29 PKT) ----
+// Admin ko SIRF 3 mails: order submit, deposit request, withdraw request.
+// User ko: order/deposit/withdraw submit ki confirmation (FormSubmit
+// _autoresponse, submitter ke email par) — admin ko usi submit ki main mail.
+// Approval mails (deposit/withdraw/order approve) admin ko NAHI jati — wo
+// EmailJS se SIRF user ko jati hain (admin.html sendUserEmail). FormSubmit ki
+// main mail hamesha admin ko jati hai, is liye approval mails FormSubmit se
+// nahi bheji ja sakti.
 async function sendAdminEmail(kind, data) {
+  if (kind !== 'order' && kind !== 'deposit' && kind !== 'withdraw') return;
   try {
-    const subjects = { order: 'New Order — Codeovision Store', deposit: 'New Deposit Request — Codeovision Store', withdraw: 'New Withdrawal Request — Codeovision Store', refund: 'New Refund Request — Codeovision Store', level_claim: 'New Rank Reward Claim — Codeovision Store', signup: 'New User Signup — Codeovision Store' };
-    const subject = subjects[kind] || 'Codeovision Store Notification';
+    const subjects = { order: 'New Order — Codeovision Store', deposit: 'New Deposit Request — Codeovision Store', withdraw: 'New Withdrawal Request — Codeovision Store' };
+    const subject = subjects[kind];
     let message = '';
     if (kind === 'order') message = 'New order ' + data.orderId + ' from ' + data.email + '\nItems: ' + data.items + '\nTotal: $' + Number(data.total).toFixed(2) + (data.paymentMethod ? '\nPayment: ' + data.paymentMethod : '');
     else if (kind === 'withdraw') message = 'New withdrawal request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + '\nAccount: ' + (data.account || '');
-    else if (kind === 'refund') message = 'New refund request from ' + data.email + '\nOrder: ' + data.orderId + '\nTotal: $' + Number(data.total || 0).toFixed(2) + '\nReason: ' + (data.reason || '');
-    else if (kind === 'level_claim') message = 'New rank reward claim from ' + data.email + '\nLevel: ' + data.level + '\nReward: $' + Number(data.rewardUsd || 0).toFixed(2);
-    else if (kind === 'signup') message = 'New user signed up: ' + data.email + (data.referredBy ? '\nReferred by: ' + data.referredBy : '');
-    else message = 'New deposit request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + (data.amountPkr ? ' (≈ Rs ' + Number(data.amountPkr).toLocaleString('en-PK') + ' PKR)' : '') + '\nTxID: ' + data.txid + (data.proofUrl ? '\nScreenshot: ' + data.proofUrl : '\n(No screenshot link given — ask for it on WhatsApp.)');
+    else message = 'New deposit request from ' + data.email + '\nGateway: ' + data.gateway + (String(data.gateway || '').indexOf('USDT') === 0 ? '\nAmount: ' + Number(data.amount).toFixed(2) + ' USDT (= $' + Number(data.amount).toFixed(2) + ', 1 USDT = 1 USD)' : '\nAmount: $' + Number(data.amount).toFixed(2)) + (data.amountPkr ? ' (≈ Rs ' + Number(data.amountPkr).toLocaleString('en-PK') + ' PKR)' : '') + '\nTxID: ' + data.txid + (data.proofUrl ? (String(data.proofUrl).indexOf('data:') === 0 ? '\nScreenshot: uploaded with the request — view it in the admin panel.' : '\nScreenshot: ' + data.proofUrl) : '\n(No screenshot given — ask for it on WhatsApp.)');
+    // The user gets their own copy too — FormSubmit sends an auto-response to
+    // the submitter's email (the `email` field).
+    let auto = '';
+    if (kind === 'order') auto = 'Thank you! Your order ' + (data.orderId || '') + ' (' + (data.items || '') + ') for $' + Number(data.total || 0).toFixed(2) + ' has been received. The admin will verify your payment and release your download link. — Codeovision';
+    else if (kind === 'deposit') auto = 'Thank you! Your deposit request of ' + (String(data.gateway || '').indexOf('USDT') === 0 ? Number(data.amount || 0).toFixed(2) + ' USDT (= $' + Number(data.amount || 0).toFixed(2) + ', 1 USDT = 1 USD)' : '$' + Number(data.amount || 0).toFixed(2)) + ' via ' + (data.gateway || '') + ' (TxID: ' + (data.txid || '') + ') has been received. The admin will verify it and add your balance. — Codeovision';
+    else if (kind === 'withdraw') auto = 'Thank you! Your withdrawal request of $' + Number(data.amount || 0).toFixed(2) + ' via ' + (data.gateway || '') + ' to account ' + (data.account || '') + ' has been received. The admin will review it. — Codeovision';
+    const body = { name: 'Codeovision Store', email: data.email, subject: subject, message: message };
+    if (auto) body._autoresponse = auto;
     await fetch('https://formsubmit.co/ajax/codeographics@gmail.com', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ name: 'Codeovision Store', email: data.email, subject: subject, message: message })
+      body: JSON.stringify(body)
     });
   } catch (e) { /* email is a notification only — order/deposit already saved */ }
 }
@@ -1031,10 +1123,8 @@ document.getElementById('auth-submit').addEventListener('click', async () => {
           referredBy: ref, referredProduct: params.get('product') || '', balance: 0,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true }).catch(function(){});
-        sendAdminEmail('signup', { email: email, referredBy: ref });
-      } else {
-        sendAdminEmail('signup', { email: email });
       }
+      // No signup email — admin gets only order/deposit/withdraw mails (Bilal, 24 Nov).
     }
     msg.textContent = 'Done! Welcome.';
     setTimeout(() => { closeAuth(); showCheckoutIfCart(); }, 800);
@@ -1079,6 +1169,34 @@ const io = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
 }, { threshold: 0.12 });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// ---- Banner slider (5 company banners) ----
+(function () {
+  const track = document.getElementById('banner-track');
+  if (!track) return;
+  const slides = track.querySelectorAll('.banner-slide');
+  const dotsBox = document.getElementById('banner-dots');
+  let cur = 0, timer = null;
+  slides.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'banner-dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', 'Go to banner ' + (i + 1));
+    d.addEventListener('click', () => { show(i); restart(); });
+    dotsBox.appendChild(d);
+  });
+  const dots = dotsBox.querySelectorAll('.banner-dot');
+  function show(i) {
+    cur = (i + slides.length) % slides.length;
+    slides.forEach((s, j) => s.classList.toggle('active', j === cur));
+    dots.forEach((d, j) => d.classList.toggle('active', j === cur));
+  }
+  function restart() { clearInterval(timer); timer = setInterval(() => show(cur + 1), 5000); }
+  document.getElementById('banner-prev').addEventListener('click', () => { show(cur - 1); restart(); });
+  document.getElementById('banner-next').addEventListener('click', () => { show(cur + 1); restart(); });
+  track.addEventListener('mouseenter', () => clearInterval(timer));
+  track.addEventListener('mouseleave', restart);
+  restart();
+})();
 </script>
 </body>
 </html>

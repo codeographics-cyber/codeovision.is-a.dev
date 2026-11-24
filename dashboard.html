@@ -38,7 +38,7 @@
     <nav>
       <a href="index.html">Home</a>
       <a href="index.html#free-store">Free Store</a>
-      <a href="index.html#paid-store">Paid Store</a>
+      <a href="index.html#paid-store">Premium Templates</a>
       <a href="dashboard.html" class="active">My Dashboard</a>
     </nav>
   </div>
@@ -73,7 +73,6 @@
         <button data-section="sec-u-overview" class="active">Dashboard</button>
         <button data-section="sec-u-orders">My Orders</button>
         <button data-section="sec-u-downloads">My Downloads</button>
-        <button data-section="sec-u-licences">My Licences</button>
         <button data-section="sec-u-ledger">Wallet Ledger</button>
         <button data-section="sec-u-wishlist">My Wishlist</button>
         <button data-section="sec-u-deposit">Deposit</button>
@@ -132,20 +131,8 @@
           <div class="admin-card">
             <p style="color:#6b7280;margin-bottom:12px">Your paid files live here. Downloads are released only after the admin verifies your payment, and each link expires after the download window set by the admin.</p>
             <table class="admin-table">
-              <thead><tr><th>Order</th><th>Product</th><th>Download</th><th>Licence Key</th><th>Expires</th><th>Used</th></tr></thead>
+              <thead><tr><th>Order</th><th>Product</th><th>Download</th><th>Expires</th><th>Used</th></tr></thead>
               <tbody id="my-downloads-body"><tr><td colspan="6">Loading…</td></tr></tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- MY LICENCES -->
-        <section id="sec-u-licences" class="admin-section" style="display:none">
-          <h2>My Licences</h2>
-          <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Your licence keys. Each key has an activation limit set by the admin — activate it on a new device only when you need to.</p>
-            <table class="admin-table">
-              <thead><tr><th>Key</th><th>Product</th><th>Activations</th><th>Status</th><th></th></tr></thead>
-              <tbody id="my-licences-body"><tr><td colspan="5">Loading…</td></tr></tbody>
             </table>
           </div>
         </section>
@@ -179,17 +166,18 @@
             <div id="deposit-gateways" style="margin-bottom:14px"><span style="color:#6b7280">Loading gateways…</span></div>
             <label>Select Gateway</label>
             <select id="dep-gateway"><option value="">— Select —</option></select>
-            <label>Enter Amount (USD)</label>
+            <label id="dep-amount-label">Enter Amount (USD)</label>
             <div style="display:flex;align-items:center">
-              <span style="padding:10px 12px;border:1px solid #e5e7eb;border-right:none;border-radius:10px 0 0 10px;background:#f9fafb;font-weight:bold;color:#111827">$</span>
+              <span id="dep-amount-prefix" style="padding:10px 12px;border:1px solid #e5e7eb;border-right:none;border-radius:10px 0 0 10px;background:#f9fafb;font-weight:bold;color:#111827">$</span>
               <input type="number" id="dep-amount" placeholder="e.g. 10" style="border-radius:0 10px 10px 0;margin-bottom:0">
             </div>
             <p class="pkr-note" id="dep-pkr"></p>
             <label>Transaction ID (TxID)</label>
             <input type="text" id="dep-txid" placeholder="Payment TxID / reference number">
-            <label>Payment Screenshot Link</label>
-            <input type="text" id="dep-proof" placeholder="Upload the screenshot to Google Drive or Imgur, then paste the link here">
-            <p style="color:#6b7280;font-size:13px;margin-top:4px">Upload your payment screenshot to Google Drive or Imgur and paste the share link above — the admin will check it before approving. You can also send the screenshot on WhatsApp after submitting (button below).</p>
+            <label>Payment Screenshot (image upload)</label>
+            <input type="file" id="dep-proof-file" accept="image/*">
+            <img id="dep-proof-preview" alt="Screenshot preview" style="display:none;max-width:220px;margin-top:8px;border-radius:8px;border:1px solid #d1d5db">
+            <p style="color:#6b7280;font-size:13px;margin-top:4px">Choose the payment screenshot from your phone or computer — it is uploaded directly with your request, no link needed. The admin will check it before approving. You can also send the screenshot on WhatsApp after submitting (button below).</p>
             <button class="btn teal" id="dep-submit-btn">Submit Deposit Request</button>
             <p id="dep-msg" style="margin-top:10px"></p>
             <div id="dep-whatsapp" style="display:none;margin-top:14px;padding:14px;border:1px solid #0d9488;border-radius:10px;background:#f0fdfa">
@@ -221,14 +209,18 @@
             <p class="pkr-note" id="wd-pkr"></p>
             <label>Account Number (where you want the money)</label>
             <input type="text" id="wd-account" placeholder="e.g. 0300-1234567">
+            <label>Payment Screenshot (optional — image upload)</label>
+            <input type="file" id="wd-proof-file" accept="image/*">
+            <img id="wd-proof-preview" alt="Screenshot preview" style="display:none;max-width:220px;margin-top:8px;border-radius:8px;border:1px solid #d1d5db">
+            <p style="color:#6b7280;font-size:13px;margin-top:4px">If you have a screenshot for this withdrawal, attach it here — it is uploaded directly with your request, no link needed.</p>
             <button class="btn teal" id="wd-submit-btn">Submit Withdraw Request</button>
             <p id="wd-msg" style="margin-top:10px"></p>
           </div>
           <div class="admin-card">
             <h2>My Withdraw Requests</h2>
             <table class="admin-table">
-              <thead><tr><th>Gateway</th><th>Amount</th><th>Account</th><th>Status</th></tr></thead>
-              <tbody id="my-withdrawals-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+              <thead><tr><th>Gateway</th><th>Amount</th><th>Account</th><th>Proof</th><th>Status</th></tr></thead>
+              <tbody id="my-withdrawals-body"><tr><td colspan="5">Loading…</td></tr></tbody>
             </table>
           </div>
         </section>
@@ -327,7 +319,6 @@ function showUSection(id) {
   document.querySelectorAll('.admin-sidebar button[data-section]').forEach(b => b.classList.toggle('active', b.dataset.section === id));
   if (id === 'sec-u-orders') loadMyOrders();
   if (id === 'sec-u-downloads') loadMyDownloads();
-  if (id === 'sec-u-licences') loadMyLicences();
   if (id === 'sec-u-ledger') loadWalletLedger();
   if (id === 'sec-u-wishlist') loadMyWishlistSection();
   if (id === 'sec-u-deposit') { loadGateways(); loadMyDeposits(); loadWalletSettings(); }
@@ -486,30 +477,100 @@ async function requestRefund(orderDocId, orderId) {
     total: o.total || o.price || 0, reason: reason, status: 'requested',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
-  sendAdminEmail('refund', { email: currentUser.email, orderId: orderId, total: o.total || o.price || 0, reason: reason });
+  // No refund email — admin gets only order/deposit/withdraw mails (Bilal, 24 Nov).
   alert('Refund request sent. The admin will reply soon.');
   loadMyOrders();
 }
 
 // ---- Admin email notifications (FormSubmit — no server needed) ----
+// ---- Email notifications (EXACT spec, Bilal 24 Nov ~19:29 PKT) ----
+// Admin ko SIRF 3 mails: order submit, deposit request, withdraw request.
+// User ko: order/deposit/withdraw submit ki confirmation (FormSubmit
+// _autoresponse, submitter ke email par) — admin ko usi submit ki main mail.
+// Approval mails (deposit/withdraw/order approve) admin ko NAHI jati — wo
+// EmailJS se SIRF user ko jati hain (admin.html sendUserEmail). FormSubmit ki
+// main mail hamesha admin ko jati hai, is liye approval mails FormSubmit se
+// nahi bheji ja sakti.
 async function sendAdminEmail(kind, data) {
+  if (kind !== 'order' && kind !== 'deposit' && kind !== 'withdraw') return;
   try {
-    const subjects = { order: 'New Order — Codeovision Store', deposit: 'New Deposit Request — Codeovision Store', withdraw: 'New Withdrawal Request — Codeovision Store', refund: 'New Refund Request — Codeovision Store', level_claim: 'New Rank Reward Claim — Codeovision Store', signup: 'New User Signup — Codeovision Store' };
-    const subject = subjects[kind] || 'Codeovision Store Notification';
+    const subjects = { order: 'New Order — Codeovision Store', deposit: 'New Deposit Request — Codeovision Store', withdraw: 'New Withdrawal Request — Codeovision Store' };
+    const subject = subjects[kind];
     let message = '';
     if (kind === 'order') message = 'New order ' + data.orderId + ' from ' + data.email + '\nItems: ' + data.items + '\nTotal: $' + Number(data.total).toFixed(2) + (data.paymentMethod ? '\nPayment: ' + data.paymentMethod : '');
-    else if (kind === 'withdraw') message = 'New withdrawal request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + '\nAccount: ' + (data.account || '');
-    else if (kind === 'refund') message = 'New refund request from ' + data.email + '\nOrder: ' + data.orderId + '\nTotal: $' + Number(data.total || 0).toFixed(2) + '\nReason: ' + (data.reason || '');
-    else if (kind === 'level_claim') message = 'New rank reward claim from ' + data.email + '\nLevel: ' + data.level + '\nReward: $' + Number(data.rewardUsd || 0).toFixed(2);
-    else if (kind === 'signup') message = 'New user signed up: ' + data.email + (data.referredBy ? '\nReferred by: ' + data.referredBy : '');
-    else message = 'New deposit request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + (data.amountPkr ? ' (≈ Rs ' + Number(data.amountPkr).toLocaleString('en-PK') + ' PKR)' : '') + '\nTxID: ' + data.txid + (data.proofUrl ? '\nScreenshot: ' + data.proofUrl : '\n(No screenshot link given — ask for it on WhatsApp.)');
+    else if (kind === 'withdraw') message = 'New withdrawal request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + '\nAccount: ' + (data.account || '') + (data.proofUrl ? '\nScreenshot: uploaded with the request — view it in the admin panel.' : '');
+    else message = 'New deposit request from ' + data.email + '\nGateway: ' + data.gateway + (String(data.gateway || '').indexOf('USDT') === 0 ? '\nAmount: ' + Number(data.amount).toFixed(2) + ' USDT (= $' + Number(data.amount).toFixed(2) + ', 1 USDT = 1 USD)' : '\nAmount: $' + Number(data.amount).toFixed(2)) + (data.amountPkr ? ' (≈ Rs ' + Number(data.amountPkr).toLocaleString('en-PK') + ' PKR)' : '') + '\nTxID: ' + data.txid + (data.proofUrl ? (String(data.proofUrl).indexOf('data:') === 0 ? '\nScreenshot: uploaded with the request — view it in the admin panel.' : '\nScreenshot: ' + data.proofUrl) : '\n(No screenshot given — ask for it on WhatsApp.)');
+    // The user gets their own copy too — FormSubmit sends an auto-response to
+    // the submitter's email (the `email` field).
+    let auto = '';
+    if (kind === 'order') auto = 'Thank you! Your order ' + (data.orderId || '') + ' (' + (data.items || '') + ') for $' + Number(data.total || 0).toFixed(2) + ' has been received. The admin will verify your payment and release your download link. — Codeovision';
+    else if (kind === 'deposit') auto = 'Thank you! Your deposit request of ' + (String(data.gateway || '').indexOf('USDT') === 0 ? Number(data.amount || 0).toFixed(2) + ' USDT (= $' + Number(data.amount || 0).toFixed(2) + ', 1 USDT = 1 USD)' : '$' + Number(data.amount || 0).toFixed(2)) + ' via ' + (data.gateway || '') + ' (TxID: ' + (data.txid || '') + ') has been received. The admin will verify it and add your balance. — Codeovision';
+    else if (kind === 'withdraw') auto = 'Thank you! Your withdrawal request of $' + Number(data.amount || 0).toFixed(2) + ' via ' + (data.gateway || '') + ' to account ' + (data.account || '') + ' has been received. The admin will review it. — Codeovision';
+    const body = { name: 'Codeovision Store', email: data.email, subject: subject, message: message };
+    if (auto) body._autoresponse = auto;
     await fetch('https://formsubmit.co/ajax/codeographics@gmail.com', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ name: 'Codeovision Store', email: data.email, subject: subject, message: message })
+      body: JSON.stringify(body)
     });
-  } catch (e) { /* email is a notification only — deposit already saved */ }
+  } catch (e) { /* email is a notification only — the request was already saved */ }
 }
+
+// ---- Direct screenshot upload (deposit + withdraw) ----
+// Firebase Storage needs the paid Blaze plan, so the screenshot is compressed
+// in the browser and saved with the request itself (base64, free plan, no
+// extra cost). The image is shrunk to fit the 1 MB Firestore document limit.
+let depProofData = '';
+let wdProofData = '';
+async function compressProofImage(file) {
+  if (!file || !file.type || file.type.indexOf('image/') !== 0) throw new Error('Please choose an image file (JPG or PNG).');
+  const dataUrl = await new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(new Error('Could not read the image.'));
+    r.readAsDataURL(file);
+  });
+  const img = await new Promise((resolve, reject) => {
+    const im = new Image();
+    im.onload = () => resolve(im);
+    im.onerror = () => reject(new Error('That file is not a readable image.'));
+    im.src = dataUrl;
+  });
+  const attempts = [[900, 0.65], [700, 0.55], [500, 0.5]];
+  for (const attempt of attempts) {
+    const maxW = attempt[0], q = attempt[1];
+    const scale = Math.min(1, maxW / Math.max(img.width, img.height));
+    const w = Math.max(1, Math.round(img.width * scale));
+    const h = Math.max(1, Math.round(img.height * scale));
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    cv.getContext('2d').drawImage(img, 0, 0, w, h);
+    const out = cv.toDataURL('image/jpeg', q);
+    if (out.length < 650000) return out;
+  }
+  throw new Error('Screenshot is still too large after compression — please take a smaller screenshot and try again.');
+}
+function bindProofUpload(inputId, previewId, setData) {
+  const input = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
+  if (!input) return;
+  input.addEventListener('change', async () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    try {
+      const data = await compressProofImage(file);
+      setData(data);
+      if (preview) { preview.src = data; preview.style.display = 'block'; }
+    } catch (e) {
+      setData('');
+      if (preview) { preview.style.display = 'none'; }
+      input.value = '';
+      alert(e.message);
+    }
+  });
+}
+bindProofUpload('dep-proof-file', 'dep-proof-preview', v => { depProofData = v; });
+bindProofUpload('wd-proof-file', 'wd-proof-preview', v => { wdProofData = v; });
 
 // ---- Deposit ----
 document.getElementById('dep-submit-btn').addEventListener('click', async () => {
@@ -518,7 +579,7 @@ document.getElementById('dep-submit-btn').addEventListener('click', async () => 
   const gateway = document.getElementById('dep-gateway').value;
   const amount = parseFloat(document.getElementById('dep-amount').value);
   const txid = document.getElementById('dep-txid').value.trim();
-  const proofUrl = document.getElementById('dep-proof').value.trim();
+  const proofUrl = depProofData || '';
   if (!gateway) { msg.textContent = 'Select a gateway.'; msg.style.color = '#dc2626'; return; }
   // USDT placeholder: no real address yet — block the deposit so nobody sends money nowhere.
   const gw = (window.__gateways || {})[gateway];
@@ -543,12 +604,14 @@ document.getElementById('dep-submit-btn').addEventListener('click', async () => 
   sendAdminEmail('deposit', { email: currentUser.email, gateway: gateway, amount: amount, amountPkr: amountPkr, txid: txid, proofUrl: proofUrl });
   msg.textContent = 'Deposit request submitted.';
   msg.style.color = '#15803d';
-  const waText = encodeURIComponent('Hello! I deposited on Codeovision.\nAmount: $' + amount + ' (≈ Rs ' + amountPkr.toLocaleString('en-PK') + ' PKR)\nGateway: ' + gateway + '\nTxID: ' + txid + (proofUrl ? '\nScreenshot link: ' + proofUrl : '\nI am attaching the payment screenshot, please approve it.') + '\nEmail: ' + currentUser.email);
+  const waText = encodeURIComponent('Hello! I deposited on Codeovision.\nAmount: $' + amount + ' (≈ Rs ' + amountPkr.toLocaleString('en-PK') + ' PKR)\nGateway: ' + gateway + '\nTxID: ' + txid + (proofUrl ? '\nScreenshot: uploaded with the deposit request.' : '\nI am attaching the payment screenshot, please approve it.') + '\nEmail: ' + currentUser.email);
   document.getElementById('dep-wa-btn').href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waText;
   document.getElementById('dep-whatsapp').style.display = 'block';
   document.getElementById('dep-amount').value = '';
   document.getElementById('dep-txid').value = '';
-  document.getElementById('dep-proof').value = '';
+  depProofData = '';
+  document.getElementById('dep-proof-file').value = '';
+  document.getElementById('dep-proof-preview').style.display = 'none';
   document.getElementById('dep-pkr').textContent = '';
   depBtn.disabled = false;
   loadMyDeposits();
@@ -569,21 +632,21 @@ async function loadMyDeposits() {
     rows.forEach(d => {
       const tr = document.createElement('tr');
       const amt = '$' + (d.amountUsd ?? d.amount ?? '') + (d.amountPkr ? ' (≈ Rs ' + Number(d.amountPkr).toLocaleString('en-PK') + ')' : '');
-      const proof = d.proofUrl ? '<a href="' + esc(d.proofUrl) + '" target="_blank" rel="noopener">View Proof</a>' : '—';
+      const proof = d.proofUrl ? '<a href="' + esc(d.proofUrl) + '" target="_blank" rel="noopener"><img src="' + esc(d.proofUrl) + '" alt="Payment proof" style="width:48px;height:48px;object-fit:cover;border-radius:6px;display:block" onerror="this.style.display=\'none\'">View</a>' : '—';
       tr.innerHTML = '<td>' + (d.gateway || '') + '</td><td>' + amt + '</td><td>' + (d.txid || '') + '</td><td>' + proof + '</td><td><span class="badge ' + (d.status || 'pending') + '">' + (d.status || 'pending') + '</span></td>';
       body.appendChild(tr);
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; }
 }
 
-// ---- My Downloads / Licences / Ledger / Wishlist ----
+// ---- My Downloads / Ledger / Wishlist ----
 async function loadMyDownloads() {
   const body = document.getElementById('my-downloads-body');
   try {
     const snap = await db.collection('orders').where('email', '==', currentUser.email).orderBy('createdAt', 'desc').get();
     const rows = [];
     snap.forEach(doc => { const o = doc.data(); if (o.status === 'paid' || o.status === 'delivered') rows.push({ id: doc.id, o }); });
-    if (!rows.length) { body.innerHTML = '<tr><td colspan="6">No paid orders yet — your files appear here after payment verification.</td></tr>'; return; }
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="5">No paid orders yet — your files appear here after payment verification.</td></tr>'; return; }
     body.innerHTML = '';
     rows.forEach(({ id, o }) => {
       const expired = o.downloadExpiresAt && o.downloadExpiresAt.toDate ? o.downloadExpiresAt.toDate() < new Date() : false;
@@ -594,42 +657,18 @@ async function loadMyDownloads() {
         const tr = document.createElement('tr');
         tr.innerHTML = '<td>' + (o.orderId || id) + '</td><td>' + esc(it.title || '') + '</td>' +
           '<td>' + (expired ? 'Expired — ask support to re-issue' : (fileUrl ? '<a href="' + fileUrl + '" target="_blank" rel="noopener" onclick="logDownload(\'' + id + '\',\'' + it.id + '\')">Download</a>' : '—')) + '</td>' +
-          '<td>' + (o.licenceKey || '—') + '</td>' +
           '<td>' + (o.downloadExpiresAt && o.downloadExpiresAt.toDate ? o.downloadExpiresAt.toDate().toLocaleDateString() : '—') + '</td>' +
           '<td>' + used + '</td>';
         body.appendChild(tr);
       });
     });
-  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
+  } catch (e) { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; }
 }
 async function logDownload(orderDocId, productId) {
   try {
     await db.collection('download_logs').add({ email: currentUser.email, orderDocId: orderDocId, productId: productId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
     await db.collection('orders').doc(orderDocId).update({ downloadCount: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
   } catch (e) { /* logging is best-effort */ }
-}
-async function loadMyLicences() {
-  const body = document.getElementById('my-licences-body');
-  try {
-    const snap = await db.collection('licences').where('email', '==', currentUser.email).get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="5">No licences yet — keys are issued when an order is approved.</td></tr>'; return; }
-    body.innerHTML = '';
-    snap.forEach(doc => {
-      const l = doc.data();
-      const maxed = (l.activations || 0) >= (l.maxActivations || 1);
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td><strong>' + (l.key || '') + '</strong></td><td>' + esc(l.productTitle || '') + '</td><td>' + (l.activations || 0) + ' / ' + (l.maxActivations || 1) + '</td><td><span class="badge ' + (l.status || 'active') + '">' + (l.status || 'active') + '</span></td>' +
-        '<td>' + (l.status === 'revoked' ? '' : (maxed ? 'Limit reached' : '<button class="btn small" onclick="activateLicence(\'' + doc.id + '\')">Activate</button>')) + '</td>';
-      body.appendChild(tr);
-    });
-  } catch (e) { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; }
-}
-async function activateLicence(id) {
-  try {
-    await db.collection('licences').doc(id).update({ activations: firebase.firestore.FieldValue.increment(1) });
-    toast('Licence activated.');
-    loadMyLicences();
-  } catch (e) { alert('Could not activate: ' + e.message); }
 }
 async function loadWalletLedger() {
   const body = document.getElementById('my-ledger-body');
@@ -690,14 +729,17 @@ document.getElementById('wd-submit-btn').addEventListener('click', async () => {
   if (!account) { msg.textContent = 'Enter the account number.'; msg.style.color = '#dc2626'; return; }
   const wdBtn = document.getElementById('wd-submit-btn'); if (wdBtn.disabled) return; wdBtn.disabled = true;
   await db.collection('withdrawals').add({
-    email: currentUser.email, gateway: gateway, amount: amount, account: account, status: 'pending',
+    email: currentUser.email, gateway: gateway, amount: amount, account: account, proofUrl: wdProofData || '', status: 'pending',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
-  sendAdminEmail('withdraw', { email: currentUser.email, gateway: gateway, amount: amount, account: account });
+  sendAdminEmail('withdraw', { email: currentUser.email, gateway: gateway, amount: amount, account: account, proofUrl: wdProofData || '' });
   msg.textContent = 'Withdraw request submitted. The admin will approve it.';
   msg.style.color = '#15803d';
   document.getElementById('wd-amount').value = '';
   document.getElementById('wd-account').value = '';
+  wdProofData = '';
+  document.getElementById('wd-proof-file').value = '';
+  document.getElementById('wd-proof-preview').style.display = 'none';
   wdBtn.disabled = false;
   loadMyWithdrawals();
 });
@@ -712,14 +754,15 @@ async function loadMyWithdrawals() {
       const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
       return tb - ta;
     });
-    if (!rows.length) { body.innerHTML = '<tr><td colspan="4">No withdrawals yet.</td></tr>'; return; }
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="5">No withdrawals yet.</td></tr>'; return; }
     body.innerHTML = '';
     rows.forEach(w => {
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (w.gateway || '') + '</td><td>$' + (w.amount || '') + '</td><td>' + (w.account || '') + '</td><td><span class="badge ' + (w.status || 'pending') + '">' + (w.status || 'pending') + '</span></td>';
+      const proof = w.proofUrl ? '<a href="' + esc(w.proofUrl) + '" target="_blank" rel="noopener"><img src="' + esc(w.proofUrl) + '" alt="Proof" style="width:48px;height:48px;object-fit:cover;border-radius:6px;display:block" onerror="this.style.display=\'none\'">View</a>' : '—';
+      tr.innerHTML = '<td>' + (w.gateway || '') + '</td><td>$' + (w.amount || '') + '</td><td>' + (w.account || '') + '</td><td>' + proof + '</td><td><span class="badge ' + (w.status || 'pending') + '">' + (w.status || 'pending') + '</span></td>';
       body.appendChild(tr);
     });
-  } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
+  } catch (e) { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; }
 }
 
 // ---- My Referrals (every product has its own affiliate link) ----
@@ -784,14 +827,34 @@ async function loadPkrRate() {
     if (doc.exists && doc.data().pkrRate) PKR_RATE = Number(doc.data().pkrRate);
   } catch (e) { /* keep default 280 */ }
 }
-document.getElementById('dep-amount').addEventListener('input', e => {
-  const v = parseFloat(e.target.value);
-  document.getElementById('dep-pkr').textContent = v > 0 ? '≈ Rs ' + Math.round(v * PKR_RATE).toLocaleString('en-PK') + ' to send' : '';
-});
-document.getElementById('wd-amount').addEventListener('input', e => {
-  const v = parseFloat(e.target.value);
-  document.getElementById('wd-pkr').textContent = v > 0 ? '≈ Rs ' + Math.round(v * PKR_RATE).toLocaleString('en-PK') + ' PKR' : '';
-});
+function isUsdtGateway(name) { return !!name && String(name).indexOf('USDT') === 0; }
+// Deposit: USDT converts 1:1 with USD — 1 USDT = 1 USD, then USD → PKR at PKR_RATE.
+function updateDepPkrNote() {
+  const v = parseFloat(document.getElementById('dep-amount').value);
+  const gw = document.getElementById('dep-gateway').value;
+  const label = document.getElementById('dep-amount-label');
+  if (label) label.textContent = isUsdtGateway(gw) ? 'Enter Amount (USDT)' : 'Enter Amount (USD)';
+  const prefix = document.getElementById('dep-amount-prefix');
+  if (prefix) prefix.textContent = isUsdtGateway(gw) ? '₮' : '$';
+  const note = document.getElementById('dep-pkr');
+  if (!note) return;
+  if (!(v > 0)) { note.textContent = ''; return; }
+  const pkr = Math.round(v * PKR_RATE).toLocaleString('en-PK');
+  note.textContent = isUsdtGateway(gw) ? v + ' USDT = $' + v.toFixed(2) + ' (≈ Rs ' + pkr + ' to send) — 1 USDT = 1 USD' : '≈ Rs ' + pkr + ' to send';
+}
+function updateWdPkrNote() {
+  const v = parseFloat(document.getElementById('wd-amount').value);
+  const gw = document.getElementById('wd-gateway').value;
+  const note = document.getElementById('wd-pkr');
+  if (!note) return;
+  if (!(v > 0)) { note.textContent = ''; return; }
+  const pkr = Math.round(v * PKR_RATE).toLocaleString('en-PK');
+  note.textContent = isUsdtGateway(gw) ? '≈ Rs ' + pkr + ' PKR (≈ ' + v.toFixed(2) + ' USDT — 1 USD = 1 USDT)' : '≈ Rs ' + pkr + ' PKR';
+}
+document.getElementById('dep-amount').addEventListener('input', updateDepPkrNote);
+document.getElementById('dep-gateway').addEventListener('change', updateDepPkrNote);
+document.getElementById('wd-amount').addEventListener('input', updateWdPkrNote);
+document.getElementById('wd-gateway').addEventListener('change', updateWdPkrNote);
 
 let myReferralsCount = 0, mySalesCount = 0, myLevelName = 'Bronze';
 async function loadUserStats() {
@@ -846,7 +909,7 @@ async function grantLevelRewards(sales, levelName) {
         if (existing.empty) {
           await db.collection('level_claims').add({ email: currentUser.email, level: l.name, rewardUsd: l.rewardUsd, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
           claimed.push(l);
-          sendAdminEmail('level_claim', { email: currentUser.email, level: l.name, rewardUsd: l.rewardUsd });
+          // No level-claim email — admin gets only order/deposit/withdraw mails (Bilal, 24 Nov).
         }
       }
     }

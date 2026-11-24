@@ -10,6 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 <header class="site-header">
@@ -65,7 +66,6 @@
         <button data-section="sec-orders">Orders</button>
         <button data-section="sec-coupons">Coupons</button>
         <button data-section="sec-bundles">Bundles</button>
-        <button data-section="sec-licences">Licences</button>
         <button data-section="sec-carts">Abandoned Carts</button>
         <button data-section="sec-ledger">Wallet Ledger</button>
         <button data-section="sec-settings">Store Settings</button>
@@ -193,8 +193,6 @@
             <input type="text" id="p-req" placeholder="e.g. Any modern browser — no build step">
             <label>Live Demo URL (optional)</label>
             <input type="text" id="p-demo" placeholder="e.g. https://example.com/demo">
-            <label>Licence Activations Allowed (paid products)</label>
-            <input type="number" id="p-maxact" placeholder="e.g. 1" min="1" value="1">
             <label>What's Included (one per line)</label>
             <textarea id="p-includes" rows="3" placeholder="e.g. index.html — full page&#10;style.css — all styling"></textarea>
             <button class="btn teal" id="add-product-btn">Add Product</button>
@@ -244,8 +242,8 @@
           <div class="admin-card">
             <p style="color:#6b7280;margin-bottom:12px">Users' withdrawal requests — approving one deducts the amount from the balance.</p>
             <table class="admin-table">
-              <thead><tr><th>User</th><th>Amount</th><th>Gateway</th><th>Account</th><th>Status</th><th></th></tr></thead>
-              <tbody id="withdrawals-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+              <thead><tr><th>User</th><th>Amount</th><th>Gateway</th><th>Account</th><th>Proof</th><th>Status</th><th></th></tr></thead>
+              <tbody id="withdrawals-body"><tr><td colspan="7">Loading…</td></tr></tbody>
             </table>
           </div>
         </section>
@@ -305,18 +303,6 @@
             <table class="admin-table">
               <thead><tr><th>Title</th><th>Products</th><th>Price</th><th></th></tr></thead>
               <tbody id="bundles-body"><tr><td colspan="4">Loading…</td></tr></tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- LICENCES -->
-        <section id="sec-licences" class="admin-section" style="display:none">
-          <h2>Licences</h2>
-          <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Every approved order gets a licence key. Revoke a key on refund or abuse; reissue gives the buyer a fresh key.</p>
-            <table class="admin-table">
-              <thead><tr><th>Key</th><th>Product</th><th>User</th><th>Activations</th><th>Status</th><th></th></tr></thead>
-              <tbody id="licences-body"><tr><td colspan="6">Loading…</td></tr></tbody>
             </table>
           </div>
         </section>
@@ -645,7 +631,6 @@ function showSection(id) {
   if (id === 'sec-orders') loadOrders();
   if (id === 'sec-coupons') loadCoupons();
   if (id === 'sec-bundles') loadBundlesAdmin();
-  if (id === 'sec-licences') loadLicencesAdmin();
   if (id === 'sec-carts') loadAbandonedCarts();
   if (id === 'sec-ledger') loadLedgerAdmin();
   if (id === 'sec-settings') loadStoreSettings();
@@ -736,7 +721,6 @@ if (FIREBASE_READY) {
       loadAffiliateSettings();
       loadCoupons();
       loadBundlesAdmin();
-      loadLicencesAdmin();
       loadStoreSettings();
     } else {
       loginCard.style.display = 'block';
@@ -888,10 +872,9 @@ async function setStatus(id, status) {
   const ref = db.collection('orders').doc(id);
   const snap = await ref.get();
   const o = snap.data() || {};
-  // Approve (Mark Paid) = RELEASE: files + licence key + download window.
-  // Nothing is released before this — a pending order can never download.
+  // Approve (Mark Paid) = RELEASE: files + download window. No key system —
+  // the buyer just pays and downloads. Nothing is released before this — a pending order can never download.
   if (status === 'paid' && o.status === 'pending') {
-    const key = 'CV-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
     const dl = await db.collection('settings').doc('downloads').get().catch(() => null);
     const expiryDays = (dl && dl.exists && Number(dl.data().expiryDays)) || 7;
     const downloadLinks = {};
@@ -903,12 +886,9 @@ async function setStatus(id, status) {
       if (file) downloadLinks[it.id] = file;
     }
     const expiresAt = new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000);
-    await ref.update({ status: 'paid', licenceKey: key, downloadLinks: downloadLinks, downloadExpiresAt: firebase.firestore.Timestamp.fromDate(expiresAt), deliveredAt: firebase.firestore.FieldValue.serverTimestamp(), downloadCount: 0 });
+    await ref.update({ status: 'paid', downloadLinks: downloadLinks, downloadExpiresAt: firebase.firestore.Timestamp.fromDate(expiresAt), deliveredAt: firebase.firestore.FieldValue.serverTimestamp(), downloadCount: 0 });
     for (const it of (o.items || [])) {
       if (!it.id) continue;
-      let maxAct = 1;
-      try { const pd = await db.collection('products').doc(it.id).get(); if (pd.exists && pd.data().maxActivations) maxAct = Number(pd.data().maxActivations); } catch (e) {}
-      await db.collection('licences').add({ key: key, productId: it.id, productTitle: it.title, email: o.email, orderId: o.orderId || id, activations: 0, maxActivations: maxAct, status: 'active', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
       await db.collection('products').doc(it.id).update({ sales: firebase.firestore.FieldValue.increment(it.qty || 1) }).catch(() => {});
     }
     // Wallet-balance payment: deduct the total from the buyer's balance now.
@@ -917,17 +897,22 @@ async function setStatus(id, status) {
       await db.collection('wallet_ledger').add({ email: o.email, type: 'purchase', amount: -Number(o.total), note: 'Order ' + (o.orderId || id) + ' paid from wallet balance', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
     }
     loadOrders(); loadStats(); loadProducts(); loadRecentOrders();
-    showToast('Order approved — files + licence key released to the buyer.');
+    const linkList = Object.values(downloadLinks).filter(Boolean);
+    const linksText = linkList.length ? '\nYour download links:\n' + linkList.map(u => '- ' + u).join('\n') : '';
+    sendUserEmail(o.email, 'Your Order is Approved — Download Your Product | Codeovision', 'Good news! Your order ' + (o.orderId || id) + ' has been approved.' + linksText + '\n\nLogin to your account and download your product: https://codeographics-cyber.github.io/codeovision.is-a.dev/dashboard.html\n\nThank you for shopping with Codeovision!');
+    showToast('Order approved — files released to the buyer.');
     return;
   }
   if (status === 'rejected') {
     const reason = prompt('Rejection reason (shown to the buyer):') || '';
     await ref.update({ status: 'rejected', rejectReason: reason });
     loadOrders(); loadStats(); loadRecentOrders();
+    sendUserEmail(o.email, 'Order Rejected — Codeovision Store', 'Your order ' + (o.orderId || id) + ' was rejected by the admin.' + (reason ? ' Reason: ' + reason : '') + ' Please contact support on WhatsApp (+92 303 7102625). — Codeovision');
     showToast('Order rejected.');
     return;
   }
   await ref.update({ status });
+  if (status === 'delivered' && o.email) sendUserEmail(o.email, 'Order Delivered — Codeovision Store', 'Your order ' + (o.orderId || id) + ' has been marked delivered. Login to your account and download your product: https://codeographics-cyber.github.io/codeovision.is-a.dev/dashboard.html — Codeovision');
   loadOrders();
   loadStats();
   loadProducts();
@@ -991,10 +976,9 @@ async function setRefund(refundId, orderDocId, status) {
   await db.collection('refunds').doc(refundId).update({ status });
   if (status === 'approved' && orderDocId) {
     await db.collection('orders').doc(orderDocId).update({ status: 'refunded' }).catch(() => {});
-    // Revoke access: licences for this order → revoked (buyer keeps nothing).
+    // Revoke access: clear the released download links (buyer keeps nothing).
     if (r.orderId) {
-      const licSnap = await db.collection('licences').where('orderId', '==', r.orderId).get().catch(() => null);
-      if (licSnap) licSnap.forEach(doc => doc.ref.update({ status: 'revoked' }));
+      await db.collection('orders').doc(orderDocId).update({ downloadLinks: {} }).catch(() => {});
       // Reverse the affiliate commission on this order (take it back if already paid out).
       const comSnap = await db.collection('commissions').where('orderId', '==', r.orderId).get().catch(() => null);
       if (comSnap) {
@@ -1045,12 +1029,36 @@ async function loadDeposits() {
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="7">Error: ' + e.message + '</td></tr>'; }
 }
+// ---- User notification emails (admin actions) — EmailJS ONLY ----
+// Admin ko SIRF 3 mails jati hain (order/deposit/withdraw submit, FormSubmit
+// se). Approval mails admin ko NAHI jani chahiye, aur FormSubmit ki main mail
+// hamesha admin ko jati hai — is liye approval mails EmailJS se SIRF user ko
+// jati hain. EmailJS free hai (200 mails/month, no card).
+// SETUP (Bilal): 1) emailjs.com par free account banao. 2) Email Services mein
+// apna Gmail connect karo. 3) Email Templates mein ek template banao jismein
+// To = {{to_email}}, Subject = {{subject}}, Content = {{message}}. 4) Neeche
+// publicKey, serviceId aur templateId bhar do. Jab tak ye khaali hain,
+// approval mails NAHI jayengi (admin action phir bhi ho jayega).
+const EMAILJS = { publicKey: '', serviceId: '', templateId: '' };
+async function sendUserEmail(userEmail, subject, userMessage) {
+  if (!userEmail) return;
+  if (!EMAILJS.publicKey || !EMAILJS.serviceId || !EMAILJS.templateId || typeof emailjs === 'undefined') {
+    console.warn('EmailJS not configured — user email not sent:', subject, 'to', userEmail);
+    return;
+  }
+  try {
+    await emailjs.send(EMAILJS.serviceId, EMAILJS.templateId, { to_email: userEmail, subject: subject, message: userMessage });
+  } catch (e) { console.warn('User email failed:', e); /* notification only — the admin action already succeeded */ }
+}
+
 async function setDeposit(id, email, amount, status) {
   await db.collection('deposits').doc(id).update({ status });
   if (status === 'approved' && email && amount) {
     await db.collection('users').doc(email).set({ balance: firebase.firestore.FieldValue.increment(amount) }, { merge: true });
     await db.collection('wallet_ledger').add({ email: email, type: 'deposit', amount: amount, note: 'Deposit approved', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
   }
+  sendUserEmail(email, status === 'approved' ? 'Deposit Approved — Codeovision Store' : 'Deposit Rejected — Codeovision Store',
+    status === 'approved' ? 'Good news! Your deposit of $' + Number(amount).toFixed(2) + ' has been approved and added to your Codeovision balance. — Codeovision' : 'Your deposit request was rejected by the admin. Please contact support on WhatsApp (+92 303 7102625) for details. — Codeovision');
   loadDeposits();
   showToast(status === 'approved' ? 'Deposit approved — balance added.' : 'Deposit rejected.');
 }
@@ -1060,12 +1068,13 @@ async function loadWithdrawals() {
   const body = document.getElementById('withdrawals-body');
   try {
     const snap = await db.collection('withdrawals').orderBy('createdAt', 'desc').limit(50).get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">No withdrawal requests yet.</td></tr>'; return; }
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="7">No withdrawal requests yet.</td></tr>'; return; }
     body.innerHTML = '';
     snap.forEach(doc => {
       const w = doc.data();
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (w.email || '') + '</td><td>$' + (w.amount || '') + '</td><td>' + (w.gateway || '') + '</td><td>' + (w.account || '') + '</td>' +
+      const proof = w.proofUrl ? '<a href="' + esc(w.proofUrl) + '" target="_blank" rel="noopener"><img src="' + esc(w.proofUrl) + '" alt="Proof" style="width:48px;height:48px;object-fit:cover;border-radius:6px;display:block" onerror="this.style.display=\'none\'">View</a>' : '—';
+      tr.innerHTML = '<td>' + (w.email || '') + '</td><td>$' + (w.amount || '') + '</td><td>' + (w.gateway || '') + '</td><td>' + (w.account || '') + '</td><td>' + proof + '</td>' +
         '<td><span class="badge ' + (w.status || 'pending') + '">' + (w.status || 'pending') + '</span></td>' +
         '<td>' + (w.status === 'pending' ? '<button class="btn small" onclick="setWithdrawal(\'' + doc.id + '\',\'' + (w.email || '') + '\',' + (Number(w.amount) || 0) + ',\'approved\')">Approve</button> <button class="btn small" onclick="setWithdrawal(\'' + doc.id + '\',\'' + (w.email || '') + '\',0,\'rejected\')">Reject</button>' : '') + '</td>';
       body.appendChild(tr);
@@ -1078,6 +1087,8 @@ async function setWithdrawal(id, email, amount, status) {
     await db.collection('users').doc(email).set({ balance: firebase.firestore.FieldValue.increment(-amount) }, { merge: true });
     await db.collection('wallet_ledger').add({ email: email, type: 'withdrawal', amount: -amount, note: 'Withdrawal approved — sent', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
   }
+  sendUserEmail(email, status === 'approved' ? 'Withdrawal Approved — Codeovision Store' : 'Withdrawal Rejected — Codeovision Store',
+    status === 'approved' ? 'Good news! Your withdrawal of $' + Number(amount).toFixed(2) + ' has been approved and sent. — Codeovision' : 'Your withdrawal request was rejected by the admin. Please contact support on WhatsApp (+92 303 7102625) for details. — Codeovision');
   loadWithdrawals();
   showToast(status === 'approved' ? 'Withdrawal approved — amount deducted from balance.' : 'Withdrawal rejected.');
 }
@@ -1579,65 +1590,13 @@ document.getElementById('add-bundle-btn').addEventListener('click', async () => 
   if (productIds.length < 2) { msg.textContent = 'Pick at least 2 products for a bundle.'; return; }
   if (!price || price <= 0) { msg.textContent = 'Bundle price is required.'; return; }
   await db.collection('bundles').add({ title, desc, productIds, price, thumbnail: document.getElementById('bd-thumb').value.trim(), status: 'approved', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-  msg.textContent = 'Bundle added — it shows in the Paid Store now.';
+  msg.textContent = 'Bundle added — it shows in Premium Templates now.';
   loadBundlesAdmin();
 });
 async function deleteBundle(id) {
   if (!confirm('Delete this bundle?')) return;
   await db.collection('bundles').doc(id).delete();
   loadBundlesAdmin();
-}
-
-// ---- Licences (admin) ----
-async function loadLicencesAdmin() {
-  const body = document.getElementById('licences-body');
-  try {
-    const snap = await db.collection('licences').orderBy('createdAt', 'desc').limit(100).get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">No licences yet — keys are issued when an order is approved.</td></tr>'; return; }
-    body.innerHTML = '';
-    snap.forEach(doc => {
-      const l = doc.data();
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td><strong>' + (l.key || '') + '</strong></td><td>' + esc(l.productTitle || '') + '</td><td>' + (l.email || '') + '</td><td>' + (l.activations || 0) + ' / ' + (l.maxActivations || 1) + '</td>' +
-        '<td><span class="badge ' + (l.status || 'active') + '">' + (l.status || 'active') + '</span></td>' +
-        '<td>' + (l.status === 'revoked' ? '<button class="btn small" onclick="reissueLicence(\'' + doc.id + '\')">Reissue</button>' : '<button class="btn small" onclick="revokeLicence(\'' + doc.id + '\')">Revoke</button>') + '</td>';
-      body.appendChild(tr);
-    });
-  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
-}
-async function revokeLicence(id) {
-  if (!confirm('Revoke this licence key? The buyer will lose access.')) return;
-  await db.collection('licences').doc(id).update({ status: 'revoked' });
-  loadLicencesAdmin();
-}
-async function reissueLicence(id) {
-  const key = 'CV-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
-  await db.collection('licences').doc(id).update({ key: key, activations: 0, status: 'active' });
-  loadLicencesAdmin();
-  showToast('New key issued: ' + key);
-}
-
-// ---- Abandoned Carts ----
-async function loadAbandonedCarts() {
-  const body = document.getElementById('carts-body');
-  try {
-    const snap = await db.collection('carts').orderBy('updatedAt', 'desc').limit(100).get();
-    const rows = [];
-    snap.forEach(doc => { const c = doc.data(); if (c.items && c.items.length) rows.push({ email: doc.id, c }); });
-    if (!rows.length) { body.innerHTML = '<tr><td colspan="4">No abandoned carts.</td></tr>'; return; }
-    body.innerHTML = '';
-    rows.forEach(({ email, c }) => {
-      let total = 0;
-      const names = c.items.map(i => {
-        const p = (typeof PAID_PRODUCTS !== 'undefined' ? PAID_PRODUCTS.find(x => x.id === i.id) : null);
-        if (p) total += Number(p.price || 0) * (i.qty || 1);
-        return (p ? p.title : i.id) + ' ×' + (i.qty || 1);
-      }).join(', ');
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + email + '</td><td style="white-space:normal;min-width:200px">' + esc(names) + '</td><td>$' + total.toFixed(2) + '</td><td>' + (c.updatedAt && c.updatedAt.toDate ? c.updatedAt.toDate().toLocaleString() : '') + '</td>';
-      body.appendChild(tr);
-    });
-  } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
 }
 
 // ---- Wallet Ledger (admin) ----
@@ -1817,7 +1776,6 @@ document.getElementById('add-product-btn').addEventListener('click', async () =>
     version: document.getElementById('p-version').value.trim() || '1.0',
     requirements: document.getElementById('p-req').value.trim(),
     demoUrl: document.getElementById('p-demo').value.trim(),
-    maxActivations: parseInt(document.getElementById('p-maxact').value, 10) || 1,
     includes: includes, downloads: 0, sales: 0, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() };
   if (isFree) {
     data.page = '';
