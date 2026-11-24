@@ -47,16 +47,21 @@
 
   <!-- DASHBOARD -->
   <div id="dashboard" style="display:none">
+    <button class="menu-toggle" id="menu-toggle">☰ Menu</button>
+    <div class="sidebar-overlay" id="sidebar-overlay" hidden></div>
     <div class="admin-layout">
-      <aside class="admin-sidebar">
+      <aside class="admin-sidebar" id="admin-sidebar">
         <div class="sidebar-title">Admin Panel</div>
         <button data-section="sec-overview" class="active">Dashboard</button>
         <button data-section="sec-products">Products</button>
+        <button data-section="sec-pending">Pending Products</button>
         <button data-section="sec-add">Add Product</button>
         <button data-section="sec-orders">Orders</button>
         <button data-section="sec-refunds">Refund Requests</button>
         <button data-section="sec-deposits">Deposits</button>
         <button data-section="sec-withdrawals">Withdrawals</button>
+        <button data-section="sec-reviews">Reviews</button>
+        <button data-section="sec-affiliate">Affiliate / Referrals</button>
         <button data-section="sec-support">Support Chats</button>
         <button data-section="sec-payments">Payment Settings</button>
         <button id="sidebar-logout">Logout</button>
@@ -74,6 +79,8 @@
             <div class="stat-box"><strong id="stat-pending">0</strong><span>Pending Orders</span></div>
             <div class="stat-box"><strong id="stat-paid">0</strong><span>Paid / Approved</span></div>
             <div class="stat-box"><strong id="stat-products">0</strong><span>Total Products</span></div>
+            <div class="stat-box"><strong id="stat-approved">0</strong><span>Approved Products</span></div>
+            <div class="stat-box"><strong id="stat-pending-products">0</strong><span>Pending Products</span></div>
             <div class="stat-box"><strong id="stat-downloads">0</strong><span>Total Downloads</span></div>
           </div>
           <div class="admin-card">
@@ -95,8 +102,8 @@
               <button class="btn small teal" id="bulk-paid-btn">Download Selected</button>
             </div>
             <table class="admin-table">
-              <thead><tr><th></th><th>Title</th><th>Price</th><th>Sold</th><th>Downloads</th><th></th></tr></thead>
-              <tbody id="products-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+              <thead><tr><th></th><th>Image</th><th>Title</th><th>Price</th><th>Sold</th><th>Downloads</th><th></th></tr></thead>
+              <tbody id="products-body"><tr><td colspan="7">Loading…</td></tr></tbody>
             </table>
           </div>
           <div class="admin-card">
@@ -106,8 +113,28 @@
               <button class="btn small teal" id="bulk-free-btn">Download Selected</button>
             </div>
             <table class="admin-table">
-              <thead><tr><th></th><th>Title</th><th>Tag</th><th>Downloads</th><th></th></tr></thead>
-              <tbody id="free-products-body"><tr><td colspan="5">Loading…</td></tr></tbody>
+              <thead><tr><th></th><th>Image</th><th>Title</th><th>Tag</th><th>Downloads</th><th></th></tr></thead>
+              <tbody id="free-products-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- PENDING PRODUCTS -->
+        <section id="sec-pending" class="admin-section" style="display:none">
+          <h2>Pending Products</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Naye add kiye gaye products pehle yahan aate hain. Approve karne par hi front pe dikhte hain.</p>
+            <h2>Paid — Pending</h2>
+            <table class="admin-table">
+              <thead><tr><th>Image</th><th>Title</th><th>Price</th><th></th></tr></thead>
+              <tbody id="pending-paid-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div class="admin-card">
+            <h2>Free — Pending</h2>
+            <table class="admin-table">
+              <thead><tr><th>Image</th><th>Title</th><th>Tag</th><th></th></tr></thead>
+              <tbody id="pending-free-body"><tr><td colspan="4">Loading…</td></tr></tbody>
             </table>
           </div>
         </section>
@@ -119,6 +146,7 @@
             <p style="color:#6b7280;margin-bottom:12px">Ek hi form se free ya paid product post karein — Type select karein, download link ek hi jagah daalein.</p>
             <label>Thumbnail Image</label>
             <input type="file" id="p-thumb-file" accept="image/*">
+            <p style="color:#6b7280;font-size:13px;margin:-6px 0 12px">Recommended size: 1200×630px — kisi bhi size ki image ek hi frame mein auto-resize ho kar dikhegi, front pe sab pictures ek jaisi lagengi.</p>
             <label>…ya Thumbnail Image URL</label>
             <input type="text" id="p-thumb-url" placeholder="e.g. https://example.com/image.jpg">
             <label>Title</label>
@@ -191,6 +219,39 @@
           </div>
         </section>
 
+        <!-- REVIEWS -->
+        <section id="sec-reviews" class="admin-section" style="display:none">
+          <h2>Reviews</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Users ke reviews real-time yahan dikhte hain — jaisi hi koi review de, yahan aa jata hai. Admin chahe to koi bhi review delete kar sakta hai.</p>
+            <table class="admin-table">
+              <thead><tr><th>Product</th><th>User</th><th>Rating</th><th>Review</th><th></th></tr></thead>
+              <tbody id="reviews-body"><tr><td colspan="5">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- AFFILIATE / REFERRALS -->
+        <section id="sec-affiliate" class="admin-section" style="display:none">
+          <h2>Affiliate / Referrals</h2>
+          <div class="admin-card">
+            <h2>Commission Setting</h2>
+            <p style="color:#6b7280;margin-bottom:12px">Refer karne wale ko har sale par kitna % commission milega — yahan set karein.</p>
+            <label>Commission (%)</label>
+            <input type="number" id="aff-pct" placeholder="e.g. 10" min="0" max="100">
+            <button class="btn teal" id="save-aff-btn">Save Commission</button>
+            <p id="aff-msg" style="color:#15803d;margin-top:10px"></p>
+          </div>
+          <div class="admin-card">
+            <h2>Commissions</h2>
+            <p style="color:#6b7280;margin-bottom:12px">Approve karte hi referrer ke wallet balance mein commission add ho jayega.</p>
+            <table class="admin-table">
+              <thead><tr><th>Referrer</th><th>Buyer</th><th>Product</th><th>Total</th><th>Commission</th><th>Status</th><th></th></tr></thead>
+              <tbody id="commissions-body"><tr><td colspan="7">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
         <!-- SUPPORT -->
         <section id="sec-support" class="admin-section" style="display:none">
           <h2>Support Chats</h2>
@@ -227,6 +288,7 @@
             <label>Account Title</label>
             <input type="text" id="gw-title" placeholder="e.g. Codeovision">
             <button class="btn teal" id="add-gateway-btn">Add Gateway</button>
+            <button class="btn" id="cancel-gw-edit" style="display:none">Cancel Edit</button>
             <p id="gw-msg" style="color:#15803d;margin-top:10px"></p>
           </div>
           <div class="admin-card">
@@ -282,18 +344,32 @@ function showToast(msg) {
   toastTimer = setTimeout(() => { t.style.display = 'none'; }, 4000);
 }
 
-// ---- Sidebar section switching ----
+// ---- Sidebar section switching + mobile drawer (Muse-style left menu) ----
+const adminSidebar = document.getElementById('admin-sidebar');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
+document.getElementById('menu-toggle').addEventListener('click', () => {
+  adminSidebar.classList.add('open');
+  sidebarOverlay.hidden = false;
+});
+function closeSidebar() {
+  adminSidebar.classList.remove('open');
+  sidebarOverlay.hidden = true;
+}
+sidebarOverlay.addEventListener('click', closeSidebar);
 document.querySelectorAll('.admin-sidebar button[data-section]').forEach(b => {
-  b.addEventListener('click', () => showSection(b.dataset.section));
+  b.addEventListener('click', () => { showSection(b.dataset.section); closeSidebar(); });
 });
 function showSection(id) {
   document.querySelectorAll('.admin-section').forEach(s => { s.style.display = s.id === id ? 'block' : 'none'; });
   document.querySelectorAll('.admin-sidebar button[data-section]').forEach(b => b.classList.toggle('active', b.dataset.section === id));
   if (id === 'sec-products') { loadProducts(); loadFreeProducts(); }
+  if (id === 'sec-pending') loadPendingProducts();
   if (id === 'sec-orders') loadOrders();
   if (id === 'sec-refunds') loadRefunds();
   if (id === 'sec-deposits') loadDeposits();
   if (id === 'sec-withdrawals') loadWithdrawals();
+  if (id === 'sec-reviews') loadReviews();
+  if (id === 'sec-affiliate') { loadAffiliateSettings(); loadCommissions(); }
   if (id === 'sec-support') loadSupportUsers();
   if (id === 'sec-payments') loadGateways();
   if (id === 'sec-overview') { loadStats(); loadRecentOrders(); }
@@ -330,6 +406,7 @@ if (FIREBASE_READY) {
       loadOrders();
       loadProducts();
       loadFreeProducts();
+      loadPendingProducts();
       loadStats();
       loadRefunds();
       loadSupportUsers();
@@ -337,6 +414,9 @@ if (FIREBASE_READY) {
       loadWithdrawals();
       loadGateways();
       loadRecentOrders();
+      loadReviews();
+      loadCommissions();
+      loadAffiliateSettings();
     } else {
       loginCard.style.display = 'block';
       dashboard.style.display = 'none';
@@ -357,13 +437,15 @@ async function loadStats() {
     });
     const paidSnap = await db.collection('products').get();
     const freeSnap = await db.collection('free_products').get();
-    let downloads = 0;
-    paidSnap.forEach(doc => { downloads += Number(doc.data().downloads || 0); });
-    freeSnap.forEach(doc => { downloads += Number(doc.data().downloads || 0); });
+    let downloads = 0, approved = 6, pendingProducts = 0; // 6 built-in products (3 free + 3 paid) hamesha approved hain
+    paidSnap.forEach(doc => { const p = doc.data(); downloads += Number(p.downloads || 0); if (p.status === 'pending') pendingProducts++; else approved++; });
+    freeSnap.forEach(doc => { const p = doc.data(); downloads += Number(p.downloads || 0); if (p.status === 'pending') pendingProducts++; else approved++; });
     document.getElementById('stat-sales').textContent = 'Rs ' + sales.toLocaleString('en-PK');
     document.getElementById('stat-pending').textContent = pending;
     document.getElementById('stat-paid').textContent = paid;
-    document.getElementById('stat-products').textContent = paidSnap.size + freeSnap.size;
+    document.getElementById('stat-products').textContent = paidSnap.size + freeSnap.size + 6;
+    document.getElementById('stat-approved').textContent = approved;
+    document.getElementById('stat-pending-products').textContent = pendingProducts;
     document.getElementById('stat-downloads').textContent = downloads;
   } catch (e) { /* stats load silently fails if rules/data are missing */ }
 }
@@ -405,32 +487,79 @@ async function loadProducts() {
   const body = document.getElementById('products-body');
   try {
     const snap = await db.collection('products').orderBy('price').get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">Abhi koi product nahi hai. Upar se add karein.</td></tr>'; return; }
+    let rows = 0;
     body.innerHTML = '';
     snap.forEach(doc => {
       const p = doc.data();
+      if (p.status === 'pending') return; // pending alag section mein hain
+      rows++;
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td><input type="checkbox" class="prod-check paid-check" data-file="' + (p.file || '') + '" style="width:auto"></td><td>' + (p.title || '') + '</td><td>Rs ' + (p.price || '') + '</td><td>' + (p.sales || 0) + '</td><td>' + (p.downloads || 0) + '</td>' +
+      tr.innerHTML = '<td><input type="checkbox" class="prod-check paid-check" data-file="' + (p.file || '') + '" style="width:auto"></td><td>' + (p.thumbnail ? '<img class="thumb-sm" src="' + p.thumbnail + '" alt="">' : '') + '</td><td>' + (p.title || '') + '</td><td>Rs ' + (p.price || '') + '</td><td>' + (p.sales || 0) + '</td><td>' + (p.downloads || 0) + '</td>' +
         '<td><button class="btn small" onclick="deleteProduct(\'' + doc.id + '\')">Delete</button></td>';
       body.appendChild(tr);
     });
-  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
+    if (!rows) body.innerHTML = '<tr><td colspan="7">Abhi koi approved paid product nahi hai. Add Product se add karein, phir Pending mein approve karein.</td></tr>';
+  } catch (e) { body.innerHTML = '<tr><td colspan="7">Error: ' + e.message + '</td></tr>'; }
 }
 
 async function loadFreeProducts() {
   const body = document.getElementById('free-products-body');
   try {
     const snap = await db.collection('free_products').orderBy('createdAt', 'desc').get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="5">Abhi koi free product nahi hai. Upar se add karein.</td></tr>'; return; }
+    let rows = 0;
     body.innerHTML = '';
     snap.forEach(doc => {
       const p = doc.data();
+      if (p.status === 'pending') return;
+      rows++;
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td><input type="checkbox" class="prod-check free-check" data-file="' + (p.file || '') + '" style="width:auto"></td><td>' + (p.title || '') + '</td><td>' + (p.tag || '') + '</td><td>' + (p.downloads || 0) + '</td>' +
+      tr.innerHTML = '<td><input type="checkbox" class="prod-check free-check" data-file="' + (p.file || '') + '" style="width:auto"></td><td>' + (p.thumbnail ? '<img class="thumb-sm" src="' + p.thumbnail + '" alt="">' : '') + '</td><td>' + (p.title || '') + '</td><td>' + (p.tag || '') + '</td><td>' + (p.downloads || 0) + '</td>' +
         '<td><button class="btn small" onclick="deleteFreeProduct(\'' + doc.id + '\')">Delete</button></td>';
       body.appendChild(tr);
     });
-  } catch (e) { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; }
+    if (!rows) body.innerHTML = '<tr><td colspan="6">Abhi koi approved free product nahi hai. Add Product se add karein, phir Pending mein approve karein.</td></tr>';
+  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
+}
+
+// ---- Pending Products (approve karne par hi front pe dikhte hain) ----
+async function loadPendingProducts() {
+  const paidBody = document.getElementById('pending-paid-body');
+  const freeBody = document.getElementById('pending-free-body');
+  try {
+    const paidSnap = await db.collection('products').where('status', '==', 'pending').get();
+    let rows = 0;
+    paidBody.innerHTML = '';
+    paidSnap.forEach(doc => {
+      const p = doc.data(); rows++;
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (p.thumbnail ? '<img class="thumb-sm" src="' + p.thumbnail + '" alt="">' : '') + '</td><td>' + (p.title || '') + '</td><td>Rs ' + (p.price || '') + '</td>' +
+        '<td><button class="btn small teal" onclick="approveProduct(\'products\',\'' + doc.id + '\')">Approve</button> <button class="btn small" onclick="deleteProduct(\'' + doc.id + '\')">Delete</button></td>';
+      paidBody.appendChild(tr);
+    });
+    if (!rows) paidBody.innerHTML = '<tr><td colspan="4">Koi pending paid product nahi hai.</td></tr>';
+    const freeSnap = await db.collection('free_products').where('status', '==', 'pending').get();
+    rows = 0;
+    freeBody.innerHTML = '';
+    freeSnap.forEach(doc => {
+      const p = doc.data(); rows++;
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (p.thumbnail ? '<img class="thumb-sm" src="' + p.thumbnail + '" alt="">' : '') + '</td><td>' + (p.title || '') + '</td><td>' + (p.tag || '') + '</td>' +
+        '<td><button class="btn small teal" onclick="approveProduct(\'free_products\',\'' + doc.id + '\')">Approve</button> <button class="btn small" onclick="deleteFreeProduct(\'' + doc.id + '\')">Delete</button></td>';
+      freeBody.appendChild(tr);
+    });
+    if (!rows) freeBody.innerHTML = '<tr><td colspan="4">Koi pending free product nahi hai.</td></tr>';
+  } catch (e) {
+    paidBody.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>';
+    freeBody.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>';
+  }
+}
+async function approveProduct(col, id) {
+  await db.collection(col).doc(id).update({ status: 'approved' });
+  loadPendingProducts();
+  loadProducts();
+  loadFreeProducts();
+  loadStats();
+  showToast('Product approve ho gaya — ab front pe dikhega.');
 }
 
 async function setStatus(id, status) {
@@ -565,6 +694,70 @@ async function setWithdrawal(id, email, amount, status) {
   showToast(status === 'approved' ? 'Withdrawal approve — balance se kat gaya.' : 'Withdrawal reject kar diya gaya.');
 }
 
+// ---- Reviews (real-time — jaisi hi review aaye, yahan dikhe) ----
+let reviewsUnsub = null;
+function loadReviews() {
+  const body = document.getElementById('reviews-body');
+  if (reviewsUnsub) reviewsUnsub();
+  reviewsUnsub = db.collection('reviews').orderBy('createdAt', 'desc').limit(100)
+    .onSnapshot(snap => {
+      if (snap.empty) { body.innerHTML = '<tr><td colspan="5">Abhi koi review nahi hai.</td></tr>'; return; }
+      body.innerHTML = '';
+      snap.forEach(doc => {
+        const r = doc.data();
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + (r.productTitle || '') + '</td><td>' + (r.email || '') + '</td><td>' + '★'.repeat(Number(r.rating || 0)) + ' (' + (r.rating || 0) + '/5)</td><td style="white-space:normal;min-width:200px">' + (r.text || '') + '</td>' +
+          '<td><button class="btn small" onclick="deleteReview(\'' + doc.id + '\')">Delete</button></td>';
+        body.appendChild(tr);
+      });
+    }, e => { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; });
+}
+async function deleteReview(id) {
+  if (!confirm('Ye review delete kar dein?')) return;
+  await db.collection('reviews').doc(id).delete();
+  showToast('Review delete ho gaya.');
+}
+
+// ---- Affiliate / Referrals ----
+async function loadAffiliateSettings() {
+  try {
+    const doc = await db.collection('settings').doc('affiliate').get();
+    if (doc.exists) document.getElementById('aff-pct').value = doc.data().commissionPercent ?? '';
+  } catch (e) { /* settings abhi set nahi */ }
+}
+document.getElementById('save-aff-btn').addEventListener('click', async () => {
+  const msg = document.getElementById('aff-msg');
+  const pct = parseInt(document.getElementById('aff-pct').value, 10);
+  if (isNaN(pct) || pct < 0 || pct > 100) { msg.textContent = '0 se 100 ke beech % likhein.'; return; }
+  await db.collection('settings').doc('affiliate').set({ commissionPercent: pct, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+  msg.textContent = 'Commission ' + pct + '% save ho gaya — ab referral sales par yehi % milega.';
+  showToast('Affiliate commission ' + pct + '% set ho gaya.');
+});
+async function loadCommissions() {
+  const body = document.getElementById('commissions-body');
+  try {
+    const snap = await db.collection('commissions').orderBy('createdAt', 'desc').limit(50).get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="7">Abhi koi commission nahi hai.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const c = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (c.referrerEmail || '') + '</td><td>' + (c.buyerEmail || '') + '</td><td>' + (c.productTitles || '') + '</td><td>Rs ' + (c.total || '') + '</td><td>Rs ' + (c.amount || '') + ' (' + (c.commissionPercent || '') + '%)</td>' +
+        '<td><span class="badge ' + (c.status || 'pending') + '">' + (c.status || 'pending') + '</span></td>' +
+        '<td>' + (c.status === 'pending' ? '<button class="btn small" onclick="setCommission(\'' + doc.id + '\',\'' + (c.referrerEmail || '') + '\',' + (Number(c.amount) || 0) + ',\'approved\')">Approve</button> <button class="btn small" onclick="setCommission(\'' + doc.id + '\',\'' + (c.referrerEmail || '') + '\',0,\'rejected\')">Reject</button>' : '') + '</td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="7">Error: ' + e.message + '</td></tr>'; }
+}
+async function setCommission(id, referrerEmail, amount, status) {
+  await db.collection('commissions').doc(id).update({ status });
+  if (status === 'approved' && referrerEmail && amount) {
+    await db.collection('users').doc(referrerEmail).set({ balance: firebase.firestore.FieldValue.increment(amount) }, { merge: true });
+  }
+  loadCommissions();
+  showToast(status === 'approved' ? 'Commission approve — referrer ke balance mein add ho gaya.' : 'Commission reject kar diya gaya.');
+}
+
 // ---- Support Chats ----
 let supportUnsub = null;
 let supportEmail = null;
@@ -634,11 +827,29 @@ async function loadGateways() {
       const g = doc.data();
       const tr = document.createElement('tr');
       tr.innerHTML = '<td>' + (g.name || '') + '</td><td>' + (g.number || '') + '</td><td>' + (g.title || '') + '</td>' +
-        '<td><button class="btn small" onclick="deleteGateway(\'' + doc.id + '\')">Delete</button></td>';
+        '<td><button class="btn small" onclick="editGateway(\'' + doc.id + '\',\'' + (g.name || '').replace(/'/g, "\\'") + '\',\'' + (g.number || '').replace(/'/g, "\\'") + '\',\'' + (g.title || '').replace(/'/g, "\\'") + '\')">Edit</button> <button class="btn small" onclick="deleteGateway(\'' + doc.id + '\')">Delete</button></td>';
       body.appendChild(tr);
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
 }
+let editingGatewayId = null;
+function editGateway(id, name, number, title) {
+  editingGatewayId = id;
+  document.getElementById('gw-name').value = name;
+  document.getElementById('gw-number').value = number;
+  document.getElementById('gw-title').value = title;
+  document.getElementById('add-gateway-btn').textContent = 'Update Gateway';
+  document.getElementById('cancel-gw-edit').style.display = '';
+  document.getElementById('gw-msg').textContent = 'Gateway edit ho raha hai — Save karne ke liye Update Gateway dabayein.';
+}
+document.getElementById('cancel-gw-edit').addEventListener('click', () => {
+  editingGatewayId = null;
+  document.getElementById('gw-number').value = '';
+  document.getElementById('gw-title').value = '';
+  document.getElementById('add-gateway-btn').textContent = 'Add Gateway';
+  document.getElementById('cancel-gw-edit').style.display = 'none';
+  document.getElementById('gw-msg').textContent = '';
+});
 async function deleteGateway(id) {
   if (!confirm('Ye gateway delete kar dein?')) return;
   await db.collection('payment_gateways').doc(id).delete();
@@ -652,12 +863,21 @@ document.getElementById('add-gateway-btn').addEventListener('click', async () =>
   const number = document.getElementById('gw-number').value.trim();
   const title = document.getElementById('gw-title').value.trim();
   if (!number || !title) { msg.textContent = 'Number aur Account Title dono zaroori hain.'; return; }
-  await db.collection('payment_gateways').add({ name, number, title, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-  msg.textContent = 'Gateway add ho gaya — users ko Deposit/Withdraw mein dikhne lagega.';
+  if (editingGatewayId) {
+    await db.collection('payment_gateways').doc(editingGatewayId).update({ name, number, title });
+    msg.textContent = 'Gateway update ho gaya.';
+    editingGatewayId = null;
+    document.getElementById('add-gateway-btn').textContent = 'Add Gateway';
+    document.getElementById('cancel-gw-edit').style.display = 'none';
+    showToast('Payment gateway update ho gaya.');
+  } else {
+    await db.collection('payment_gateways').add({ name, number, title, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    msg.textContent = 'Gateway add ho gaya — users ko Deposit/Withdraw mein dikhne lagega.';
+    showToast('Payment gateway add ho gaya.');
+  }
   document.getElementById('gw-number').value = '';
   document.getElementById('gw-title').value = '';
   loadGateways();
-  showToast('Payment gateway add ho gaya.');
 });
 
 // ---- Add Product (Type select: Free ya Paid) ----
@@ -690,7 +910,7 @@ document.getElementById('add-product-btn').addEventListener('click', async () =>
     } catch (e) { msg.textContent = 'Thumbnail upload failed: ' + e.message + ' (Free plan pe Storage band hai — image URL use karein.)'; return; }
   }
 
-  const data = { title, desc, tag, thumbnail: thumbnail || '', isFree: isFree, price: isFree ? 0 : price, file: file, downloads: 0, sales: 0, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+  const data = { title, desc, tag, thumbnail: thumbnail || '', isFree: isFree, price: isFree ? 0 : price, file: file, downloads: 0, sales: 0, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() };
   if (isFree) {
     data.page = '';
     await db.collection('free_products').add(data);
@@ -710,8 +930,9 @@ document.getElementById('add-product-btn').addEventListener('click', async () =>
   document.getElementById('price-row').style.display = 'none';
   loadProducts();
   loadFreeProducts();
+  loadPendingProducts();
   loadStats();
-  showToast('Aap ki product add ho gayi hai!');
+  showToast('Aap ki product pending mein add ho gayi hai — approve karne par front pe dikhegi!');
 });
 </script>
 </body>

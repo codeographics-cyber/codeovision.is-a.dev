@@ -38,13 +38,16 @@
 
   <!-- USER DASHBOARD -->
   <div id="user-dashboard" style="display:none">
+    <button class="menu-toggle" id="user-menu-toggle">☰ Menu</button>
+    <div class="sidebar-overlay" id="user-sidebar-overlay" hidden></div>
     <div class="admin-layout">
-      <aside class="admin-sidebar">
+      <aside class="admin-sidebar" id="user-sidebar">
         <div class="sidebar-title">My Account</div>
         <button data-section="sec-u-overview" class="active">Dashboard</button>
         <button data-section="sec-u-orders">My Orders</button>
         <button data-section="sec-u-deposit">Deposit</button>
         <button data-section="sec-u-withdraw">Withdraw</button>
+        <button data-section="sec-u-referrals">My Referrals</button>
         <button data-section="sec-u-chat">Support Chat</button>
         <button id="user-sidebar-logout">Logout</button>
       </aside>
@@ -134,6 +137,23 @@
           </div>
         </section>
 
+        <!-- MY REFERRALS -->
+        <section id="sec-u-referrals" class="admin-section" style="display:none">
+          <h2>My Referrals — Affiliate Marketing</h2>
+          <div class="admin-card">
+            <p style="color:#6b7280;margin-bottom:12px">Har product ka apna affiliate link hai — link share karein, jo aap ke link se khareede us par admin-set commission aap ke balance mein aayega.</p>
+            <p style="margin-bottom:12px">Total Earned: <strong id="ref-earned">Rs 0</strong></p>
+            <div id="my-ref-links"><span style="color:#6b7280">Loading…</span></div>
+          </div>
+          <div class="admin-card">
+            <h2>My Commissions</h2>
+            <table class="admin-table">
+              <thead><tr><th>Buyer</th><th>Product</th><th>Total</th><th>Commission</th><th>Status</th></tr></thead>
+              <tbody id="my-commissions-body"><tr><td colspan="5">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
         <!-- SUPPORT CHAT -->
         <section id="sec-u-chat" class="admin-section" style="display:none">
           <h2>Live Support Chat — Admin se seedha baat karein</h2>
@@ -155,6 +175,7 @@
   <div class="wrap"><p>&copy; 2026 Codeovision</p></div>
 </footer>
 
+<script src="js/products.js"></script>
 <script>
 // ---- Firebase config (project "codeovision", free Spark plan) ----
 const firebaseConfig = {
@@ -176,9 +197,20 @@ let currentUser = null;
 let chatUnsub = null;
 let myBalance = 0;
 
-// ---- Sidebar section switching ----
+// ---- Sidebar section switching + mobile drawer (Muse-style left menu) ----
+const userSidebar = document.getElementById('user-sidebar');
+const userOverlay = document.getElementById('user-sidebar-overlay');
+document.getElementById('user-menu-toggle').addEventListener('click', () => {
+  userSidebar.classList.add('open');
+  userOverlay.hidden = false;
+});
+function closeUserSidebar() {
+  userSidebar.classList.remove('open');
+  userOverlay.hidden = true;
+}
+userOverlay.addEventListener('click', closeUserSidebar);
 document.querySelectorAll('.admin-sidebar button[data-section]').forEach(b => {
-  b.addEventListener('click', () => showUSection(b.dataset.section));
+  b.addEventListener('click', () => { showUSection(b.dataset.section); closeUserSidebar(); });
 });
 function showUSection(id) {
   document.querySelectorAll('.admin-section').forEach(s => { s.style.display = s.id === id ? 'block' : 'none'; });
@@ -186,6 +218,7 @@ function showUSection(id) {
   if (id === 'sec-u-orders') loadMyOrders();
   if (id === 'sec-u-deposit') { loadGateways(); loadMyDeposits(); }
   if (id === 'sec-u-withdraw') { loadGateways(); loadMyWithdrawals(); loadBalance(); }
+  if (id === 'sec-u-referrals') { loadMyRefLinks(); loadMyCommissions(); }
   if (id === 'sec-u-overview') { loadMyOrders(); loadBalance(); }
 }
 
@@ -389,6 +422,60 @@ async function loadMyWithdrawals() {
       body.appendChild(tr);
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
+}
+
+// ---- My Referrals (har product ka apna affiliate link) ----
+function myAffiliateLink(pid) {
+  const base = location.origin + location.pathname.replace('dashboard.html', 'index.html');
+  return base + '?ref=' + encodeURIComponent(currentUser.email) + '&product=' + encodeURIComponent(pid);
+}
+async function loadMyRefLinks() {
+  const box = document.getElementById('my-ref-links');
+  const products = [];
+  (typeof PAID_PRODUCTS !== 'undefined' ? PAID_PRODUCTS : []).forEach(p => products.push({ id: p.id, title: p.title, price: p.price }));
+  (typeof FREE_PRODUCTS !== 'undefined' ? FREE_PRODUCTS : []).forEach(p => products.push({ id: p.id, title: p.title, price: 0 }));
+  try {
+    const paidSnap = await db.collection('products').get();
+    paidSnap.forEach(doc => { const p = doc.data(); if (p.status === 'pending') return; if (!products.find(x => x.id === doc.id)) products.push({ id: doc.id, title: p.title, price: p.price }); });
+    const freeSnap = await db.collection('free_products').get();
+    freeSnap.forEach(doc => { const p = doc.data(); if (p.status === 'pending') return; if (!products.find(x => x.id === doc.id)) products.push({ id: doc.id, title: p.title, price: 0 }); });
+  } catch (e) { /* Firestore products na mile to built-in links phir bhi dikhte hain */ }
+  box.innerHTML = '';
+  products.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'affil-box';
+    div.style.display = 'block';
+    div.innerHTML = '<strong>' + p.title + '</strong>' + (p.price ? ' — Rs ' + p.price : ' — Free') + '<br><span class="affil-link">' + myAffiliateLink(p.id) + '</span><br><button class="btn small" style="margin-top:6px" onclick="copyRefLink(\'' + p.id + '\')">Copy Link</button>';
+    box.appendChild(div);
+  });
+  if (!products.length) box.innerHTML = '<span style="color:#6b7280">Abhi koi product nahi hai.</span>';
+}
+function copyRefLink(pid) {
+  const link = myAffiliateLink(pid);
+  if (navigator.clipboard) navigator.clipboard.writeText(link).then(() => alert('Affiliate link copy ho gaya!')).catch(() => alert(link));
+  else alert(link);
+}
+async function loadMyCommissions() {
+  const body = document.getElementById('my-commissions-body');
+  try {
+    const snap = await db.collection('commissions').where('referrerEmail', '==', currentUser.email).get();
+    let earned = 0;
+    const rows = [];
+    snap.forEach(doc => { const c = doc.data(); rows.push(c); if (c.status === 'approved') earned += Number(c.amount || 0); });
+    document.getElementById('ref-earned').textContent = 'Rs ' + earned.toLocaleString('en-PK');
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="5">Abhi koi commission nahi hai — apna affiliate link share karein!</td></tr>'; return; }
+    rows.sort((a, b) => {
+      const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+      const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+      return tb - ta;
+    });
+    body.innerHTML = '';
+    rows.forEach(c => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (c.buyerEmail || '') + '</td><td>' + (c.productTitles || '') + '</td><td>Rs ' + (c.total || '') + '</td><td>Rs ' + (c.amount || '') + '</td><td><span class="badge ' + (c.status || 'pending') + '">' + (c.status || 'pending') + '</span></td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; }
 }
 
 // ---- Live Support Chat ----
