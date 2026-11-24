@@ -362,6 +362,18 @@ table.admin-table tr:hover td { background: rgba(255,255,255,.03); }
 .how .section-title { color: #fff; }
 .how .section-title span { color: #e3c06a; }
 
+/* ---- v15: Product card meta row + wishlist (same order on every card) ---- */
+.card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 10px 0 12px; font-size: 13px; color: #4b5563; }
+.card-meta .rating-line { color: #b45309; font-weight: 700; }
+.card-meta .count-line { color: #4b5563; }
+.meta-sep { color: #9ca3af; }
+.card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.card-actions .btn { margin: 0; }
+.wish-btn { border: 2px solid #e3c06a; background: #fff; color: #92400e; }
+.wish-btn.saved { background: #e3c06a; color: #0b1220; border-color: #e3c06a; }
+.reviews-list .review-item { border-top: 1px solid #e5e7eb; padding: 10px 0; font-size: 14px; color: #374151; }
+.review-item .r-stars { color: #b45309; }
+
 /* ---- v10: Store cards — coloured backgrounds, pretty buttons ---- */
 .free-card { background: linear-gradient(160deg, #ffffff, #ecfdf5); border-top: 4px solid #0d9488; }
 .paid-card { background: linear-gradient(160deg, #fffbeb, #fef3c7); border-top: 4px solid #e3c06a; }
