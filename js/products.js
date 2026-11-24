@@ -1,7 +1,7 @@
 // Codeovision Store — product data (single source for site + admin panel)
 // NOTE: Payment number/title and prices are placeholders — Kinza to confirm.
 const PAYMENT = {
-  easypaisa: "03XX-XXXXXXX",   // TODO: Bilal's Easypaisa number (abhi nahi mila — poochna hai)
+  easypaisa: "03037102625",    // CONFIRMED 24 Nov 2026 — Bilal's Easypaisa number
   jazzcash: "03XX-XXXXXXX",    // TODO: Bilal's JazzCash number
   title: "Muhammad Bilal Anjum",  // CONFIRMED 24 Nov 2026 — Easypaisa account title
   till: "983055951",           // CONFIRMED 24 Nov 2026 — Raast Till number
