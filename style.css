@@ -1,0 +1,60 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: "Segoe UI", Arial, sans-serif; background: #f3f4f6; color: #1f2937; line-height: 1.6; }
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+a { color: #0d9488; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Header */
+.site-header { background: #0b1220; padding: 16px 0; }
+.header-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.logo { font-size: 26px; font-weight: bold; color: #fff; }
+.logo span { color: #e3c06a; }
+.logo:hover { text-decoration: none; }
+.site-header nav a { color: #d1d5db; margin-left: 18px; font-size: 15px; }
+.site-header nav a.active, .site-header nav a:hover { color: #e3c06a; text-decoration: none; }
+
+/* Hero */
+.hero { background: linear-gradient(135deg, #0f766e, #0b1220); color: #fff; padding: 60px 0; text-align: center; }
+.hero h1 { font-size: 36px; margin-bottom: 12px; }
+.hero p { font-size: 18px; color: #d1d5db; max-width: 640px; margin: 0 auto 24px; }
+
+/* Buttons */
+.btn { display: inline-block; background: #e3c06a; color: #0b1220; font-weight: bold; padding: 12px 28px; border-radius: 8px; }
+.btn:hover { background: #d4af5a; text-decoration: none; }
+.btn.small { padding: 9px 18px; font-size: 14px; }
+.btn.teal { background: #0d9488; color: #fff; }
+.btn.teal:hover { background: #0f766e; }
+
+/* Posts */
+main h2 { margin: 36px 0 18px; font-size: 26px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.card { background: #fff; border-radius: 12px; padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.card h3 { margin: 10px 0 8px; font-size: 20px; }
+.card p { color: #4b5563; margin-bottom: 16px; font-size: 15px; }
+.tag { display: inline-block; background: #ccfbf1; color: #0f766e; font-size: 12px; font-weight: bold; padding: 3px 10px; border-radius: 20px; }
+
+/* About */
+.about { background: #fff; border-radius: 12px; padding: 26px; margin: 40px 0; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.about h2 { margin-top: 0; }
+
+/* Post page */
+.post { background: #fff; border-radius: 12px; padding: 28px; margin: 30px 0; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.post h1 { font-size: 28px; margin: 10px 0 6px; }
+.post .date { color: #6b7280; font-size: 14px; margin-bottom: 18px; }
+.post h2 { font-size: 20px; margin: 26px 0 10px; }
+.post p { margin-bottom: 14px; }
+.post ol, .post ul { margin: 0 0 16px 22px; }
+.post li { margin-bottom: 6px; }
+pre { background: #0b1220; color: #e5e7eb; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; margin: 12px 0 18px; }
+code { font-family: Consolas, monospace; }
+.download-box { background: #fef9e7; border: 1px solid #e3c06a; border-radius: 10px; padding: 18px; margin: 22px 0; text-align: center; }
+.download-box p { margin-bottom: 12px; }
+.back { display: inline-block; margin: 10px 0 0; }
+
+/* Footer */
+.site-footer { background: #0b1220; color: #9ca3af; text-align: center; padding: 22px 0; margin-top: 40px; font-size: 14px; }
+
+@media (max-width: 600px) {
+  .hero h1 { font-size: 26px; }
+  .hero p { font-size: 16px; }
+}
