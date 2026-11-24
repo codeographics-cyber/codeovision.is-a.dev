@@ -374,6 +374,14 @@ table.admin-table tr:hover td { background: rgba(255,255,255,.03); }
 .reviews-list .review-item { border-top: 1px solid #e5e7eb; padding: 10px 0; font-size: 14px; color: #374151; }
 .review-item .r-stars { color: #b45309; }
 
+/* ---- v16: Card head row (title + meta chip top-right) + equal buttons ---- */
+.card .card-head { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0 4px; }
+.card .card-head h3, .card-head h2 { flex: 1; margin: 0; min-width: 0; }
+.card-meta { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; font-size: 12px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 999px; padding: 4px 10px; margin: 0; white-space: nowrap; }
+.card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.card-actions .btn { margin: 0; width: 100%; }
+.card-actions .wish-btn { grid-column: 1 / -1; }
+
 /* ---- v10: Store cards — coloured backgrounds, pretty buttons ---- */
 .free-card { background: linear-gradient(160deg, #ffffff, #ecfdf5); border-top: 4px solid #0d9488; }
 .paid-card { background: linear-gradient(160deg, #fffbeb, #fef3c7); border-top: 4px solid #e3c06a; }
