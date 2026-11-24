@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File Storage — Codeovision Admin</title>
+<meta name="description" content="Admin-only file storage for Codeovision — save Google Drive links for digital products. Files stay private in your Drive; only buyers you give the link to can download.">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; background: #f3f4f6; color: #1f2937; line-height: 1.6; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+  a { color: #0d9488; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .gold { color: #e3c06a; }
+
+  /* Header — same as the store */
+  .site-header { background: #0b1220; padding: 14px 0; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 12px rgba(0,0,0,.25); }
+  .header-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .logo { font-size: 26px; font-weight: bold; color: #fff; }
+  .logo span { color: #e3c06a; }
+  .logo:hover { text-decoration: none; }
+  .header-inner nav a { color: #d1d5db; margin-left: 18px; font-size: 15px; }
+  .header-inner nav a:hover { color: #e3c06a; text-decoration: none; }
+
+  .page { padding: 28px 0 60px; }
+  h1 { font-size: 26px; margin-bottom: 6px; }
+  h2 { font-size: 19px; margin-bottom: 10px; }
+  .sub { color: #6b7280; margin-bottom: 20px; }
+  .card { background: #fff; border-radius: 12px; padding: 22px; margin-bottom: 20px; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+  label { display: block; font-weight: 600; margin: 12px 0 6px; font-size: 14px; }
+  input[type="email"], input[type="password"], input[type="text"], input[type="number"] {
+    width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; font-family: inherit; margin-bottom: 4px;
+  }
+  input:disabled { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
+  .btn { display: inline-block; background: #0b1220; color: #fff; border: none; padding: 10px 22px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn:hover { background: #1f2937; }
+  .btn.teal { background: #0d9488; }
+  .btn.teal:hover { background: #0f766e; }
+  .btn.gold { background: #e3c06a; color: #0b1220; }
+  .btn.gold:hover { background: #d4af5a; }
+  .btn.small { padding: 6px 12px; font-size: 13px; border-radius: 6px; }
+  .btn.danger { background: #dc2626; }
+  .btn.danger:hover { background: #b91c1c; }
+  .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+  .notice { background: #fef9e7; border: 1px solid #e3c06a; border-radius: 10px; padding: 16px; margin-bottom: 18px; font-size: 15px; }
+  .notice.err { background: #fef2f2; border-color: #dc2626; }
+  .notice.ok { background: #ecfdf5; border-color: #0d9488; }
+  .muted { color: #6b7280; font-size: 14px; }
+  .err-text { color: #dc2626; font-size: 14px; margin-top: 8px; }
+  .ok-text { color: #15803d; font-size: 14px; margin-top: 8px; }
+  .captcha-row { display: flex; gap: 8px; align-items: center; margin: 10px 0; }
+  .captcha-row input { width: 90px; margin: 0; }
+  .captcha-row .btn { padding: 8px 12px; }
+  .steps { margin: 8px 0 8px 20px; }
+  .steps li { margin-bottom: 6px; }
+
+  /* Result box — the generated download link */
+  .result-box { background: #0b1220; border: 1px solid #e3c06a; border-radius: 12px; padding: 20px; margin-bottom: 20px; display: none; }
+  .result-box h2 { color: #fff; }
+  .result-link { display: block; background: #111827; color: #e3c06a; font-size: 16px; font-weight: 600; word-break: break-all; padding: 14px; border-radius: 8px; margin: 10px 0; }
+  .result-link:hover { text-decoration: none; }
+
+  /* Files table */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
+  th { color: #6b7280; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+  td .fname { word-break: break-all; }
+  .row-actions { white-space: nowrap; }
+  .row-actions .btn { margin-right: 6px; }
+  @media (max-width: 640px) {
+    .logo { font-size: 22px; }
+    table { font-size: 13px; }
+    .row-actions .btn { margin-bottom: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="index.html">Code<span>ovision</span></a>
+    <nav>
+      <a href="index.html">View Site</a>
+      <a href="admin.html">Admin Panel</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap page">
+  <h1>File Storage</h1>
+  <p class="sub">Save a Google Drive link for a digital product and get a download link for it. Admin only — this page is not linked from the public store. Files stay private in your Google Drive — nobody can browse or list them; only someone with the link you give can download.</p>
+
+  <!-- NOT AUTHORIZED (non-admin logged-in users see ONLY this) -->
+  <div class="notice err" id="not-authorized" style="display:none">
+    <strong>Not authorized.</strong> This page is for the Codeovision admin only.
+    <br><button class="btn small" onclick="location.reload()" style="margin-top:10px">Login Again</button>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="card" id="login-card">
+    <h2>Admin Login</h2>
+    <p class="muted" style="margin-bottom:8px">Only the Codeovision admin can use this page.</p>
+    <label for="login-email">Email</label>
+    <input type="email" id="login-email" placeholder="codeographics@gmail.com" autocomplete="email">
+    <label for="login-pass">Password</label>
+    <input type="password" id="login-pass" placeholder="Admin password" autocomplete="current-password">
+    <div class="captcha-row">
+      <span id="cap-q-storage" style="font-weight:bold">? + ? = ?</span>
+      <input type="number" id="cap-a-storage" placeholder="Answer">
+      <button type="button" class="btn small" id="cap-r-storage" title="New captcha">&#8635; New</button>
+    </div>
+    <p id="cap-e-storage" class="err-text"></p>
+    <button class="btn teal" id="login-btn">Login</button>
+    <p id="login-error" class="err-text"></p>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="panel" style="display:none">
+    <p class="muted" style="margin-bottom:14px">Logged in as <strong id="admin-who"></strong>
+      &nbsp;·&nbsp; <button class="btn small" id="logout-btn">Logout</button></p>
+
+    <!-- HOW IT WORKS -->
+    <div class="card">
+      <h2>How to add a file (Google Drive)</h2>
+      <ol class="steps">
+        <li>Upload the product ZIP to your <a href="https://drive.google.com" target="_blank" rel="noopener">Google Drive</a>.</li>
+        <li>Right-click the file &rarr; <strong>Share</strong> &rarr; set to <strong>"Anyone with the link"</strong> (Viewer) &rarr; <strong>Copy link</strong>.</li>
+        <li>Paste the link below with the product name and press <strong>Save Link</strong>. The file stays private in your Drive — there is no public folder or list anyone can browse.</li>
+      </ol>
+      <p class="muted">Give the generated link only to the buyer (after the admin approves the order). Deleting a record here removes only the record — the file stays in your Drive until you delete it there.</p>
+    </div>
+
+    <!-- SAVE A DRIVE LINK -->
+    <div class="card">
+      <h2>Save a Drive Link</h2>
+      <label for="file-name">Product Name</label>
+      <input type="text" id="file-name" placeholder="e.g. Premium Landing Page Pack">
+      <label for="drive-link">Google Drive Link</label>
+      <input type="text" id="drive-link" placeholder="https://drive.google.com/file/d/.../view?usp=sharing">
+      <label for="file-size">File Size (optional)</label>
+      <input type="text" id="file-size" placeholder="e.g. 12 MB">
+      <div style="margin-top:14px">
+        <button class="btn gold" id="save-btn">Save Link &amp; Generate Download Link</button>
+      </div>
+      <p id="save-status" class="muted" style="margin-top:10px"></p>
+      <p id="save-error" class="err-text"></p>
+    </div>
+
+    <!-- GENERATED LINK -->
+    <div class="result-box" id="result-box">
+      <h2>Download Link Ready</h2>
+      <p class="muted" style="color:#d1d5db">Give this link to the buyer — it downloads the file directly:</p>
+      <a class="result-link" id="result-link" href="#" target="_blank" rel="noopener"></a>
+      <button class="btn gold" id="result-copy-btn">Copy Link</button>
+      <span id="result-copied" class="ok-text" style="color:#5eead4"></span>
+    </div>
+
+    <!-- SAVED FILES -->
+    <div class="card">
+      <h2>Saved Files</h2>
+      <p class="muted">Newest first. Deleting removes only the record here — the file stays in your Google Drive.</p>
+      <table>
+        <thead><tr><th>Name</th><th>Date</th><th>Size</th><th></th></tr></thead>
+        <tbody id="files-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+      </table>
+      <p id="files-error" class="err-text"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- Firebase config (project "codeovision", free Spark plan) — same as index.html / admin.html ----
+var firebaseConfig = {
+  apiKey: "AIzaSyBgN-1fA0wQmKzHj-9mJkL0wXqRtZvYxWc",
+  authDomain: "codeovision-7cd58.firebaseapp.com",
+  projectId: "codeovision-7cd58",
+  storageBucket: "codeovision-7cd58.firebasestorage.app",
+  messagingSenderId: "903637047034",
+  appId: "1:903637047034:web:80d4752ec0b4cf6607db43"
+};
+var FIREBASE_READY = firebaseConfig.apiKey !== "TODO";
+
+var db = null, auth = null;
+if (FIREBASE_READY) {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+  auth = firebase.auth();
+}
+
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+function fmtSize(bytes) {
+  bytes = Number(bytes) || 0;
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+}
+function fmtDate(ts) {
+  if (!ts) return "—";
+  try { var d = ts.toDate ? ts.toDate() : new Date(ts); return d.toLocaleString(); } catch (e) { return "—"; }
+}
+function copyText(text, done) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () { done(true); }).catch(function () { fallbackCopy(text, done); });
+  } else { fallbackCopy(text, done); }
+}
+function fallbackCopy(text, done) {
+  var ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  var ok = false;
+  try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+  document.body.removeChild(ta);
+  done(ok);
+}
+
+// ---- Self-made number captcha — same pattern as admin.html ----
+var __cap = {};
+function newCaptcha(id) {
+  var a = 1 + Math.floor(Math.random() * 9), b = 1 + Math.floor(Math.random() * 9);
+  __cap[id] = a + b;
+  var q = $("cap-q-" + id);
+  if (q) q.textContent = a + " + " + b + " = ?";
+  var inp = $("cap-a-" + id); if (inp) inp.value = "";
+  var err = $("cap-e-" + id); if (err) err.textContent = "";
+}
+function checkCaptcha(id) {
+  var inp = $("cap-a-" + id);
+  var v = inp ? parseInt(inp.value, 10) : NaN;
+  if (v !== __cap[id]) {
+    var err = $("cap-e-" + id);
+    if (err) err.textContent = "Wrong answer — a new captcha has been generated, please try again.";
+    newCaptcha(id);
+    return false;
+  }
+  return true;
+}
+$("cap-r-storage").addEventListener("click", function () { newCaptcha("storage"); });
+newCaptcha("storage");
+
+// ---- Login / admin check — same pattern as admin.html ----
+var loginCard = $("login-card");
+var panel = $("panel");
+var notAuthorized = $("not-authorized");
+var currentAdminEmail = "";
+
+$("login-btn").addEventListener("click", function () {
+  var email = $("login-email").value.trim();
+  var pass = $("login-pass").value;
+  var err = $("login-error");
+  err.textContent = "";
+  if (!checkCaptcha("storage")) return;
+  if (!FIREBASE_READY) { err.textContent = "Firebase setup is pending — connect the project first."; return; }
+  auth.signInWithEmailAndPassword(email, pass).catch(function (e) {
+    err.textContent = "Login failed: " + e.message;
+  });
+});
+
+$("logout-btn").addEventListener("click", function () { auth.signOut(); });
+
+if (FIREBASE_READY) {
+  auth.onAuthStateChanged(function (user) {
+    if (!user) {
+      loginCard.style.display = "block";
+      panel.style.display = "none";
+      notAuthorized.style.display = "none";
+      currentAdminEmail = "";
+      return;
+    }
+    db.collection("admins").doc(user.email).get().then(function (adminDoc) {
+      if (!adminDoc.exists) {
+        // Non-admin: show ONLY "Not authorized" and nothing else.
+        loginCard.style.display = "none";
+        panel.style.display = "none";
+        notAuthorized.style.display = "block";
+        return;
+      }
+      currentAdminEmail = user.email;
+      notAuthorized.style.display = "none";
+      loginCard.style.display = "none";
+      panel.style.display = "block";
+      $("admin-who").textContent = user.email;
+      loadFiles();
+    }).catch(function () {
+      loginCard.style.display = "none";
+      panel.style.display = "none";
+      notAuthorized.style.display = "block";
+    });
+  });
+}
+
+// ---- Google Drive link handling ----
+function extractDriveId(link) {
+  var m = String(link || "").match(/\/file\/d\/([A-Za-z0-9_-]+)/);
+  if (m) return m[1];
+  m = String(link || "").match(/[?&]id=([A-Za-z0-9_-]+)/);
+  if (m) return m[1];
+  return null;
+}
+function directDownloadUrl(fileId) {
+  return "https://drive.google.com/uc?export=download&id=" + fileId;
+}
+
+$("save-btn").addEventListener("click", async function () {
+  var statusEl = $("save-status");
+  var errEl = $("save-error");
+  errEl.textContent = "";
+  $("result-box").style.display = "none";
+  var name = $("file-name").value.trim();
+  var link = $("drive-link").value.trim();
+  var size = $("file-size").value.trim();
+  if (!name) { errEl.textContent = "Write the product name first."; return; }
+  if (!link) { errEl.textContent = "Paste the Google Drive link first."; return; }
+  if (link.indexOf("drive.google.com") === -1) { errEl.textContent = "That does not look like a Google Drive link — paste the link copied from Drive (Share → Copy link)."; return; }
+  var fileId = extractDriveId(link);
+  if (!fileId) { errEl.textContent = "Could not read the file ID from this link — use the Share link from Drive (it looks like drive.google.com/file/d/.../view)."; return; }
+  var url = directDownloadUrl(fileId);
+  var btn = $("save-btn");
+  btn.disabled = true;
+  try {
+    statusEl.textContent = "Saving record…";
+    await db.collection("files").add({
+      name: name,
+      fileName: fileId,
+      url: url,
+      viewUrl: link,
+      size: size,
+      source: "drive",
+      uploadedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      uploadedBy: currentAdminEmail
+    });
+    // Show the generated link big and clear.
+    var linkEl = $("result-link");
+    linkEl.textContent = url;
+    linkEl.href = url;
+    $("result-copied").textContent = "";
+    $("result-box").style.display = "block";
+    statusEl.textContent = "Done ✓ Link saved.";
+    $("file-name").value = "";
+    $("drive-link").value = "";
+    $("file-size").value = "";
+    loadFiles();
+  } catch (e) {
+    errEl.textContent = "Save failed: " + e.message;
+    statusEl.textContent = "";
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+$("result-copy-btn").addEventListener("click", function () {
+  var url = $("result-link").textContent;
+  if (!url) return;
+  copyText(url, function (ok) {
+    $("result-copied").textContent = ok ? "Copied ✓" : "Copy failed — select the link and copy it manually.";
+  });
+});
+
+// ---- Saved files list ----
+async function loadFiles() {
+  var body = $("files-body");
+  var errEl = $("files-error");
+  errEl.textContent = "";
+  try {
+    var snap = await db.collection("files").orderBy("uploadedAt", "desc").get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">No files saved yet.</td></tr>'; return; }
+    body.innerHTML = "";
+    snap.forEach(function (doc) {
+      var f = doc.data();
+      var tr = document.createElement("tr");
+      var nameCell = document.createElement("td");
+      nameCell.innerHTML = "<strong>" + esc(f.name || "") + "</strong><br><span class='fname muted'>Google Drive</span>";
+      var dateCell = document.createElement("td");
+      dateCell.textContent = fmtDate(f.uploadedAt);
+      var sizeCell = document.createElement("td");
+      sizeCell.textContent = (typeof f.size === "number") ? fmtSize(f.size) : (f.size || "—");
+      var actCell = document.createElement("td");
+      actCell.className = "row-actions";
+      var copyBtn = document.createElement("button");
+      copyBtn.className = "btn small teal";
+      copyBtn.textContent = "Copy Link";
+      copyBtn.addEventListener("click", function () {
+        copyText(f.url || "", function (ok) { copyBtn.textContent = ok ? "Copied ✓" : "Copy failed"; setTimeout(function () { copyBtn.textContent = "Copy Link"; }, 2000); });
+      });
+      var delBtn = document.createElement("button");
+      delBtn.className = "btn small danger";
+      delBtn.textContent = "Delete";
+      delBtn.addEventListener("click", function () { deleteFile(doc.id, f.name || ""); });
+      actCell.appendChild(copyBtn);
+      actCell.appendChild(delBtn);
+      tr.appendChild(nameCell);
+      tr.appendChild(dateCell);
+      tr.appendChild(sizeCell);
+      tr.appendChild(actCell);
+      body.appendChild(tr);
+    });
+  } catch (e) {
+    body.innerHTML = '<tr><td colspan="4">Could not load files.</td></tr>';
+    errEl.textContent = "Error: " + e.message;
+  }
+}
+
+async function deleteFile(docId, name) {
+  if (!confirm("Delete the record for \"" + name + "\"?\n\nThis removes only the record from the database. The file stays in your Google Drive until you delete it there.")) return;
+  try {
+    await db.collection("files").doc(docId).delete();
+    loadFiles();
+  } catch (e) {
+    alert("Delete failed: " + e.message);
+  }
+}
+</script>
+</body>
+</html>
