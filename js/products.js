@@ -1,10 +1,10 @@
 // Codeovision Store — product data (single source for site + admin panel)
 // NOTE: Payment number/title and prices are placeholders — Kinza to confirm.
 const PAYMENT = {
-  easypaisa: "03XX-XXXXXXX",   // TODO: Kinza's Easypaisa number
-  jazzcash: "03XX-XXXXXXX",    // TODO: Kinza's JazzCash number
-  title: "Your Name",          // TODO: account title
-  whatsapp: "923037102625"     // TODO: confirm WhatsApp number for orders
+  easypaisa: "03XX-XXXXXXX",   // TODO: Bilal's Easypaisa number (admin Payment Settings se set hoga)
+  jazzcash: "03XX-XXXXXXX",    // TODO: Bilal's JazzCash number (admin Payment Settings se set hoga)
+  title: "Your Name",          // TODO: account title (admin Payment Settings se set hoga)
+  whatsapp: "923037102625"     // CONFIRMED 24 Nov 2026 — Bilal's WhatsApp for orders/screenshots
 };
 
 const FREE_PRODUCTS = [
