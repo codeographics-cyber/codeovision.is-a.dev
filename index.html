@@ -201,10 +201,12 @@ const paidGrid = document.getElementById('paid-grid');
 function freeCard(p) {
   const card = document.createElement('article');
   card.className = 'card reveal visible';
+  const thumb = p.thumbnail ? '<img class="thumb-img" src="' + p.thumbnail + '" alt="">' : '';
   let links = '';
   if (p.page) links += '<a class="btn small" href="' + p.page + '">View &amp; Download</a> ';
-  if (p.file) links += '<a class="btn small teal" href="' + p.file + '" download>Direct Download</a>';
-  card.innerHTML = '<span class="tag">FREE • ' + (p.tag || 'Free') + '</span><h3>' + p.title + '</h3><p>' + p.desc + '</p>' + links;
+  if (p.file) links += '<a class="btn small teal dl-link" data-col="free_products" data-id="' + (p.id || '') + '" href="' + p.file + '" download>Direct Download</a>';
+  card.innerHTML = thumb + '<span class="tag">FREE • ' + (p.tag || 'Free') + '</span><h3>' + p.title + '</h3><p>' + p.desc + '</p>' + links +
+    '<p class="count-line">⬇ <span class="dl-count">' + (p.downloads || 0) + '</span> downloads</p>';
   return card;
 }
 function paidCard(p) {
@@ -212,11 +214,13 @@ function paidCard(p) {
   const feats = featsArr.map(f => '<li>' + f + '</li>').join('');
   const card = document.createElement('article');
   card.className = 'card paid reveal visible';
-  card.innerHTML = '<span class="tag gold-tag">' + (p.tag || 'Premium') + '</span><h3>' + p.title + '</h3><p>' + p.desc + '</p>' +
+  const thumb = p.thumbnail ? '<img class="thumb-img" src="' + p.thumbnail + '" alt="">' : '';
+  card.innerHTML = thumb + '<span class="tag gold-tag">' + (p.tag || 'Premium') + '</span><h3>' + p.title + '</h3><p>' + p.desc + '</p>' +
     '<ul class="feats">' + feats + '</ul>' +
     '<p class="price">Rs ' + Number(p.price).toLocaleString('en-PK') + '</p>' +
     '<button class="btn small add-cart-btn" data-id="' + p.id + '">Add to Cart</button> ' +
-    '<button class="btn small teal buy-now-btn" data-id="' + p.id + '">Buy Now</button>';
+    '<button class="btn small teal buy-now-btn" data-id="' + p.id + '">Buy Now</button>' +
+    '<p class="count-line">🛒 <span class="sold-count">' + (p.sales || 0) + '</span> sold</p>';
   return card;
 }
 FREE_PRODUCTS.forEach(p => freeGrid.appendChild(freeCard(p)));
@@ -237,6 +241,16 @@ async function loadStoreProducts() {
   } catch (e) { /* store keeps working from built-in products if Firestore is unreachable */ }
 }
 loadStoreProducts();
+
+// ---- Download counting (free products, guests included) ----
+freeGrid.addEventListener('click', e => {
+  const link = e.target.closest('.dl-link');
+  if (!link || !link.dataset.id || !FIREBASE_READY) return;
+  const col = link.dataset.col || 'free_products';
+  db.collection(col).doc(link.dataset.id).update({ downloads: firebase.firestore.FieldValue.increment(1) }).catch(function(){});
+  const countEl = link.closest('.card').querySelector('.dl-count');
+  if (countEl) countEl.textContent = String(parseInt(countEl.textContent || '0', 10) + 1);
+});
 
 // ---- Cart (localStorage — works for guests too) ----
 let cart = [];

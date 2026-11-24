@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel — Codeovision</title>
-<meta name="description" content="Codeovision admin panel — manage products and orders.">
+<meta name="description" content="Codeovision admin panel — manage products, orders and sales.">
 <link rel="stylesheet" href="style.css">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 </head>
 <body>
 <header class="site-header">
@@ -51,58 +52,58 @@
       <p style="color:#6b7280">Logged in as <strong id="admin-who"></strong></p>
     </div>
 
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-box"><strong id="stat-sales">Rs 0</strong><span>Total Sales</span></div>
+      <div class="stat-box"><strong id="stat-pending">0</strong><span>Pending Orders</span></div>
+      <div class="stat-box"><strong id="stat-paid">0</strong><span>Paid / Approved</span></div>
+      <div class="stat-box"><strong id="stat-products">0</strong><span>Total Products</span></div>
+      <div class="stat-box"><strong id="stat-downloads">0</strong><span>Total Downloads</span></div>
+    </div>
+
     <div class="admin-card">
       <h2>Orders</h2>
-      <p style="color:#6b7280;margin-bottom:12px">Buy Now pe click karne wale orders yahan aate hain. Payment WhatsApp pe confirm karein, phir status badlein.</p>
+      <p style="color:#6b7280;margin-bottom:12px">Buy Now / Checkout se aane wale orders yahan aate hain. Payment WhatsApp pe confirm karein, phir status badlein — Paid karte hi product ki sale count barh jayegi.</p>
       <table class="admin-table">
-        <thead><tr><th>Order ID</th><th>Product</th><th>Price</th><th>Date</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Order ID</th><th>Product</th><th>Total</th><th>Date</th><th>Status</th><th></th></tr></thead>
         <tbody id="orders-body"><tr><td colspan="6">Loading…</td></tr></tbody>
       </table>
     </div>
 
     <div class="admin-card">
-      <h2>Add Paid Product</h2>
+      <h2>Add Product</h2>
+      <p style="color:#6b7280;margin-bottom:12px">Free aur paid dono yahin se post hote hain. Free ka option on karein to price nahi lagega.</p>
+      <label>Thumbnail Image</label>
+      <input type="file" id="p-thumb-file" accept="image/*">
+      <label>…ya Thumbnail Image URL</label>
+      <input type="text" id="p-thumb-url" placeholder="e.g. https://example.com/image.jpg">
       <label>Title</label>
       <input type="text" id="p-title" placeholder="e.g. Premium Landing Page Pack">
       <label>Description</label>
       <textarea id="p-desc" rows="3" placeholder="Product ki tafseel"></textarea>
-      <label>Price (Rs)</label>
-      <input type="number" id="p-price" placeholder="e.g. 999">
       <label>Tag</label>
       <input type="text" id="p-tag" placeholder="e.g. Premium">
+      <label>Price (Rs)</label>
+      <input type="number" id="p-price" placeholder="e.g. 999">
+      <label>Download Link <span style="font-weight:normal;color:#6b7280">(free products ke liye)</span></label>
+      <input type="text" id="p-file" placeholder="e.g. https://drive.google.com/... ya file ka link">
+      <label class="check-label"><input type="checkbox" id="p-free" style="width:auto"> Free product — price nahi lagega</label>
       <button class="btn teal" id="add-product-btn">Add Product</button>
       <p id="add-msg" style="color:#15803d;margin-top:10px"></p>
     </div>
 
     <div class="admin-card">
-      <h2>Add Free Product</h2>
-      <p style="color:#6b7280;margin-bottom:12px">Free Store mein post hoga — guest bina account ke download kar sakega.</p>
-      <label>Title</label>
-      <input type="text" id="f-title" placeholder="e.g. Free CSS Navbar Code">
-      <label>Description</label>
-      <textarea id="f-desc" rows="3" placeholder="Free product ki tafseel"></textarea>
-      <label>Tag</label>
-      <input type="text" id="f-tag" placeholder="e.g. CSS">
-      <label>Download Link</label>
-      <input type="text" id="f-file" placeholder="e.g. https://drive.google.com/... ya file ka link">
-      <label>Details Page Link (optional)</label>
-      <input type="text" id="f-page" placeholder="e.g. posts/my-free-code.html">
-      <button class="btn teal" id="add-free-btn">Add Free Product</button>
-      <p id="f-msg" style="color:#15803d;margin-top:10px"></p>
-    </div>
-
-    <div class="admin-card">
       <h2>Free Products</h2>
       <table class="admin-table">
-        <thead><tr><th>Title</th><th>Tag</th><th></th></tr></thead>
-        <tbody id="free-products-body"><tr><td colspan="3">Loading…</td></tr></tbody>
+        <thead><tr><th>Title</th><th>Tag</th><th>Downloads</th><th></th></tr></thead>
+        <tbody id="free-products-body"><tr><td colspan="4">Loading…</td></tr></tbody>
       </table>
     </div>
 
     <div class="admin-card">
       <h2>Paid Products</h2>
       <table class="admin-table">
-        <thead><tr><th>Title</th><th>Price</th><th>Tag</th><th></th></tr></thead>
+        <thead><tr><th>Title</th><th>Price</th><th>Sold</th><th></th></tr></thead>
         <tbody id="products-body"><tr><td colspan="4">Loading…</td></tr></tbody>
       </table>
     </div>
@@ -127,11 +128,12 @@ const firebaseConfig = {
 };
 const FIREBASE_READY = firebaseConfig.apiKey !== "TODO";
 
-let db = null, auth = null;
+let db = null, auth = null, storage = null;
 if (FIREBASE_READY) {
   firebase.initializeApp(firebaseConfig);
   db = firebase.firestore();
   auth = firebase.auth();
+  storage = firebase.storage();
 } else {
   document.getElementById('setup-notice').style.display = 'block';
 }
@@ -171,12 +173,36 @@ if (FIREBASE_READY) {
       loadOrders();
       loadProducts();
       loadFreeProducts();
+      loadStats();
     } else {
       loginCard.style.display = 'block';
       dashboard.style.display = 'none';
       document.getElementById('not-admin').style.display = 'none';
     }
   });
+}
+
+// ---- Stats: total sales, pending, paid, products, downloads ----
+async function loadStats() {
+  try {
+    const ordersSnap = await db.collection('orders').get();
+    let sales = 0, pending = 0, paid = 0;
+    ordersSnap.forEach(doc => {
+      const o = doc.data();
+      if (o.status === 'pending') pending++;
+      if (o.status === 'paid' || o.status === 'delivered') { paid++; sales += Number(o.total || 0); }
+    });
+    const paidSnap = await db.collection('products').get();
+    const freeSnap = await db.collection('free_products').get();
+    let downloads = 0;
+    paidSnap.forEach(doc => { downloads += Number(doc.data().downloads || 0); });
+    freeSnap.forEach(doc => { downloads += Number(doc.data().downloads || 0); });
+    document.getElementById('stat-sales').textContent = 'Rs ' + sales.toLocaleString('en-PK');
+    document.getElementById('stat-pending').textContent = pending;
+    document.getElementById('stat-paid').textContent = paid;
+    document.getElementById('stat-products').textContent = paidSnap.size + freeSnap.size;
+    document.getElementById('stat-downloads').textContent = downloads;
+  } catch (e) { /* stats load silently fails if rules/data are missing */ }
 }
 
 async function loadOrders() {
@@ -206,80 +232,115 @@ async function loadProducts() {
     snap.forEach(doc => {
       const p = doc.data();
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (p.title || '') + '</td><td>Rs ' + (p.price || '') + '</td><td>' + (p.tag || '') + '</td>' +
+      tr.innerHTML = '<td>' + (p.title || '') + '</td><td>Rs ' + (p.price || '') + '</td><td>' + (p.sales || 0) + '</td>' +
         '<td><button class="btn small" onclick="deleteProduct(\'' + doc.id + '\')">Delete</button></td>';
       body.appendChild(tr);
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
 }
 
+async function loadFreeProducts() {
+  const body = document.getElementById('free-products-body');
+  try {
+    const snap = await db.collection('free_products').orderBy('createdAt', 'desc').get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="4">Abhi koi free product nahi hai. Upar se add karein.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const p = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (p.title || '') + '</td><td>' + (p.tag || '') + '</td><td>' + (p.downloads || 0) + '</td>' +
+        '<td><button class="btn small" onclick="deleteFreeProduct(\'' + doc.id + '\')">Delete</button></td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
+}
+
 async function setStatus(id, status) {
-  await db.collection('orders').doc(id).update({ status });
+  const ref = db.collection('orders').doc(id);
+  const snap = await ref.get();
+  const o = snap.data();
+  await ref.update({ status });
+  // Paid karte hi har product ki sale count barha dein
+  if (status === 'paid' && o && o.items) {
+    for (const it of o.items) {
+      if (it.id) {
+        await db.collection('products').doc(it.id).update({ sales: firebase.firestore.FieldValue.increment(it.qty || 1) }).catch(() => {});
+      }
+    }
+  }
   loadOrders();
+  loadStats();
+  loadProducts();
 }
 async function deleteProduct(id) {
   if (!confirm('Ye product delete kar dein?')) return;
   await db.collection('products').doc(id).delete();
   loadProducts();
-}
-
-async function loadFreeProducts() {
-  const body = document.getElementById('free-products-body');
-  try {
-    const snap = await db.collection('free_products').orderBy('createdAt', 'desc').get();
-    if (snap.empty) { body.innerHTML = '<tr><td colspan="3">Abhi koi free product nahi hai. Upar se add karein.</td></tr>'; return; }
-    body.innerHTML = '';
-    snap.forEach(doc => {
-      const p = doc.data();
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (p.title || '') + '</td><td>' + (p.tag || '') + '</td>' +
-        '<td><button class="btn small" onclick="deleteFreeProduct(\'' + doc.id + '\')">Delete</button></td>';
-      body.appendChild(tr);
-    });
-  } catch (e) { body.innerHTML = '<tr><td colspan="3">Error: ' + e.message + '</td></tr>'; }
+  loadStats();
 }
 async function deleteFreeProduct(id) {
   if (!confirm('Ye free product delete kar dein?')) return;
   await db.collection('free_products').doc(id).delete();
   loadFreeProducts();
+  loadStats();
 }
 
-document.getElementById('add-free-btn').addEventListener('click', async () => {
-  const msg = document.getElementById('f-msg');
-  msg.textContent = '';
-  if (!FIREBASE_READY) { msg.textContent = 'Firebase setup pending hai.'; return; }
-  const title = document.getElementById('f-title').value.trim();
-  const desc = document.getElementById('f-desc').value.trim();
-  const tag = document.getElementById('f-tag').value.trim() || 'Free';
-  const file = document.getElementById('f-file').value.trim();
-  const page = document.getElementById('f-page').value.trim();
-  if (!title || !file) { msg.textContent = 'Title aur Download Link zaroori hain.'; return; }
-  await db.collection('free_products').add({ title, desc, tag, file, page, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-  msg.textContent = 'Free product add ho gaya — Free Store pe dikhne lagega!';
-  document.getElementById('f-title').value = '';
-  document.getElementById('f-desc').value = '';
-  document.getElementById('f-tag').value = '';
-  document.getElementById('f-file').value = '';
-  document.getElementById('f-page').value = '';
-  loadFreeProducts();
+// Free toggle: on karte hi price disable ho jata hai
+document.getElementById('p-free').addEventListener('change', e => {
+  document.getElementById('p-price').disabled = e.target.checked;
+  if (e.target.checked) document.getElementById('p-price').value = '';
 });
 
+// ---- Add Product (free ya paid — free toggle se decide hota hai) ----
 document.getElementById('add-product-btn').addEventListener('click', async () => {
   const msg = document.getElementById('add-msg');
   msg.textContent = '';
   if (!FIREBASE_READY) { msg.textContent = 'Firebase setup pending hai.'; return; }
   const title = document.getElementById('p-title').value.trim();
   const desc = document.getElementById('p-desc').value.trim();
-  const price = parseInt(document.getElementById('p-price').value, 10);
   const tag = document.getElementById('p-tag').value.trim() || 'Premium';
-  if (!title || !price) { msg.textContent = 'Title aur Price zaroori hain.'; return; }
-  await db.collection('products').add({ title, desc, price, tag, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-  msg.textContent = 'Product add ho gaya!';
+  const price = parseInt(document.getElementById('p-price').value, 10);
+  const file = document.getElementById('p-file').value.trim();
+  const isFree = document.getElementById('p-free').checked;
+  if (!title) { msg.textContent = 'Title zaroori hai.'; return; }
+  if (!isFree && !price) { msg.textContent = 'Paid product ke liye Price zaroori hai (ya Free on karein).'; return; }
+  if (isFree && !file) { msg.textContent = 'Free product ke liye Download Link zaroori hai.'; return; }
+
+  // Thumbnail: pehle file upload, warna URL
+  let thumbnail = document.getElementById('p-thumb-url').value.trim();
+  const thumbFile = document.getElementById('p-thumb-file').files[0];
+  if (thumbFile) {
+    try {
+      msg.textContent = 'Thumbnail upload ho rahi hai…';
+      const ref = storage.ref('thumbnails/' + Date.now() + '_' + thumbFile.name);
+      await ref.put(thumbFile);
+      thumbnail = await ref.getDownloadURL();
+    } catch (e) { msg.textContent = 'Thumbnail upload failed: ' + e.message; return; }
+  }
+
+  const data = { title, desc, tag, thumbnail: thumbnail || '', isFree: isFree, price: isFree ? 0 : price, downloads: 0, sales: 0, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+  if (isFree) {
+    data.file = file;
+    data.page = '';
+    await db.collection('free_products').add(data);
+    msg.textContent = 'Free product add ho gaya — Free Store pe dikhne lagega!';
+    loadFreeProducts();
+  } else {
+    data.features = [];
+    await db.collection('products').add(data);
+    msg.textContent = 'Paid product add ho gaya — Paid Store pe dikhne lagega!';
+    loadProducts();
+  }
   document.getElementById('p-title').value = '';
   document.getElementById('p-desc').value = '';
-  document.getElementById('p-price').value = '';
   document.getElementById('p-tag').value = '';
-  loadProducts();
+  document.getElementById('p-price').value = '';
+  document.getElementById('p-file').value = '';
+  document.getElementById('p-thumb-url').value = '';
+  document.getElementById('p-thumb-file').value = '';
+  document.getElementById('p-free').checked = false;
+  document.getElementById('p-price').disabled = false;
+  loadStats();
 });
 </script>
 </body>
