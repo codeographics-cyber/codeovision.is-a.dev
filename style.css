@@ -382,6 +382,9 @@ table.admin-table tr:hover td { background: rgba(255,255,255,.03); }
 .card-actions .btn { margin: 0; width: 100%; }
 .card-actions .wish-btn { grid-column: 1 / -1; }
 
+/* ---- v17: Meta line below the buttons (plain row, no pill, no overlap) ---- */
+.card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: none; border: none; border-radius: 0; padding: 0; margin: 12px 0 0; font-size: 13px; white-space: normal; }
+
 /* ---- v10: Store cards — coloured backgrounds, pretty buttons ---- */
 .free-card { background: linear-gradient(160deg, #ffffff, #ecfdf5); border-top: 4px solid #0d9488; }
 .paid-card { background: linear-gradient(160deg, #fffbeb, #fef3c7); border-top: 4px solid #e3c06a; }

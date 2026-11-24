@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Codeovision — Free Source Code &amp; Tutorials for Developers</title>
 <meta name="description" content="Codeovision is a free developer resource — free source code, tutorials and website templates for developers. Free downloads need no account. Premium templates also available.">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -435,11 +435,12 @@ function freeCard(p) {
   let links = '';
   if (p.page) links += '<a class="btn small" href="' + p.page + '">View &amp; Download</a> ';
   if (p.file) links += '<a class="btn small teal dl-link" data-col="free_products" data-id="' + (p.id || '') + '" href="' + p.file + '" download>Direct Download</a>';
-  card.innerHTML = thumb + '<span class="tag">FREE • ' + esc(p.tag || 'Free') + '</span><div class="card-head"><h3 class="view-product" data-id="' + p.id + '" style="cursor:pointer">' + esc(p.title) + '</h3><span class="card-meta"><span class="count-line">⬇ <span class="dl-count">' + (p.downloads || 0) + '</span> downloads</span><span class="meta-sep">•</span><span class="rating-line" data-rating-for="' + p.id + '">★ — (0 reviews)</span></span></div><p>' + esc(p.desc) + '</p>' +
+  card.innerHTML = thumb + '<span class="tag">FREE • ' + esc(p.tag || 'Free') + '</span><h3 class="view-product" data-id="' + p.id + '" style="cursor:pointer">' + esc(p.title) + '</h3><p>' + esc(p.desc) + '</p>' +
     '<div class="card-actions">' + links +
     '<button class="btn small review-btn" data-id="' + p.id + '" data-title="' + String(p.title).replace(/"/g, '&quot;') + '">Write a Review</button>' +
     '<button class="btn small view-details-btn" data-id="' + p.id + '">View Details</button>' +
     '<button class="btn small wish-btn" data-id="' + p.id + '">♡ Wishlist</button></div>' +
+    '<div class="card-meta"><span class="count-line">⬇ <span class="dl-count">' + (p.downloads || 0) + '</span> downloads</span><span class="meta-sep">•</span><span class="rating-line" data-rating-for="' + p.id + '">★ — (0 reviews)</span></div>' +
     '<div class="reviews-list" data-reviews-for="' + p.id + '"></div>' +
     '<div class="affil-box" data-affil-for="' + p.id + '" style="display:none">Share &amp; Earn — your affiliate link:<br><span class="affil-link"></span><br><button class="btn small copy-affil-btn" data-id="' + p.id + '" style="margin-top:6px">Copy Link</button></div>';
   return card;
@@ -453,7 +454,7 @@ function paidCard(p) {
   ALL_PRODUCTS[p.id] = p;
   const thumb = p.thumbnail ? '<img class="thumb-img view-product" src="' + p.thumbnail + '" alt="' + esc(p.title) + '" data-id="' + p.id + '">' : '';
   const bestseller = (p.sales || 0) >= 10 ? ' <span class="tag gold-tag">Bestseller</span>' : '';
-  card.innerHTML = thumb + '<span class="tag gold-tag">' + esc(p.tag || 'Premium') + '</span>' + bestseller + '<div class="card-head"><h3 class="view-product" data-id="' + p.id + '" style="cursor:pointer">' + esc(p.title) + '</h3><span class="card-meta"><span class="count-line">🛒 <span class="sold-count">' + (p.sales || 0) + '</span> sold</span><span class="meta-sep">•</span><span class="rating-line" data-rating-for="' + p.id + '">★ — (0 reviews)</span></span></div><p>' + esc(p.desc) + '</p>' +
+  card.innerHTML = thumb + '<span class="tag gold-tag">' + esc(p.tag || 'Premium') + '</span>' + bestseller + '<h3 class="view-product" data-id="' + p.id + '" style="cursor:pointer">' + esc(p.title) + '</h3><p>' + esc(p.desc) + '</p>' +
     '<ul class="feats">' + feats + '</ul>' +
     '<p class="price">$' + Number(p.price).toFixed(2) + '</p><p style="color:#6b7280;font-size:13px">≈ Rs ' + Math.round(p.price * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR</p>' +
     '<div class="card-actions">' +
@@ -462,6 +463,7 @@ function paidCard(p) {
     '<button class="btn small review-btn" data-id="' + p.id + '" data-title="' + String(p.title).replace(/"/g, '&quot;') + '">Write a Review</button>' +
     '<button class="btn small view-details-btn" data-id="' + p.id + '">View Details</button>' +
     '<button class="btn small wish-btn" data-id="' + p.id + '">♡ Wishlist</button></div>' +
+    '<div class="card-meta"><span class="count-line">🛒 <span class="sold-count">' + (p.sales || 0) + '</span> sold</span><span class="meta-sep">•</span><span class="rating-line" data-rating-for="' + p.id + '">★ — (0 reviews)</span></div>' +
     '<div class="reviews-list" data-reviews-for="' + p.id + '"></div>' +
     '<div class="affil-box" data-affil-for="' + p.id + '" style="display:none">Share &amp; Earn — your affiliate link:<br><span class="affil-link"></span><br><button class="btn small copy-affil-btn" data-id="' + p.id + '" style="margin-top:6px">Copy Link</button></div>';
   return card;
@@ -589,10 +591,11 @@ function openProduct(id) {
   const relatedHtml = related.length ? '<h3 style="margin:16px 0 8px">Related products</h3><div style="display:flex;flex-direction:column;gap:8px">' + related.map(r => '<a href="#" onclick="openProduct(\'' + r.id + '\');return false;" style="display:flex;gap:10px;align-items:center">' + (r.thumbnail ? '<img src="' + r.thumbnail + '" alt="" style="width:64px;height:40px;object-fit:cover;border-radius:6px">' : '') + '<span><strong>' + esc(r.title) + '</strong><br><span style="color:#6b7280;font-size:13px">' + (r.price ? '$' + Number(r.price).toFixed(2) : 'Free') + '</span></span></a>').join('') + '</div>' : '';
   body.innerHTML = thumb +
     '<span class="tag ' + (isFree ? '' : 'gold-tag') + '">' + esc(p.tag || (isFree ? 'Free' : 'Premium')) + '</span>' +
-    '<div class="card-head"><h2 style="margin:0;font-size:24px">' + esc(p.title) + '</h2><span class="card-meta"><span class="count-line">' + (isFree ? '⬇ ' + (p.downloads || 0) + ' downloads' : '🛒 ' + (p.sales || 0) + ' sold') + '</span><span class="meta-sep">•</span><span class="rating-line" data-rating-for="' + p.id + '">★ — (0 reviews)</span></span></div>' +
+    '<h2 style="margin:10px 0 4px;font-size:24px">' + esc(p.title) + '</h2>' +
     (isFree ? '<p class="price">FREE</p>' : '<p class="price">$' + Number(p.price).toFixed(2) + ' <span style="font-size:14px;color:#6b7280">≈ Rs ' + Math.round(p.price * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR</span></p>') +
     '<p>' + esc(p.desc) + '</p>' + details + includes + demo +
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">' + buyBtns + ' <button class="btn small wish-btn" data-id="' + p.id + '">♡ Wishlist</button></div>' +
+    '<div class="card-meta"><span class="count-line">' + (isFree ? '⬇ ' + (p.downloads || 0) + ' downloads' : '🛒 ' + (p.sales || 0) + ' sold') + '</span><span class="meta-sep">•</span><span class="rating-line" data-rating-for="' + p.id + '">★ — (0 reviews)</span></div>' +
     '<div class="affil-box" data-affil-for="' + p.id + '" style="display:block">Share &amp; Earn — your affiliate link:<br><span class="affil-link">' + (currentUser ? affiliateLink(p.id) : 'Login to get your affiliate link') + '</span><br>' + (currentUser ? '<button class="btn small copy-affil-btn" data-id="' + p.id + '" style="margin-top:6px">Copy Link</button>' : '<button class="btn small" style="margin-top:6px" onclick="closeProductModal();openAuth(\'login\')">Login to Get Your Link</button>') + '</div>' +
     '<div class="reviews-list" data-reviews-for="' + p.id + '" style="margin-top:12px"></div>' +
     '<p style="color:#6b7280;font-size:13px;margin-top:12px">Instant delivery after payment verification • Secure checkout • Refund policy applies (see below on this page).</p>' +
