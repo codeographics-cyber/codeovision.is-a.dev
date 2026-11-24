@@ -71,6 +71,29 @@
     </div>
 
     <div class="admin-card">
+      <h2>Refund Requests</h2>
+      <p style="color:#6b7280;margin-bottom:12px">Users ki refund requests yahan aati hain. Approve karte hi order ka status "refunded" ho jayega.</p>
+      <table class="admin-table">
+        <thead><tr><th>Order ID</th><th>User</th><th>Total</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+        <tbody id="refunds-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="admin-card">
+      <h2>Support Chats</h2>
+      <p style="color:#6b7280;margin-bottom:12px">Users ki live chat yahan aati hai — kisi user pe click karein, phir jawab likhein.</p>
+      <div id="support-users" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"><span style="color:#6b7280">Loading…</span></div>
+      <div id="support-convo" style="display:none">
+        <h3 id="support-who" style="margin-bottom:10px"></h3>
+        <div class="chat-box" id="admin-chat-box"></div>
+        <div class="chat-input-row">
+          <input type="text" id="admin-chat-input" placeholder="Jawab likhein…" style="margin-bottom:0">
+          <button class="btn teal" id="admin-chat-send-btn">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card">
       <h2>Add Product</h2>
       <p style="color:#6b7280;margin-bottom:12px">Free aur paid dono yahin se post hote hain. Free ka option on karein to price nahi lagega.</p>
       <label>Thumbnail Image</label>
@@ -173,6 +196,8 @@ if (FIREBASE_READY) {
       loadProducts();
       loadFreeProducts();
       loadStats();
+      loadRefunds();
+      loadSupportUsers();
     } else {
       loginCard.style.display = 'block';
       dashboard.style.display = 'none';
@@ -253,6 +278,91 @@ async function loadFreeProducts() {
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
 }
+
+// ---- Refund Requests ----
+async function loadRefunds() {
+  const body = document.getElementById('refunds-body');
+  try {
+    const snap = await db.collection('refunds').orderBy('createdAt', 'desc').limit(50).get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="6">Abhi koi refund request nahi hai.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const r = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (r.orderId || '') + '</td><td>' + (r.email || '') + '</td><td>Rs ' + (r.total || '') + '</td><td>' + (r.reason || '') + '</td>' +
+        '<td><span class="badge ' + (r.status || 'requested') + '">' + (r.status || 'requested') + '</span></td>' +
+        '<td>' + (r.status === 'requested' ? '<button class="btn small" onclick="setRefund(\'' + doc.id + '\',\'' + (r.orderDocId || '') + '\',\'approved\')">Approve</button> <button class="btn small" onclick="setRefund(\'' + doc.id + '\',\'' + (r.orderDocId || '') + '\',\'rejected\')">Reject</button>' : '') + '</td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
+}
+async function setRefund(refundId, orderDocId, status) {
+  await db.collection('refunds').doc(refundId).update({ status });
+  if (status === 'approved' && orderDocId) {
+    await db.collection('orders').doc(orderDocId).update({ status: 'refunded' }).catch(() => {});
+  }
+  loadRefunds();
+  loadOrders();
+  loadStats();
+}
+
+// ---- Support Chats ----
+let supportUnsub = null;
+let supportEmail = null;
+async function loadSupportUsers() {
+  const wrap = document.getElementById('support-users');
+  try {
+    const snap = await db.collection('support_messages').orderBy('createdAt', 'desc').limit(200).get();
+    const emails = [];
+    snap.forEach(doc => { const e = doc.data().email; if (e && !emails.includes(e)) emails.push(e); });
+    if (!emails.length) { wrap.innerHTML = '<span style="color:#6b7280">Abhi koi chat nahi hai.</span>'; return; }
+    wrap.innerHTML = '';
+    emails.forEach(e => {
+      const b = document.createElement('button');
+      b.className = 'btn small';
+      b.textContent = e;
+      b.addEventListener('click', () => openSupportConvo(e));
+      wrap.appendChild(b);
+    });
+  } catch (e) { wrap.innerHTML = '<span style="color:#dc2626">Error: ' + e.message + '</span>'; }
+}
+function openSupportConvo(email) {
+  supportEmail = email;
+  document.getElementById('support-convo').style.display = 'block';
+  document.getElementById('support-who').textContent = 'Chat with ' + email;
+  if (supportUnsub) supportUnsub();
+  const box = document.getElementById('admin-chat-box');
+  supportUnsub = db.collection('support_messages').where('email', '==', email)
+    .onSnapshot(snap => {
+      const msgs = [];
+      snap.forEach(doc => msgs.push(doc.data()));
+      msgs.sort((a, b) => {
+        const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+        const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+        return ta - tb;
+      });
+      box.innerHTML = '';
+      msgs.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'chat-msg ' + (m.sender === 'admin' ? 'from-admin' : 'from-user');
+        div.textContent = (m.sender === 'admin' ? 'Aap: ' : m.email + ': ') + m.text;
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    });
+}
+async function sendAdminChat() {
+  const input = document.getElementById('admin-chat-input');
+  const text = input.value.trim();
+  if (!text || !supportEmail) return;
+  input.value = '';
+  await db.collection('support_messages').add({
+    email: supportEmail, sender: 'admin', text: text,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+document.getElementById('admin-chat-send-btn').addEventListener('click', sendAdminChat);
+document.getElementById('admin-chat-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendAdminChat(); });
 
 async function setStatus(id, status) {
   const ref = db.collection('orders').doc(id);

@@ -20,6 +20,7 @@
       <a href="#free-store">Free Store</a>
       <a href="#paid-store">Paid Store</a>
       <a href="#how-to-buy">How to Buy</a>
+      <a href="dashboard.html" id="dashboard-link" style="display:none">My Dashboard</a>
       <a href="https://www.youtube.com/@Codeographics" target="_blank" rel="noopener">YouTube</a>
       <button class="nav-btn" id="cart-btn">Cart <span class="cart-count" id="cart-count">0</span></button>
       <button class="nav-btn" id="auth-btn">Login / Signup</button>
@@ -401,8 +402,10 @@ document.getElementById('auth-submit').addEventListener('click', async () => {
 function showCheckoutIfCart() { if (cart.length && checkoutModal.classList.contains('open')) showCheckout(); }
 function updateAuthUI() {
   const btn = document.getElementById('auth-btn');
-  if (!FIREBASE_READY) { btn.textContent = 'Login / Signup'; return; }
+  const dashLink = document.getElementById('dashboard-link');
+  if (!FIREBASE_READY) { btn.textContent = 'Login / Signup'; dashLink.style.display = 'none'; return; }
   btn.textContent = currentUser ? currentUser.email.split('@')[0] + ' (Logout)' : 'Login / Signup';
+  dashLink.style.display = currentUser ? '' : 'none';
 }
 
 // ---- Typing effect ----

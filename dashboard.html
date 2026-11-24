@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard — Codeovision</title>
+<meta name="description" content="Your Codeovision account — your orders, refunds and live support chat with the admin.">
+<link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="index.html">Code<span>ovision</span></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="index.html#free-store">Free Store</a>
+      <a href="index.html#paid-store">Paid Store</a>
+      <a href="dashboard.html" class="active">My Dashboard</a>
+      <button class="nav-btn" id="logout-btn" style="display:none">Logout</button>
+    </nav>
+  </div>
+</header>
+
+<div class="admin-wrap">
+  <!-- LOGIN (jab tak login na ho) -->
+  <div class="admin-card" id="login-card">
+    <h2>My Dashboard — Login</h2>
+    <p style="color:#6b7280;margin-bottom:16px">Apne orders, refunds aur support chat dekhne ke liye login karein. Account nahi hai? <a href="index.html">Home page</a> pe ja kar free account banayein.</p>
+    <label>Email</label>
+    <input type="email" id="dash-email" placeholder="aapki email">
+    <label>Password</label>
+    <input type="password" id="dash-pass" placeholder="Password">
+    <button class="btn teal" id="dash-login-btn">Login</button>
+    <p id="dash-error" style="color:#dc2626;margin-top:10px"></p>
+  </div>
+
+  <!-- USER DASHBOARD -->
+  <div id="user-dashboard" style="display:none">
+    <div class="admin-card">
+      <h2>My Dashboard <button class="btn small" id="dash-logout-btn" style="float:right">Logout</button></h2>
+      <p style="color:#6b7280">Logged in as <strong id="dash-who"></strong></p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box"><strong id="u-total">0</strong><span>Total Orders</span></div>
+      <div class="stat-box"><strong id="u-pending">0</strong><span>Pending Orders</span></div>
+      <div class="stat-box"><strong id="u-paid">0</strong><span>Paid / Delivered</span></div>
+      <div class="stat-box"><strong id="u-refunds">0</strong><span>Refund Requests</span></div>
+    </div>
+
+    <div class="admin-card">
+      <h2>My Orders</h2>
+      <p style="color:#6b7280;margin-bottom:12px">Aap ke saare orders yahan dikhte hain. Paid order pe refund maang sakte hain.</p>
+      <table class="admin-table">
+        <thead><tr><th>Order ID</th><th>Product</th><th>Total</th><th>Date</th><th>Status</th><th></th></tr></thead>
+        <tbody id="my-orders-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="admin-card">
+      <h2>Live Support Chat — Admin se seedha baat karein</h2>
+      <p style="color:#6b7280;margin-bottom:12px">Koi masla ho to yahan likhein — admin aap ko yahin jawab dega.</p>
+      <div class="chat-box" id="chat-box"><p style="color:#6b7280">Abhi koi message nahi hai. Neeche likh kar bhej dein.</p></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Apna message likhein…" style="margin-bottom:0">
+        <button class="btn teal" id="chat-send-btn">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap"><p>&copy; 2026 Codeovision</p></div>
+</footer>
+
+<script>
+// ---- Firebase config (project "codeovision", free Spark plan) ----
+const firebaseConfig = {
+  apiKey: "AIzaSyDHAUltHS9KFr1gw7XDdvIz0FSfPeBMV9k",
+  authDomain: "codeovision-7cd58.firebaseapp.com",
+  projectId: "codeovision-7cd58",
+  storageBucket: "codeovision-7cd58.firebasestorage.app",
+  messagingSenderId: "903637047034",
+  appId: "1:903637047034:web:80d4752ec0b4cf6607db43"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+const loginCard = document.getElementById('login-card');
+const userDash = document.getElementById('user-dashboard');
+let currentUser = null;
+let chatUnsub = null;
+
+document.getElementById('dash-login-btn').addEventListener('click', async () => {
+  const email = document.getElementById('dash-email').value.trim();
+  const pass = document.getElementById('dash-pass').value;
+  const err = document.getElementById('dash-error');
+  err.textContent = '';
+  try { await auth.signInWithEmailAndPassword(email, pass); }
+  catch (e) { err.textContent = 'Login failed: ' + e.message; }
+});
+document.getElementById('dash-logout-btn').addEventListener('click', () => auth.signOut());
+document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+
+auth.onAuthStateChanged(user => {
+  currentUser = user;
+  if (user) {
+    loginCard.style.display = 'none';
+    userDash.style.display = 'block';
+    document.getElementById('logout-btn').style.display = '';
+    document.getElementById('dash-who').textContent = user.email;
+    loadMyOrders();
+    startChat();
+  } else {
+    loginCard.style.display = 'block';
+    userDash.style.display = 'none';
+    document.getElementById('logout-btn').style.display = 'none';
+    if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+  }
+});
+
+// ---- My Orders + counts ----
+async function loadMyOrders() {
+  const body = document.getElementById('my-orders-body');
+  try {
+    const snap = await db.collection('orders').where('email', '==', currentUser.email).get();
+    const refundsSnap = await db.collection('refunds').where('email', '==', currentUser.email).get();
+    const refundedOrders = new Set();
+    refundsSnap.forEach(doc => refundedOrders.add(doc.data().orderId));
+    let total = 0, pending = 0, paid = 0;
+    const rows = [];
+    snap.forEach(doc => {
+      const o = doc.data();
+      total++;
+      if (o.status === 'pending') pending++;
+      if (o.status === 'paid' || o.status === 'delivered') paid++;
+      rows.push({ id: doc.id, o });
+    });
+    rows.sort((a, b) => {
+      const ta = a.o.createdAt && a.o.createdAt.toMillis ? a.o.createdAt.toMillis() : 0;
+      const tb = b.o.createdAt && b.o.createdAt.toMillis ? b.o.createdAt.toMillis() : 0;
+      return tb - ta;
+    });
+    document.getElementById('u-total').textContent = total;
+    document.getElementById('u-pending').textContent = pending;
+    document.getElementById('u-paid').textContent = paid;
+    document.getElementById('u-refunds').textContent = refundsSnap.size;
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="6">Abhi koi order nahi hai.</td></tr>'; return; }
+    body.innerHTML = '';
+    rows.forEach(({ id, o }) => {
+      const canRefund = (o.status === 'paid' || o.status === 'delivered') && !refundedOrders.has(o.orderId);
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (o.orderId || id) + '</td><td>' + (o.product || (o.items ? o.items.map(i => i.title + ' ×' + i.qty).join(', ') : '')) + '</td><td>Rs ' + (o.total || o.price || '') + '</td><td>' + (o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleString() : '') + '</td>' +
+        '<td><span class="badge ' + (o.status || 'pending') + '">' + (o.status || 'pending') + '</span></td>' +
+        '<td>' + (canRefund ? '<button class="btn small" onclick="requestRefund(\'' + id + '\',\'' + (o.orderId || '') + '\')">Request Refund</button>' : (refundedOrders.has(o.orderId) ? 'Refund requested' : '')) + '</td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
+}
+
+async function requestRefund(orderDocId, orderId) {
+  const reason = prompt('Refund ki wajah likhein (optional):') || '';
+  if (!confirm('Is order ke liye refund request bhej dein?')) return;
+  const snap = await db.collection('orders').doc(orderDocId).get();
+  const o = snap.data() || {};
+  await db.collection('refunds').add({
+    orderId: orderId, orderDocId: orderDocId, email: currentUser.email,
+    product: o.product || (o.items ? o.items.map(i => i.title).join(', ') : ''),
+    total: o.total || o.price || 0, reason: reason, status: 'requested',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  alert('Refund request bhej di gayi hai. Admin jald jawab dega.');
+  loadMyOrders();
+}
+
+// ---- Live Support Chat ----
+function startChat() {
+  const box = document.getElementById('chat-box');
+  chatUnsub = db.collection('support_messages').where('email', '==', currentUser.email)
+    .onSnapshot(snap => {
+      const msgs = [];
+      snap.forEach(doc => msgs.push(doc.data()));
+      msgs.sort((a, b) => {
+        const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+        const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+        return ta - tb;
+      });
+      if (!msgs.length) { box.innerHTML = '<p style="color:#6b7280">Abhi koi message nahi hai. Neeche likh kar bhej dein.</p>'; return; }
+      box.innerHTML = '';
+      msgs.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'chat-msg ' + (m.sender === 'admin' ? 'from-admin' : 'from-user');
+        div.textContent = (m.sender === 'admin' ? 'Admin: ' : 'Aap: ') + m.text;
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    });
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  await db.collection('support_messages').add({
+    email: currentUser.email, sender: 'user', text: text,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+document.getElementById('chat-send-btn').addEventListener('click', sendChat);
+document.getElementById('chat-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+</script>
+</body>
+</html>
