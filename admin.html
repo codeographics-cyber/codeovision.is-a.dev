@@ -41,6 +41,12 @@
     <input type="email" id="admin-email" placeholder="codeographics@gmail.com">
     <label>Password</label>
     <input type="password" id="admin-pass" placeholder="Admin password">
+<div class="captcha-row" style="display:flex;gap:8px;align-items:center;margin:10px 0">
+  <span id="cap-q-admin" style="font-weight:bold">? + ? = ?</span>
+  <input type="number" id="cap-a-admin" placeholder="Answer" style="width:90px;margin:0">
+  <button type="button" class="btn small" id="cap-r-admin" title="New captcha">&#8635; New</button>
+</div>
+<p id="cap-e-admin" style="color:#dc2626;font-size:14px"></p>
     <button class="btn teal" id="login-btn">Login</button>
     <p id="login-error" style="color:#dc2626;margin-top:10px"></p>
   </div>
@@ -495,11 +501,39 @@ function showSection(id) {
   if (id === 'sec-overview') { loadStats(); loadRecentOrders(); }
 }
 
+
+// security-patch-v11b: self-made number captcha — fresh every time, refresh button.
+// (Google reCAPTCHA needs a server to verify; this site is static, so a custom
+// captcha is the workable route. Firebase Auth also throttles repeated failures.)
+const __cap = {};
+function newCaptcha(id) {
+  const a = 1 + Math.floor(Math.random() * 9), b = 1 + Math.floor(Math.random() * 9);
+  __cap[id] = a + b;
+  const q = document.getElementById('cap-q-' + id);
+  if (q) q.textContent = a + ' + ' + b + ' = ?';
+  const inp = document.getElementById('cap-a-' + id); if (inp) inp.value = '';
+  const err = document.getElementById('cap-e-' + id); if (err) err.textContent = '';
+}
+function checkCaptcha(id) {
+  const inp = document.getElementById('cap-a-' + id);
+  const v = inp ? parseInt(inp.value, 10) : NaN;
+  if (v !== __cap[id]) {
+    const err = document.getElementById('cap-e-' + id);
+    if (err) err.textContent = 'Wrong answer — a new captcha has been generated, please try again.';
+    newCaptcha(id);
+    return false;
+  }
+  return true;
+}
+document.getElementById('cap-r-admin').addEventListener('click', () => newCaptcha('admin'));
+newCaptcha('admin');
+
 document.getElementById('login-btn').addEventListener('click', async () => {
   const email = document.getElementById('admin-email').value.trim();
   const pass = document.getElementById('admin-pass').value;
   const err = document.getElementById('login-error');
   err.textContent = '';
+  if (!checkCaptcha('admin')) return;
   if (!FIREBASE_READY) { err.textContent = 'Firebase setup is pending — connect the project first.'; return; }
   try {
     await auth.signInWithEmailAndPassword(email, pass);
@@ -964,11 +998,13 @@ async function sendAdminChat() {
   if (!text || !supportEmail) return;
   input.value = '';
   setAdminTyping(false);
+  const sendBtn = document.getElementById('admin-chat-send-btn'); sendBtn.disabled = true;
   await db.collection('support_messages').add({
     email: supportEmail, sender: 'admin', text: text,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
   adminChatTune('send');
+  sendBtn.disabled = false;
 }
 document.getElementById('admin-chat-send-btn').addEventListener('click', sendAdminChat);
 document.getElementById('admin-chat-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendAdminChat(); });

@@ -53,6 +53,12 @@
     <input type="email" id="dash-email" placeholder="your email">
     <label>Password</label>
     <input type="password" id="dash-pass" placeholder="Password">
+<div class="captcha-row" style="display:flex;gap:8px;align-items:center;margin:10px 0">
+  <span id="cap-q-user" style="font-weight:bold">? + ? = ?</span>
+  <input type="number" id="cap-a-user" placeholder="Answer" style="width:90px;margin:0">
+  <button type="button" class="btn small" id="cap-r-user" title="New captcha">&#8635; New</button>
+</div>
+<p id="cap-e-user" style="color:#dc2626;font-size:14px"></p>
     <button class="btn teal" id="dash-login-btn">Login</button>
     <p id="dash-error" style="color:#dc2626;margin-top:10px"></p>
   </div>
@@ -266,11 +272,39 @@ function showUSection(id) {
   if (id === 'sec-u-overview') { loadMyOrders(); loadBalance(); loadUserStats(); loadSlider(); }
 }
 
+
+// security-patch-v11b: self-made number captcha — fresh every time, refresh button.
+// (Google reCAPTCHA needs a server to verify; this site is static, so a custom
+// captcha is the workable route. Firebase Auth also throttles repeated failures.)
+const __cap = {};
+function newCaptcha(id) {
+  const a = 1 + Math.floor(Math.random() * 9), b = 1 + Math.floor(Math.random() * 9);
+  __cap[id] = a + b;
+  const q = document.getElementById('cap-q-' + id);
+  if (q) q.textContent = a + ' + ' + b + ' = ?';
+  const inp = document.getElementById('cap-a-' + id); if (inp) inp.value = '';
+  const err = document.getElementById('cap-e-' + id); if (err) err.textContent = '';
+}
+function checkCaptcha(id) {
+  const inp = document.getElementById('cap-a-' + id);
+  const v = inp ? parseInt(inp.value, 10) : NaN;
+  if (v !== __cap[id]) {
+    const err = document.getElementById('cap-e-' + id);
+    if (err) err.textContent = 'Wrong answer — a new captcha has been generated, please try again.';
+    newCaptcha(id);
+    return false;
+  }
+  return true;
+}
+document.getElementById('cap-r-user').addEventListener('click', () => newCaptcha('user'));
+newCaptcha('user');
+
 document.getElementById('dash-login-btn').addEventListener('click', async () => {
   const email = document.getElementById('dash-email').value.trim();
   const pass = document.getElementById('dash-pass').value;
   const err = document.getElementById('dash-error');
   err.textContent = '';
+  if (!checkCaptcha('user')) return;
   try { await auth.signInWithEmailAndPassword(email, pass); }
   catch (e) { err.textContent = 'Login failed: ' + e.message; }
 });
@@ -412,6 +446,7 @@ document.getElementById('dep-submit-btn').addEventListener('click', async () => 
   if (!gateway) { msg.textContent = 'Select a gateway.'; msg.style.color = '#dc2626'; return; }
   if (!amount || amount <= 0) { msg.textContent = 'Enter a valid amount.'; msg.style.color = '#dc2626'; return; }
   if (!txid) { msg.textContent = 'Enter the TxID.'; msg.style.color = '#dc2626'; return; }
+  const depBtn = document.getElementById('dep-submit-btn'); if (depBtn.disabled) return; depBtn.disabled = true;
   await db.collection('deposits').add({
     email: currentUser.email, gateway: gateway, amount: amount, txid: txid, status: 'pending',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -424,6 +459,7 @@ document.getElementById('dep-submit-btn').addEventListener('click', async () => 
   document.getElementById('dep-whatsapp').style.display = 'block';
   document.getElementById('dep-amount').value = '';
   document.getElementById('dep-txid').value = '';
+  depBtn.disabled = false;
   loadMyDeposits();
 });
 async function loadMyDeposits() {
@@ -458,6 +494,7 @@ document.getElementById('wd-submit-btn').addEventListener('click', async () => {
   if (!amount || amount <= 0) { msg.textContent = 'Enter a valid amount.'; msg.style.color = '#dc2626'; return; }
   if (amount > myBalance) { msg.textContent = 'Amount is more than your balance ($" + myBalance + ").'; msg.style.color = '#dc2626'; return; }
   if (!account) { msg.textContent = 'Enter the account number.'; msg.style.color = '#dc2626'; return; }
+  const wdBtn = document.getElementById('wd-submit-btn'); if (wdBtn.disabled) return; wdBtn.disabled = true;
   await db.collection('withdrawals').add({
     email: currentUser.email, gateway: gateway, amount: amount, account: account, status: 'pending',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -466,6 +503,7 @@ document.getElementById('wd-submit-btn').addEventListener('click', async () => {
   msg.style.color = '#15803d';
   document.getElementById('wd-amount').value = '';
   document.getElementById('wd-account').value = '';
+  wdBtn.disabled = false;
   loadMyWithdrawals();
 });
 async function loadMyWithdrawals() {
@@ -721,11 +759,13 @@ async function sendChat() {
   if (!text) return;
   input.value = '';
   setUserTyping(false);
+  const chatBtn = document.getElementById('chat-send-btn'); chatBtn.disabled = true;
   await db.collection('support_messages').add({
     email: currentUser.email, sender: 'user', text: text,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
   chatTune('send');
+  chatBtn.disabled = false;
 }
 document.getElementById('chat-send-btn').addEventListener('click', sendChat);
 document.getElementById('chat-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });

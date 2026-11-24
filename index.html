@@ -224,6 +224,12 @@
     <input type="email" id="auth-email" class="fld" placeholder="you@example.com">
     <label class="fld-label">Password</label>
     <input type="password" id="auth-pass" class="fld" placeholder="Password (min 6 characters)">
+<div class="captcha-row" style="display:flex;gap:8px;align-items:center;margin:10px 0">
+  <span id="cap-q-auth" style="font-weight:bold">? + ? = ?</span>
+  <input type="number" id="cap-a-auth" placeholder="Answer" style="width:90px;margin:0">
+  <button type="button" class="btn small" id="cap-r-auth" title="New captcha">&#8635; New</button>
+</div>
+<p id="cap-e-auth" style="color:#dc2626;font-size:14px"></p>
     <button class="btn" id="auth-submit" style="width:100%">Login</button>
     <p id="auth-error" style="color:#dc2626;margin-top:10px;font-size:14px"></p>
     <p id="auth-msg" style="color:#15803d;margin-top:10px;font-size:14px"></p>
@@ -284,7 +290,7 @@ function freeCard(p) {
   let links = '';
   if (p.page) links += '<a class="btn small" href="' + p.page + '">View &amp; Download</a> ';
   if (p.file) links += '<a class="btn small teal dl-link" data-col="free_products" data-id="' + (p.id || '') + '" href="' + p.file + '" download>Direct Download</a>';
-  card.innerHTML = thumb + '<span class="tag">FREE • ' + (p.tag || 'Free') + '</span><h3>' + p.title + '</h3><p>' + p.desc + '</p>' + links +
+  card.innerHTML = thumb + '<span class="tag">FREE • ' + esc(p.tag || 'Free') + '</span><h3>' + esc(p.title) + '</h3><p>' + esc(p.desc) + '</p>' + links +
     '<p class="count-line">⬇ <span class="dl-count">' + (p.downloads || 0) + '</span> downloads</p>' +
     '<p class="rating-line" data-rating-for="' + p.id + '">★ — (0 reviews)</p>' +
     '<div class="reviews-list" data-reviews-for="' + p.id + '"></div>' +
@@ -298,7 +304,7 @@ function paidCard(p) {
   const card = document.createElement('article');
   card.className = 'card paid-card reveal visible';
   const thumb = p.thumbnail ? '<img class="thumb-img" src="' + p.thumbnail + '" alt="">' : '';
-  card.innerHTML = thumb + '<span class="tag gold-tag">' + (p.tag || 'Premium') + '</span><h3>' + p.title + '</h3><p>' + p.desc + '</p>' +
+  card.innerHTML = thumb + '<span class="tag gold-tag">' + esc(p.tag || 'Premium') + '</span><h3>' + esc(p.title) + '</h3><p>' + esc(p.desc) + '</p>' +
     '<ul class="feats">' + feats + '</ul>' +
     '<p class="price">$' + Number(p.price).toFixed(2) + '</p><p style="color:#6b7280;font-size:13px">≈ Rs ' + Math.round(p.price * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR</p>' +
     '<button class="btn small add-cart-btn" data-id="' + p.id + '">Add to Cart</button> ' +
@@ -352,7 +358,7 @@ async function loadAllRatings() {
       const list = document.querySelector('.reviews-list[data-reviews-for="' + pid + '"]');
       if (list) {
         list.innerHTML = rows.slice(0, 2).map(r =>
-          '<div class="review-item"><span class="r-stars">' + starsText(Number(r.rating || 0)) + '</span> <strong>' + (r.email || '').split('@')[0] + '</strong><br>' + (r.text || '') + '</div>'
+          '<div class="review-item"><span class="r-stars">' + starsText(Number(r.rating || 0)) + '</span> <strong>' + esc((r.email || '').split('@')[0]) + '</strong><br>' + esc(r.text || '') + '</div>'
         ).join('');
       }
     } catch (e) { /* rating load fail hua to card phir bhi dikhta hai */ }
@@ -394,6 +400,7 @@ document.getElementById('review-submit').addEventListener('click', async () => {
   const err = document.getElementById('review-error');
   const text = document.getElementById('review-text').value.trim();
   if (!text) { err.textContent = 'Please write your review.'; return; }
+  const revBtn = document.getElementById('review-submit'); if (revBtn.disabled) return; revBtn.disabled = true;
   try {
     await db.collection('reviews').add({
       productId: reviewProductId, productTitle: reviewProductTitle,
@@ -404,6 +411,7 @@ document.getElementById('review-submit').addEventListener('click', async () => {
     toast('Thank you! Your review has been saved.');
     loadAllRatings();
   } catch (e) { err.textContent = e.message; }
+  revBtn.disabled = false;
 });
 
 // ---- Affiliate links (har product ka apna link) ----
@@ -528,11 +536,17 @@ function showCheckout() {
   checkoutModal.setAttribute('aria-hidden', 'false');
 }
 
+// security-patch-v11b: escape user text before innerHTML (stored-XSS fix)
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
 function recordOrder() {
   const orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
   if (!FIREBASE_READY || !currentUser) return orderId;
   const items = cart.map(i => { const p = PAID_PRODUCTS.find(x => x.id === i.id); return { id: i.id, title: p.title, price: p.price, qty: i.qty }; });
   const total = cartTotal();
+  const cartKey = JSON.stringify(cart);
+  if (window.__lastOrderCart === cartKey && window.__lastOrderId) return window.__lastOrderId;
+  window.__lastOrderCart = cartKey; window.__lastOrderId = orderId;
   // Order seedha database mein jata hai — admin ko foran dikhta hai. Agar save na ho to user ko foran batayein.
   db.collection('orders').add({ orderId: orderId, email: currentUser.email, items: items, total: total, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() })
     .then(async () => { await recordCommission(orderId, items, total); sendAdminEmail('order', { orderId: orderId, email: currentUser.email, items: items.map(i => i.title + ' ×' + i.qty).join(', '), total: total }); })
@@ -614,6 +628,33 @@ document.getElementById('tab-login').addEventListener('click', () => setAuthMode
 document.getElementById('tab-signup').addEventListener('click', () => setAuthMode('signup'));
 document.getElementById('auth-close').addEventListener('click', closeAuth);
 authModal.addEventListener('click', e => { if (e.target === authModal) closeAuth(); });
+
+// security-patch-v11b: self-made number captcha — fresh every time, refresh button.
+// (Google reCAPTCHA needs a server to verify; this site is static, so a custom
+// captcha is the workable route. Firebase Auth also throttles repeated failures.)
+const __cap = {};
+function newCaptcha(id) {
+  const a = 1 + Math.floor(Math.random() * 9), b = 1 + Math.floor(Math.random() * 9);
+  __cap[id] = a + b;
+  const q = document.getElementById('cap-q-' + id);
+  if (q) q.textContent = a + ' + ' + b + ' = ?';
+  const inp = document.getElementById('cap-a-' + id); if (inp) inp.value = '';
+  const err = document.getElementById('cap-e-' + id); if (err) err.textContent = '';
+}
+function checkCaptcha(id) {
+  const inp = document.getElementById('cap-a-' + id);
+  const v = inp ? parseInt(inp.value, 10) : NaN;
+  if (v !== __cap[id]) {
+    const err = document.getElementById('cap-e-' + id);
+    if (err) err.textContent = 'Wrong answer — a new captcha has been generated, please try again.';
+    newCaptcha(id);
+    return false;
+  }
+  return true;
+}
+document.getElementById('cap-r-auth').addEventListener('click', () => newCaptcha('auth'));
+newCaptcha('auth');
+
 document.getElementById('auth-submit').addEventListener('click', async () => {
   const email = document.getElementById('auth-email').value.trim();
   const pass = document.getElementById('auth-pass').value;
@@ -622,6 +663,7 @@ document.getElementById('auth-submit').addEventListener('click', async () => {
   err.textContent = ''; msg.textContent = '';
   if (!FIREBASE_READY) { err.textContent = 'Auth setup is pending — login will turn on once Firebase is connected.'; return; }
   if (!email || pass.length < 6) { err.textContent = 'Enter a valid email and a password of at least 6 characters.'; return; }
+  if (!checkCaptcha('auth')) return;
   try {
     if (authMode === 'login') await auth.signInWithEmailAndPassword(email, pass);
     else {
