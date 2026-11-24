@@ -27,6 +27,11 @@
     Firebase project banne ke baad is page mein config lagayenge — phir login aur products/orders yahin se manage honge.
   </div>
 
+  <div class="notice" id="not-admin" style="display:none">
+    <strong>Access denied:</strong> <span id="not-admin-who"></span> admin nahi hai. Sirf admin list mein shamil email se admin panel khulta hai.
+    <br><button class="btn small" onclick="location.reload()" style="margin-top:10px">Wapas Login Karein</button>
+  </div>
+
   <!-- LOGIN -->
   <div class="admin-card" id="login-card">
     <h2>Admin Login</h2>
@@ -67,6 +72,31 @@
       <input type="text" id="p-tag" placeholder="e.g. Premium">
       <button class="btn teal" id="add-product-btn">Add Product</button>
       <p id="add-msg" style="color:#15803d;margin-top:10px"></p>
+    </div>
+
+    <div class="admin-card">
+      <h2>Add Free Product</h2>
+      <p style="color:#6b7280;margin-bottom:12px">Free Store mein post hoga — guest bina account ke download kar sakega.</p>
+      <label>Title</label>
+      <input type="text" id="f-title" placeholder="e.g. Free CSS Navbar Code">
+      <label>Description</label>
+      <textarea id="f-desc" rows="3" placeholder="Free product ki tafseel"></textarea>
+      <label>Tag</label>
+      <input type="text" id="f-tag" placeholder="e.g. CSS">
+      <label>Download Link</label>
+      <input type="text" id="f-file" placeholder="e.g. https://drive.google.com/... ya file ka link">
+      <label>Details Page Link (optional)</label>
+      <input type="text" id="f-page" placeholder="e.g. posts/my-free-code.html">
+      <button class="btn teal" id="add-free-btn">Add Free Product</button>
+      <p id="f-msg" style="color:#15803d;margin-top:10px"></p>
+    </div>
+
+    <div class="admin-card">
+      <h2>Free Products</h2>
+      <table class="admin-table">
+        <thead><tr><th>Title</th><th>Tag</th><th></th></tr></thead>
+        <tbody id="free-products-body"><tr><td colspan="3">Loading…</td></tr></tbody>
+      </table>
     </div>
 
     <div class="admin-card">
@@ -123,16 +153,28 @@ document.getElementById('login-btn').addEventListener('click', async () => {
 document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
 
 if (FIREBASE_READY) {
-  auth.onAuthStateChanged(user => {
+  auth.onAuthStateChanged(async user => {
     if (user) {
+      // Only listed admins can see the dashboard
+      const adminDoc = await db.collection('admins').doc(user.email).get().catch(() => null);
+      if (!adminDoc || !adminDoc.exists) {
+        loginCard.style.display = 'none';
+        dashboard.style.display = 'none';
+        document.getElementById('not-admin').style.display = 'block';
+        document.getElementById('not-admin-who').textContent = user.email;
+        return;
+      }
+      document.getElementById('not-admin').style.display = 'none';
       loginCard.style.display = 'none';
       dashboard.style.display = 'block';
       document.getElementById('admin-who').textContent = user.email;
       loadOrders();
       loadProducts();
+      loadFreeProducts();
     } else {
       loginCard.style.display = 'block';
       dashboard.style.display = 'none';
+      document.getElementById('not-admin').style.display = 'none';
     }
   });
 }
@@ -146,9 +188,10 @@ async function loadOrders() {
     snap.forEach(doc => {
       const o = doc.data();
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (o.orderId || doc.id) + '</td><td>' + (o.product || '') + '</td><td>Rs ' + (o.price || '') + '</td><td>' + (o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleString() : '') + '</td>' +
+      tr.innerHTML = '<td>' + (o.orderId || doc.id) + '</td><td>' + (o.product || (o.items ? o.items.map(i => i.title + ' ×' + i.qty).join(', ') : '')) + '</td><td>Rs ' + (o.total || o.price || '') + '</td><td>' + (o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleString() : '') + '</td>' +
         '<td><span class="badge ' + (o.status || 'pending') + '">' + (o.status || 'pending') + '</span></td>' +
-        '<td>' + (o.status !== 'delivered' ? '<button class="btn small" onclick="setStatus(\'' + doc.id + '\',\'delivered\')">Mark Delivered</button>' : '') + '</td>';
+        '<td>' + (o.status === 'pending' ? '<button class="btn small" onclick="setStatus(\'' + doc.id + '\',\'paid\')">Mark Paid</button> ' : '') +
+        (o.status !== 'delivered' ? '<button class="btn small" onclick="setStatus(\'' + doc.id + '\',\'delivered\')">Mark Delivered</button>' : '') + '</td>';
       body.appendChild(tr);
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
@@ -179,6 +222,47 @@ async function deleteProduct(id) {
   await db.collection('products').doc(id).delete();
   loadProducts();
 }
+
+async function loadFreeProducts() {
+  const body = document.getElementById('free-products-body');
+  try {
+    const snap = await db.collection('free_products').orderBy('createdAt', 'desc').get();
+    if (snap.empty) { body.innerHTML = '<tr><td colspan="3">Abhi koi free product nahi hai. Upar se add karein.</td></tr>'; return; }
+    body.innerHTML = '';
+    snap.forEach(doc => {
+      const p = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + (p.title || '') + '</td><td>' + (p.tag || '') + '</td>' +
+        '<td><button class="btn small" onclick="deleteFreeProduct(\'' + doc.id + '\')">Delete</button></td>';
+      body.appendChild(tr);
+    });
+  } catch (e) { body.innerHTML = '<tr><td colspan="3">Error: ' + e.message + '</td></tr>'; }
+}
+async function deleteFreeProduct(id) {
+  if (!confirm('Ye free product delete kar dein?')) return;
+  await db.collection('free_products').doc(id).delete();
+  loadFreeProducts();
+}
+
+document.getElementById('add-free-btn').addEventListener('click', async () => {
+  const msg = document.getElementById('f-msg');
+  msg.textContent = '';
+  if (!FIREBASE_READY) { msg.textContent = 'Firebase setup pending hai.'; return; }
+  const title = document.getElementById('f-title').value.trim();
+  const desc = document.getElementById('f-desc').value.trim();
+  const tag = document.getElementById('f-tag').value.trim() || 'Free';
+  const file = document.getElementById('f-file').value.trim();
+  const page = document.getElementById('f-page').value.trim();
+  if (!title || !file) { msg.textContent = 'Title aur Download Link zaroori hain.'; return; }
+  await db.collection('free_products').add({ title, desc, tag, file, page, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+  msg.textContent = 'Free product add ho gaya — Free Store pe dikhne lagega!';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-tag').value = '';
+  document.getElementById('f-file').value = '';
+  document.getElementById('f-page').value = '';
+  loadFreeProducts();
+});
 
 document.getElementById('add-product-btn').addEventListener('click', async () => {
   const msg = document.getElementById('add-msg');
