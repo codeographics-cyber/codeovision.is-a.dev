@@ -9,6 +9,27 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+/* v11: slider, tasks, level badge (inline — style.css is shared with the front site) */
+.dash-slider { position: relative; border-radius: 14px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.35); min-height: 120px; background: #312e81; }
+.dash-slide { display: none; }
+.dash-slide.active { display: block; animation: slideFade .6s ease; }
+@keyframes slideFade { from { opacity: 0; } to { opacity: 1; } }
+.dash-slide img { width: 100%; max-height: 260px; object-fit: cover; display: block; }
+.dash-slide-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 18px; background: linear-gradient(transparent, rgba(0,0,0,.7)); color: #fff; font-size: 17px; font-weight: bold; }
+.dash-dots { position: absolute; right: 14px; top: 12px; display: flex; gap: 6px; }
+.dash-dots span { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.5); cursor: pointer; }
+.dash-dots span.on { background: #e3c06a; }
+.level-badge { display: inline-block; background: linear-gradient(135deg, #e3c06a, #b8934a); color: #0b1220; font-weight: bold; padding: 4px 14px; border-radius: 20px; font-size: 14px; }
+.task-row { border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: 16px; margin-bottom: 12px; background: #312e81; }
+.task-row h3 { color: #fff; font-size: 17px; margin-bottom: 4px; }
+.task-row p { color: #c7d2fe; font-size: 14px; margin-bottom: 10px; }
+.task-bar { height: 10px; background: #1e1b4b; border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+.task-fill { height: 100%; background: linear-gradient(90deg, #22c55e, #4ade80); border-radius: 5px; transition: width .5s ease; }
+.task-done { color: #4ade80; font-weight: bold; font-size: 14px; }
+.task-left { color: #fbbf24; font-size: 14px; }
+.pkr-note { color: #0d9488; font-weight: bold; font-size: 15px; margin-top: 6px; }
+</style>
 </head>
 <body>
 <header class="site-header">
@@ -48,6 +69,7 @@
         <button data-section="sec-u-deposit">Deposit</button>
         <button data-section="sec-u-withdraw">Withdraw</button>
         <button data-section="sec-u-referrals">My Referrals</button>
+        <button data-section="sec-u-tasks">My Tasks</button>
         <button data-section="sec-u-chat">Support Chat</button>
         <button id="user-sidebar-logout">Logout</button>
       </aside>
@@ -55,14 +77,24 @@
       <main class="admin-main">
         <p style="color:#6b7280;margin-bottom:14px">Logged in as <strong id="dash-who"></strong></p>
 
+        <!-- SLIDER (admin promotions) -->
+        <div class="dash-slider" id="dash-slider" style="display:none">
+          <div id="dash-slides"></div>
+          <div class="dash-dots" id="dash-dots"></div>
+        </div>
+
         <!-- OVERVIEW -->
         <section id="sec-u-overview" class="admin-section">
           <h2>Dashboard</h2>
           <div class="stats-grid">
-            <div class="stat-box"><strong id="u-balance">Rs 0</strong><span>My Balance</span></div>
+            <div class="stat-box"><strong id="u-balance">$0.00</strong><span>My Balance</span></div>
             <div class="stat-box"><strong id="u-total">0</strong><span>Total Orders</span></div>
             <div class="stat-box"><strong id="u-pending">0</strong><span>Pending Orders</span></div>
             <div class="stat-box"><strong id="u-paid">0</strong><span>Paid / Delivered</span></div>
+            <div class="stat-box"><strong id="u-referrals">0</strong><span>Total Referrals</span></div>
+            <div class="stat-box"><strong id="u-commission">$0.00</strong><span>Total Commission</span></div>
+            <div class="stat-box"><strong id="u-sales">0</strong><span>My Sales</span></div>
+            <div class="stat-box"><strong><span class="level-badge" id="u-level">New User</span></strong><span>My Level</span></div>
           </div>
           <div class="admin-card">
             <h2>Quick Actions</h2>
@@ -93,13 +125,15 @@
             <label>Select Gateway</label>
             <select id="dep-gateway"><option value="">— Select —</option></select>
             <label>Amount (Rs)</label>
-            <input type="number" id="dep-amount" placeholder="e.g. 1000">
+            <input type="number" id="dep-amount" placeholder="e.g. 10">
+            <p class="pkr-note" id="dep-pkr"></p>
             <label>Transaction ID (TxID)</label>
             <input type="text" id="dep-txid" placeholder="Payment TxID / reference number">
             <button class="btn teal" id="dep-submit-btn">Submit Deposit Request</button>
             <p id="dep-msg" style="margin-top:10px"></p>
             <div id="dep-whatsapp" style="display:none;margin-top:14px;padding:14px;border:1px solid #0d9488;border-radius:10px;background:#f0fdfa">
               <strong>Request submitted!</strong>
+              <p style="margin:8px 0"><strong>⚠️ Please also send this message on WhatsApp — it is required for fast approval.</strong></p>
               <p style="margin:8px 0">For fast approval, send your payment screenshot to this WhatsApp number:</p>
               <p style="font-size:18px;margin:8px 0"><strong>+92 303 7102625</strong></p>
               <a class="btn teal" id="dep-wa-btn" href="https://wa.me/923037102625" target="_blank" rel="noopener">Send Screenshot on WhatsApp</a>
@@ -118,11 +152,12 @@
         <section id="sec-u-withdraw" class="admin-section" style="display:none">
           <h2>Withdraw</h2>
           <div class="admin-card">
-            <p style="color:#6b7280;margin-bottom:12px">Your balance: <strong id="wd-balance">Rs 0</strong></p>
+            <p style="color:#6b7280;margin-bottom:12px">Your balance: <strong id="wd-balance">$0</strong></p>
             <label>Select Gateway</label>
             <select id="wd-gateway"><option value="">— Select —</option></select>
             <label>Amount (Rs)</label>
-            <input type="number" id="wd-amount" placeholder="e.g. 500">
+            <input type="number" id="wd-amount" placeholder="e.g. 5">
+            <p class="pkr-note" id="wd-pkr"></p>
             <label>Account Number (where you want the money)</label>
             <input type="text" id="wd-account" placeholder="e.g. 0300-1234567">
             <button class="btn teal" id="wd-submit-btn">Submit Withdraw Request</button>
@@ -142,7 +177,7 @@
           <h2>My Referrals — Affiliate Marketing</h2>
           <div class="admin-card">
             <p style="color:#6b7280;margin-bottom:12px">Every product has its own affiliate link — share your link, and when someone buys through it, the admin-set commission goes to your balance.</p>
-            <p style="margin-bottom:12px">Total Earned: <strong id="ref-earned">Rs 0</strong></p>
+            <p style="margin-bottom:12px">Total Earned: <strong id="ref-earned">$0</strong></p>
             <div id="my-ref-links"><span style="color:#6b7280">Loading…</span></div>
           </div>
           <div class="admin-card">
@@ -154,12 +189,20 @@
           </div>
         </section>
 
+        <!-- MY TASKS -->
+        <section id="sec-u-tasks" class="admin-section" style="display:none">
+          <h2>My Tasks</h2>
+          <p style="color:#6b7280;margin-bottom:14px">Complete tasks and earn rewards on top of your commission. Your progress is shown for every task.</p>
+          <div id="u-tasks-list"><p>Loading tasks…</p></div>
+        </section>
+
         <!-- SUPPORT CHAT -->
         <section id="sec-u-chat" class="admin-section" style="display:none">
           <h2>Live Support Chat — Talk Directly to the Admin</h2>
           <div class="admin-card">
             <p style="color:#6b7280;margin-bottom:12px">If you have any issue, write here — the admin will reply to you right here.</p>
             <div class="chat-box" id="chat-box"><p style="color:#6b7280">No messages yet. Write below and send.</p></div>
+            <div id="chat-typing" style="color:#6b7280;font-style:italic;font-size:14px;min-height:20px;margin-bottom:6px"></div>
             <div class="chat-input-row">
               <input type="text" id="chat-input" placeholder="Write your message…" style="margin-bottom:0">
               <button class="btn teal" id="chat-send-btn">Send</button>
@@ -219,7 +262,8 @@ function showUSection(id) {
   if (id === 'sec-u-deposit') { loadGateways(); loadMyDeposits(); }
   if (id === 'sec-u-withdraw') { loadGateways(); loadMyWithdrawals(); loadBalance(); }
   if (id === 'sec-u-referrals') { loadMyRefLinks(); loadMyCommissions(); }
-  if (id === 'sec-u-overview') { loadMyOrders(); loadBalance(); }
+  if (id === 'sec-u-tasks') loadMyTasks();
+  if (id === 'sec-u-overview') { loadMyOrders(); loadBalance(); loadUserStats(); loadSlider(); }
 }
 
 document.getElementById('dash-login-btn').addEventListener('click', async () => {
@@ -241,11 +285,15 @@ auth.onAuthStateChanged(user => {
     loadMyOrders();
     loadBalance();
     loadGateways();
+    loadPkrRate();
+    loadUserStats();
+    loadSlider();
     startChat();
   } else {
     loginCard.style.display = 'block';
     userDash.style.display = 'none';
     if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+    if (typingUnsub) { typingUnsub(); typingUnsub = null; }
   }
 });
 
@@ -254,8 +302,8 @@ async function loadBalance() {
     const doc = await db.collection('users').doc(currentUser.email).get();
     myBalance = doc.exists ? Number(doc.data().balance || 0) : 0;
   } catch (e) { myBalance = 0; }
-  document.getElementById('u-balance').textContent = 'Rs ' + myBalance.toLocaleString('en-PK');
-  document.getElementById('wd-balance').textContent = 'Rs ' + myBalance.toLocaleString('en-PK');
+  document.getElementById('u-balance').textContent = '$' + myBalance.toFixed(2);
+  document.getElementById('wd-balance').textContent = '$' + myBalance.toFixed(2);
 }
 
 // ---- Payment gateways (admin ne set kiye) ----
@@ -314,10 +362,11 @@ async function loadMyOrders() {
     body.innerHTML = '';
     rows.forEach(({ id, o }) => {
       const canRefund = (o.status === 'paid' || o.status === 'delivered') && !refundedOrders.has(o.orderId);
+      const canCancel = o.status === 'pending';
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (o.orderId || id) + '</td><td>' + (o.product || (o.items ? o.items.map(i => i.title + ' ×' + i.qty).join(', ') : '')) + '</td><td>Rs ' + (o.total || o.price || '') + '</td><td>' + (o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleString() : '') + '</td>' +
+      tr.innerHTML = '<td>' + (o.orderId || id) + '</td><td>' + (o.product || (o.items ? o.items.map(i => i.title + ' ×' + i.qty).join(', ') : '')) + '</td><td>$' + (o.total || o.price || '') + '</td><td>' + (o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleString() : '') + '</td>' +
         '<td><span class="badge ' + (o.status || 'pending') + '">' + (o.status || 'pending') + '</span></td>' +
-        '<td>' + (canRefund ? '<button class="btn small" onclick="requestRefund(\'' + id + '\',\'' + (o.orderId || '') + '\')">Request Refund</button>' : (refundedOrders.has(o.orderId) ? 'Refund requested' : '')) + '</td>';
+        '<td>' + (canRefund ? '<button class="btn small" onclick="requestRefund(\'' + id + '\',\'' + (o.orderId || '') + '\')">Request Refund</button>' : '') + (canCancel ? ' <button class="btn small" onclick="cancelOrder(\'' + id + '\')">Cancel Order</button>' : '') + (refundedOrders.has(o.orderId) ? 'Refund requested' : '') + '</td>';
       body.appendChild(tr);
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="6">Error: ' + e.message + '</td></tr>'; }
@@ -338,12 +387,27 @@ async function requestRefund(orderDocId, orderId) {
   loadMyOrders();
 }
 
+// ---- Admin email notifications (FormSubmit — no server needed) ----
+async function sendAdminEmail(kind, data) {
+  try {
+    const subject = kind === 'order' ? 'New Order — Codeovision Store' : 'New Deposit Request — Codeovision Store';
+    const message = kind === 'order'
+      ? 'New order ' + data.orderId + ' from ' + data.email + '\nItems: ' + data.items + '\nTotal: $' + Number(data.total).toFixed(2)
+      : 'New deposit request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + '\nTxID: ' + data.txid;
+    await fetch('https://formsubmit.co/ajax/codeographics@gmail.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ name: 'Codeovision Store', email: data.email, subject: subject, message: message })
+    });
+  } catch (e) { /* email is a notification only — deposit already saved */ }
+}
+
 // ---- Deposit ----
 document.getElementById('dep-submit-btn').addEventListener('click', async () => {
   const msg = document.getElementById('dep-msg');
   msg.textContent = '';
   const gateway = document.getElementById('dep-gateway').value;
-  const amount = parseInt(document.getElementById('dep-amount').value, 10);
+  const amount = parseFloat(document.getElementById('dep-amount').value);
   const txid = document.getElementById('dep-txid').value.trim();
   if (!gateway) { msg.textContent = 'Select a gateway.'; msg.style.color = '#dc2626'; return; }
   if (!amount || amount <= 0) { msg.textContent = 'Enter a valid amount.'; msg.style.color = '#dc2626'; return; }
@@ -352,9 +416,10 @@ document.getElementById('dep-submit-btn').addEventListener('click', async () => 
     email: currentUser.email, gateway: gateway, amount: amount, txid: txid, status: 'pending',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
+  sendAdminEmail('deposit', { email: currentUser.email, gateway: gateway, amount: amount, txid: txid });
   msg.textContent = 'Deposit request submitted.';
   msg.style.color = '#15803d';
-  const waText = encodeURIComponent('Hello! I deposited on Codeovision.\nAmount: Rs " + amount + "\nGateway: " + gateway + "\nTxID: " + txid + "\nEmail: " + currentUser.email + "\nAttaching the screenshot, please approve it.');
+  const waText = encodeURIComponent('Hello! I deposited on Codeovision.\nAmount: $" + amount + "\nGateway: " + gateway + "\nTxID: " + txid + "\nEmail: " + currentUser.email + "\nAttaching the screenshot, please approve it.');
   document.getElementById('dep-wa-btn').href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waText;
   document.getElementById('dep-whatsapp').style.display = 'block';
   document.getElementById('dep-amount').value = '';
@@ -376,7 +441,7 @@ async function loadMyDeposits() {
     body.innerHTML = '';
     rows.forEach(d => {
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (d.gateway || '') + '</td><td>Rs ' + (d.amount || '') + '</td><td>' + (d.txid || '') + '</td><td><span class="badge ' + (d.status || 'pending') + '">' + (d.status || 'pending') + '</span></td>';
+      tr.innerHTML = '<td>' + (d.gateway || '') + '</td><td>$' + (d.amount || '') + '</td><td>' + (d.txid || '') + '</td><td><span class="badge ' + (d.status || 'pending') + '">' + (d.status || 'pending') + '</span></td>';
       body.appendChild(tr);
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
@@ -387,11 +452,11 @@ document.getElementById('wd-submit-btn').addEventListener('click', async () => {
   const msg = document.getElementById('wd-msg');
   msg.textContent = '';
   const gateway = document.getElementById('wd-gateway').value;
-  const amount = parseInt(document.getElementById('wd-amount').value, 10);
+  const amount = parseFloat(document.getElementById('wd-amount').value);
   const account = document.getElementById('wd-account').value.trim();
   if (!gateway) { msg.textContent = 'Select a gateway.'; msg.style.color = '#dc2626'; return; }
   if (!amount || amount <= 0) { msg.textContent = 'Enter a valid amount.'; msg.style.color = '#dc2626'; return; }
-  if (amount > myBalance) { msg.textContent = 'Amount is more than your balance (Rs " + myBalance + ").'; msg.style.color = '#dc2626'; return; }
+  if (amount > myBalance) { msg.textContent = 'Amount is more than your balance ($" + myBalance + ").'; msg.style.color = '#dc2626'; return; }
   if (!account) { msg.textContent = 'Enter the account number.'; msg.style.color = '#dc2626'; return; }
   await db.collection('withdrawals').add({
     email: currentUser.email, gateway: gateway, amount: amount, account: account, status: 'pending',
@@ -418,7 +483,7 @@ async function loadMyWithdrawals() {
     body.innerHTML = '';
     rows.forEach(w => {
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (w.gateway || '') + '</td><td>Rs ' + (w.amount || '') + '</td><td>' + (w.account || '') + '</td><td><span class="badge ' + (w.status || 'pending') + '">' + (w.status || 'pending') + '</span></td>';
+      tr.innerHTML = '<td>' + (w.gateway || '') + '</td><td>$' + (w.amount || '') + '</td><td>' + (w.account || '') + '</td><td><span class="badge ' + (w.status || 'pending') + '">' + (w.status || 'pending') + '</span></td>';
       body.appendChild(tr);
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="4">Error: ' + e.message + '</td></tr>'; }
@@ -445,7 +510,7 @@ async function loadMyRefLinks() {
     const div = document.createElement('div');
     div.className = 'affil-box';
     div.style.display = 'block';
-    div.innerHTML = '<strong>' + p.title + '</strong>' + (p.price ? ' — Rs ' + p.price : ' — Free') + '<br><span class="affil-link">' + myAffiliateLink(p.id) + '</span><br><button class="btn small" style="margin-top:6px" onclick="copyRefLink(\'' + p.id + '\')">Copy Link</button>';
+    div.innerHTML = '<strong>' + p.title + '</strong>' + (p.price ? ' — $' + p.price : ' — Free') + '<br><span class="affil-link">' + myAffiliateLink(p.id) + '</span><br><button class="btn small" style="margin-top:6px" onclick="copyRefLink(\'' + p.id + '\')">Copy Link</button>';
     box.appendChild(div);
   });
   if (!products.length) box.innerHTML = '<span style="color:#6b7280">No products yet.</span>';
@@ -462,7 +527,7 @@ async function loadMyCommissions() {
     let earned = 0;
     const rows = [];
     snap.forEach(doc => { const c = doc.data(); rows.push(c); if (c.status === 'approved') earned += Number(c.amount || 0); });
-    document.getElementById('ref-earned').textContent = 'Rs ' + earned.toLocaleString('en-PK');
+    document.getElementById('ref-earned').textContent = '$' + earned.toLocaleString('en-PK');
     if (!rows.length) { body.innerHTML = '<tr><td colspan="5">No commissions yet — share your affiliate link!</td></tr>'; return; }
     rows.sort((a, b) => {
       const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
@@ -472,15 +537,146 @@ async function loadMyCommissions() {
     body.innerHTML = '';
     rows.forEach(c => {
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td>' + (c.buyerEmail || '') + '</td><td>' + (c.productTitles || '') + '</td><td>Rs ' + (c.total || '') + '</td><td>Rs ' + (c.amount || '') + '</td><td><span class="badge ' + (c.status || 'pending') + '">' + (c.status || 'pending') + '</span></td>';
+      tr.innerHTML = '<td>' + (c.buyerEmail || '') + '</td><td>' + (c.productTitles || '') + '</td><td>$' + (c.total || '') + '</td><td>$' + (c.amount || '') + '</td><td><span class="badge ' + (c.status || 'pending') + '">' + (c.status || 'pending') + '</span></td>';
       body.appendChild(tr);
     });
   } catch (e) { body.innerHTML = '<tr><td colspan="5">Error: ' + e.message + '</td></tr>'; }
 }
 
-// ---- Live Support Chat ----
+// ---- Currency, stats, slider, tasks, cancel (v11) ----
+let PKR_RATE = 280;
+async function loadPkrRate() {
+  try {
+    const doc = await db.collection('settings').doc('currency').get();
+    if (doc.exists && doc.data().pkrRate) PKR_RATE = Number(doc.data().pkrRate);
+  } catch (e) { /* keep default 280 */ }
+}
+document.getElementById('dep-amount').addEventListener('input', e => {
+  const v = parseFloat(e.target.value);
+  document.getElementById('dep-pkr').textContent = v > 0 ? 'You need to send Rs ' + Math.round(v * PKR_RATE).toLocaleString('en-PK') + ' PKR' : '';
+});
+document.getElementById('wd-amount').addEventListener('input', e => {
+  const v = parseFloat(e.target.value);
+  document.getElementById('wd-pkr').textContent = v > 0 ? '≈ Rs ' + Math.round(v * PKR_RATE).toLocaleString('en-PK') + ' PKR' : '';
+});
+
+let myReferralsCount = 0, mySalesCount = 0, myLevelName = 'New User';
+async function loadUserStats() {
+  if (!currentUser) return;
+  try {
+    const [refSnap, comSnap, levelsSnap] = await Promise.all([
+      db.collection('users').where('referredBy', '==', currentUser.email).get(),
+      db.collection('commissions').where('referrerEmail', '==', currentUser.email).get(),
+      db.collection('levels').orderBy('minSales').get()
+    ]);
+    myReferralsCount = refSnap.size;
+    mySalesCount = comSnap.size;
+    let earned = 0;
+    comSnap.forEach(d => { if (d.data().status === 'approved') earned += Number(d.data().amount || 0); });
+    let levelName = 'New User';
+    levelsSnap.forEach(d => {
+      const l = d.data();
+      if (mySalesCount >= (l.minSales || 0) && mySalesCount <= (l.maxSales ?? 999999)) levelName = l.name;
+    });
+    myLevelName = levelName;
+    document.getElementById('u-referrals').textContent = myReferralsCount;
+    document.getElementById('u-commission').textContent = '$' + earned.toFixed(2);
+    document.getElementById('u-sales').textContent = mySalesCount;
+    document.getElementById('u-level').textContent = levelName;
+  } catch (e) { /* stats stay at defaults */ }
+}
+
+let slideTimer = null, slideIdx = 0;
+async function loadSlider() {
+  const wrap = document.getElementById('dash-slider');
+  const box = document.getElementById('dash-slides');
+  const dots = document.getElementById('dash-dots');
+  try {
+    const snap = await db.collection('slides').orderBy('createdAt', 'desc').get();
+    if (snap.empty) { wrap.style.display = 'none'; return; }
+    const slides = [];
+    snap.forEach(d => slides.push(d.data()));
+    box.innerHTML = ''; dots.innerHTML = '';
+    slides.forEach((s, i) => {
+      const div = document.createElement('div');
+      div.className = 'dash-slide' + (i === 0 ? ' active' : '');
+      div.innerHTML = (s.link ? '<a href="' + s.link + '">' : '') + '<img src="' + s.image + '" alt="">' + (s.link ? '</a>' : '') + (s.title ? '<div class="dash-slide-cap">' + s.title + '</div>' : '');
+      box.appendChild(div);
+      const dot = document.createElement('span');
+      if (i === 0) dot.className = 'on';
+      dot.addEventListener('click', () => showSlide(i));
+      dots.appendChild(dot);
+    });
+    wrap.style.display = 'block';
+    slideIdx = 0;
+    if (slideTimer) clearInterval(slideTimer);
+    if (slides.length > 1) slideTimer = setInterval(() => showSlide((slideIdx + 1) % slides.length), 4000);
+  } catch (e) { wrap.style.display = 'none'; }
+}
+function showSlide(i) {
+  const slides = document.querySelectorAll('#dash-slides .dash-slide');
+  const dots = document.querySelectorAll('#dash-dots span');
+  if (!slides.length) return;
+  slideIdx = i;
+  slides.forEach((s, j) => s.classList.toggle('active', j === i));
+  dots.forEach((d, j) => d.classList.toggle('on', j === i));
+}
+
+async function loadMyTasks() {
+  const wrap = document.getElementById('u-tasks-list');
+  try {
+    await loadUserStats();
+    const snap = await db.collection('tasks').orderBy('target').get();
+    if (snap.empty) { wrap.innerHTML = '<p style="color:#6b7280">No tasks yet. The admin will add tasks here.</p>'; return; }
+    wrap.innerHTML = '';
+    snap.forEach(doc => {
+      const t = doc.data();
+      const have = t.type === 'sales' ? mySalesCount : myReferralsCount;
+      const done = have >= (t.target || 0);
+      const pct = Math.min(100, Math.round((have / (t.target || 1)) * 100));
+      const div = document.createElement('div');
+      div.className = 'task-row';
+      div.innerHTML = '<h3>' + (t.title || '') + ' — Reward $' + (t.rewardUsd ?? 0) + '</h3>' +
+        '<p>' + (t.type === 'sales' ? 'Referral sales' : 'Referrals') + ': ' + have + ' / ' + t.target + '</p>' +
+        '<div class="task-bar"><div class="task-fill" style="width:' + pct + '%"></div></div>' +
+        (done ? '<span class="task-done">✓ Achieved — reward will be added by the admin.</span>' : '<span class="task-left">' + (t.target - have) + ' more needed to complete this task.</span>');
+      wrap.appendChild(div);
+    });
+  } catch (e) { wrap.innerHTML = '<p style="color:#dc2626">Error: ' + e.message + '</p>'; }
+}
+
+async function cancelOrder(orderDocId) {
+  if (!confirm('Cancel this order? It will be cancelled and the admin will be notified.')) return;
+  await db.collection('orders').doc(orderDocId).update({ status: 'cancelled' });
+  alert('Order cancelled.');
+  loadMyOrders();
+}
+
+// ---- Live Support Chat (Messenger-style tunes + typing) ----
+let chatAudio = null;
+function chatTune(type) { // 'send' = short pop, 'receive' = two-note ding
+  try {
+    if (!chatAudio) chatAudio = new (window.AudioContext || window.webkitAudioContext)();
+    if (chatAudio.state === 'suspended') chatAudio.resume();
+    const t = chatAudio.currentTime;
+    const notes = type === 'send' ? [880] : [660, 880];
+    notes.forEach((f, i) => {
+      const o = chatAudio.createOscillator(); const g = chatAudio.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t + i * 0.12);
+      g.gain.exponentialRampToValueAtTime(0.25, t + i * 0.12 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.12 + 0.18);
+      o.connect(g); g.connect(chatAudio.destination);
+      o.start(t + i * 0.12); o.stop(t + i * 0.12 + 0.2);
+    });
+  } catch (e) { /* sound not available on this device */ }
+}
+let chatSeen = -1;
+let typingUnsub = null;
+let typingTimer = null;
 function startChat() {
   const box = document.getElementById('chat-box');
+  chatSeen = -1;
   chatUnsub = db.collection('support_messages').where('email', '==', currentUser.email)
     .onSnapshot(snap => {
       const msgs = [];
@@ -490,6 +686,8 @@ function startChat() {
         const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
         return ta - tb;
       });
+      if (chatSeen >= 0 && msgs.length > chatSeen && msgs.length && msgs[msgs.length - 1].sender === 'admin') chatTune('receive');
+      chatSeen = msgs.length;
       if (!msgs.length) { box.innerHTML = '<p style="color:#6b7280">No messages yet. Write below and send.</p>'; return; }
       box.innerHTML = '';
       msgs.forEach(m => {
@@ -500,17 +698,34 @@ function startChat() {
       });
       box.scrollTop = box.scrollHeight;
     });
+  // Admin typing indicator
+  typingUnsub = db.collection('support_typing').doc(currentUser.email)
+    .onSnapshot(doc => {
+      const d = doc.exists ? doc.data() : {};
+      document.getElementById('chat-typing').textContent = d.adminTyping ? 'Admin is typing…' : '';
+    });
 }
+function setUserTyping(on) {
+  if (!currentUser) return;
+  db.collection('support_typing').doc(currentUser.email).set({ userTyping: on, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+}
+document.getElementById('chat-input').addEventListener('input', () => {
+  setUserTyping(true);
+  if (typingTimer) clearTimeout(typingTimer);
+  typingTimer = setTimeout(() => setUserTyping(false), 2000);
+});
 
 async function sendChat() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
+  setUserTyping(false);
   await db.collection('support_messages').add({
     email: currentUser.email, sender: 'user', text: text,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
+  chatTune('send');
 }
 document.getElementById('chat-send-btn').addEventListener('click', sendChat);
 document.getElementById('chat-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });

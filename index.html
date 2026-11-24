@@ -48,7 +48,7 @@
       <div class="hero-stats">
         <div class="stat"><strong>3+</strong><span>Free Downloads</span></div>
         <div class="stat"><strong>3</strong><span>Premium Packs</span></div>
-        <div class="stat"><strong>Rs 0</strong><span>Free Code</span></div>
+        <div class="stat"><strong>$0</strong><span>Free Code</span></div>
       </div>
     </div>
     <div class="hero-code fade-up">
@@ -205,8 +205,8 @@
         <p><strong>JazzCash:</strong> <span id="pay-jazzcash"></span></p>
         <p><strong>Account Title:</strong> <span id="pay-title"></span></p>
       </div>
-      <p class="modal-note">After sending the payment, send the screenshot on WhatsApp — once confirmed, you will receive your download link. Your order ID is in the message below.</p>
-      <a class="btn whatsapp-btn" id="wa-order" href="#" target="_blank" rel="noopener">WhatsApp Pe Order Karein</a>
+      <p class="modal-note">⚠️ <strong>Important:</strong> Please also send this message on WhatsApp — it is required. Your order is approved faster when the screenshot reaches the admin on WhatsApp. Your order ID is in the message below.</p>
+      <a class="btn whatsapp-btn" id="wa-order" href="#" target="_blank" rel="noopener">Send Order on WhatsApp (Required)</a>
     </div>
   </div>
 </div>
@@ -300,7 +300,7 @@ function paidCard(p) {
   const thumb = p.thumbnail ? '<img class="thumb-img" src="' + p.thumbnail + '" alt="">' : '';
   card.innerHTML = thumb + '<span class="tag gold-tag">' + (p.tag || 'Premium') + '</span><h3>' + p.title + '</h3><p>' + p.desc + '</p>' +
     '<ul class="feats">' + feats + '</ul>' +
-    '<p class="price">Rs ' + Number(p.price).toLocaleString('en-PK') + '</p>' +
+    '<p class="price">$' + Number(p.price).toFixed(2) + '</p><p style="color:#6b7280;font-size:13px">≈ Rs ' + Math.round(p.price * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR</p>' +
     '<button class="btn small add-cart-btn" data-id="' + p.id + '">Add to Cart</button> ' +
     '<button class="btn small teal buy-now-btn" data-id="' + p.id + '">Buy Now</button>' +
     '<p class="count-line">🛒 <span class="sold-count">' + (p.sales || 0) + '</span> sold</p>' +
@@ -454,12 +454,12 @@ function renderCart() {
       if (!p) return;
       const row = document.createElement('div');
       row.className = 'cart-row';
-      row.innerHTML = '<div><strong>' + p.title + '</strong><br><span style="color:#6b7280;font-size:14px">Rs ' + p.price.toLocaleString('en-PK') + ' × ' + i.qty + '</span></div>' +
+      row.innerHTML = '<div><strong>' + p.title + '</strong><br><span style="color:#6b7280;font-size:14px">$' + p.price.toFixed(2) + ' × ' + i.qty + '</span></div>' +
         '<div><button class="qty-btn" data-act="minus" data-id="' + i.id + '">−</button> <button class="qty-btn" data-act="plus" data-id="' + i.id + '">+</button> <button class="qty-btn" data-act="remove" data-id="' + i.id + '">✕</button></div>';
       box.appendChild(row);
     });
   }
-  document.getElementById('cart-total').textContent = cart.length ? 'Total: Rs ' + cartTotal().toLocaleString('en-PK') : '';
+  document.getElementById('cart-total').textContent = cart.length ? 'Total: $' + cartTotal().toFixed(2) + '  (≈ Rs ' + Math.round(cartTotal() * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR)' : '';
 }
 paidGrid.addEventListener('click', e => {
   const add = e.target.closest('.add-cart-btn');
@@ -512,16 +512,16 @@ function showCheckout() {
   } else {
     needAuth.style.display = 'none';
     body.style.display = 'block';
-    const lines = cart.map(i => { const p = PAID_PRODUCTS.find(x => x.id === i.id); return p.title + ' × ' + i.qty + ' — Rs ' + (p.price * i.qty).toLocaleString('en-PK'); });
+    const lines = cart.map(i => { const p = PAID_PRODUCTS.find(x => x.id === i.id); return p.title + ' × ' + i.qty + ' — $' + (p.price * i.qty).toFixed(2); });
     document.getElementById('checkout-summary').innerHTML = lines.map(l => '<p>• ' + l + '</p>').join('');
-    document.getElementById('checkout-total').textContent = 'Total: Rs ' + cartTotal().toLocaleString('en-PK');
+    document.getElementById('checkout-total').textContent = 'Total: $' + cartTotal().toFixed(2) + '  (≈ Rs ' + Math.round(cartTotal() * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR)';
     document.getElementById('pay-easypaisa').textContent = PAYMENT.easypaisa;
     document.getElementById('pay-jazzcash').textContent = PAYMENT.jazzcash;
     document.getElementById('pay-till').textContent = PAYMENT.till;
     document.getElementById('pay-till-title').textContent = PAYMENT.tillTitle;
     document.getElementById('pay-title').textContent = PAYMENT.title;
     const orderId = recordOrder();
-    const msg = encodeURIComponent('Hello, here is my order (Order ID: ' + orderId + '):\n' + lines.join('\n') + '\nTotal: Rs ' + cartTotal() + '\nI have sent the payment, here is the screenshot.');
+    const msg = encodeURIComponent('Hello, here is my order (Order ID: ' + orderId + '):\n' + lines.join('\n') + '\nTotal: $' + cartTotal().toFixed(2) + ' (≈ Rs ' + Math.round(cartTotal() * CURRENCY.pkrRate).toLocaleString('en-PK') + ' PKR)\nI have sent the payment, here is the screenshot.');
     document.getElementById('wa-order').href = 'https://wa.me/' + PAYMENT.whatsapp + '?text=' + msg;
   }
   checkoutModal.classList.add('open');
@@ -535,24 +535,54 @@ function recordOrder() {
   const total = cartTotal();
   // Order seedha database mein jata hai — admin ko foran dikhta hai. Agar save na ho to user ko foran batayein.
   db.collection('orders').add({ orderId: orderId, email: currentUser.email, items: items, total: total, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() })
-    .then(async () => { await recordCommission(orderId, items, total); })
+    .then(async () => { await recordCommission(orderId, items, total); sendAdminEmail('order', { orderId: orderId, email: currentUser.email, items: items.map(i => i.title + ' ×' + i.qty).join(', '), total: total }); })
     .catch(function() { toast('Order could not be saved — check your internet and try again.'); });
   return orderId;
 }
 
-// Affiliate commission: buyer kisi ke referral link se aaya ho to referrer ko admin-set % ke hisaab se commission banta hai.
+// ---- Admin email notifications (FormSubmit — no server needed) ----
+// Every order / deposit also emails codeographics@gmail.com. The first email
+// needs ONE click on the FormSubmit activation link in that inbox; after that
+// every submission arrives automatically. If email fails, the order is still
+// safe in the database — nothing is blocked.
+async function sendAdminEmail(kind, data) {
+  try {
+    const subject = kind === 'order' ? 'New Order — Codeovision Store' : 'New Deposit Request — Codeovision Store';
+    const message = kind === 'order'
+      ? 'New order ' + data.orderId + ' from ' + data.email + '\nItems: ' + data.items + '\nTotal: $' + Number(data.total).toFixed(2)
+      : 'New deposit request from ' + data.email + '\nGateway: ' + data.gateway + '\nAmount: $' + Number(data.amount).toFixed(2) + '\nTxID: ' + data.txid;
+    await fetch('https://formsubmit.co/ajax/codeographics@gmail.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ name: 'Codeovision Store', email: data.email, subject: subject, message: message })
+    });
+  } catch (e) { /* email is a notification only — order/deposit already saved */ }
+}
+
+// Affiliate commission — LEVEL-WISE (v11): the referrer's level decides the %.
+// Levels start at 10 sales; rank changes at 100. Fallback = admin-set % in settings/affiliate.
 async function recordCommission(orderId, items, total) {
   try {
     const userDoc = await db.collection('users').doc(currentUser.email).get();
     const referredBy = userDoc.exists ? userDoc.data().referredBy : null;
     if (!referredBy || referredBy === currentUser.email) return;
-    const affDoc = await db.collection('settings').doc('affiliate').get();
-    const pct = affDoc.exists ? Number(affDoc.data().commissionPercent || 0) : 0;
+    const [salesSnap, levelsSnap, affDoc] = await Promise.all([
+      db.collection('commissions').where('referrerEmail', '==', referredBy).get(),
+      db.collection('levels').orderBy('minSales').get(),
+      db.collection('settings').doc('affiliate').get()
+    ]);
+    const sales = salesSnap.size;
+    let pct = affDoc.exists ? Number(affDoc.data().commissionPercent || 0) : 0;
+    let levelName = '';
+    levelsSnap.forEach(d => {
+      const l = d.data();
+      if (sales >= (l.minSales || 0) && sales <= (l.maxSales ?? 999999)) { pct = Number(l.commissionPercent || pct); levelName = l.name || ''; }
+    });
     if (!pct) return;
     await db.collection('commissions').add({
       referrerEmail: referredBy, buyerEmail: currentUser.email, orderId: orderId,
       productTitles: items.map(i => i.title).join(', '), total: total,
-      commissionPercent: pct, amount: Math.round(total * pct / 100),
+      commissionPercent: pct, level: levelName, amount: Math.round(total * pct / 100 * 100) / 100,
       status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   } catch (e) { /* commission record fail hua to order phir bhi valid hai */ }
